@@ -1,9 +1,7 @@
-﻿namespace FantasyChas_Backend.Models
+﻿namespace FantasyChas_Backend.Models.ViewModels
 {
-    public class Character
+    public class CharacterViewModel
     {
-        public int Id { get; set; }
-        public string UserId { get; set; }
         public string? Name { get; set; }
         public int Age { get; set; }
         public string? Gender { get; set; } /* vad har vi kontrollen?*/
@@ -16,8 +14,7 @@
         public int Constitution { get; set; }
         public int Charisma { get; set; }
         public string? Backstory { get; set; }
-
-        public virtual Profession Profession { get; set; }
-        public virtual Species Species { get; set; }
+        public string? ProfessionName { get; set; }
+        public string? SpeciesName { get; set; }
     }
 }
