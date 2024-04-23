@@ -17,7 +17,7 @@
         public int Charisma { get; set; }
         public string? Backstory { get; set; }
 
-        public virtual Profession Profession { get; set; }
-        public virtual Species Species { get; set; }
+        public virtual Profession? Profession { get; set; }
+        public virtual Species? Species { get; set; }
     }
 }

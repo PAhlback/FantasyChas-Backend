@@ -32,7 +32,7 @@ namespace FantasyChas_Backend.Controllers
             {
                 IdentityUser user = await GetCurrentUserAsync();
 
-                List<CharacterViewModel> characters = repo.GetCharactersForUser(user.Id);
+                List<CharacterViewModel> characters = await repo.GetCharactersForUser(user.Id);
 
                 return Ok(characters);
             }
