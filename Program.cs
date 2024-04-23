@@ -10,6 +10,7 @@ namespace FantasyChas_Backend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            DotNetEnv.Env.Load();
 
             builder.Services.AddDbContext<ApplicationDbContext>(
                 options => options.UseInMemoryDatabase("AppDb"));
