@@ -3,10 +3,10 @@
     public class Character
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public string Name { get; set; }
         public int Age { get; set; }
-        public string Gender { get; set; }
+        public string Gender { get; set; } /* vad har vi kontrollen?*/
         public int Level { get; set; }
         public int HealthPoints { get; set; }
         public int Strength { get; set; }
