@@ -1,9 +1,7 @@
-﻿namespace FantasyChas_Backend.Models
+﻿namespace FantasyChas_Backend.Models.DTOs
 {
-    public class Character
+    public class CharacterDto
     {
-        public int Id { get; set; }
-        public string UserId { get; set; }
         public string? Name { get; set; }
         public int Age { get; set; }
         public string? Gender { get; set; } /* vad har vi kontrollen?*/
@@ -17,7 +15,8 @@
         public int Charisma { get; set; }
         public string? Backstory { get; set; }
 
-        public virtual Profession? Profession { get; set; }
-        public virtual Species? Species { get; set; }
+        // Ändra troligen till int. Beror på hur vi väljer att ta in från FE.
+        public string? ProfessionName { get; set; }
+        public string? SpeciesName { get; set; }
     }
 }

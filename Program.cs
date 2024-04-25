@@ -1,5 +1,6 @@
 
 using FantasyChas_Backend.Data;
+using FantasyChas_Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +30,8 @@ namespace FantasyChas_Backend
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 
             var app = builder.Build();
 
