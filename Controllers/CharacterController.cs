@@ -43,7 +43,7 @@ namespace FantasyChas_Backend.Controllers
         }
 
         [HttpPost("/AddCharacter")]
-        public async Task<IActionResult> AddCharacter(CharacterDto charDto, ICharacterRepository repo)// här kommer det va Dto, eventuellt UserId separat inparameter
+        public async Task<IActionResult> AddCharacter(CharacterDto charDto, ICharacterRepository repo, IProfessionRepository profRepo, ISpeciesRepository speciesRepo)// här kommer det va Dto, eventuellt UserId separat inparameter
         {
             try
             {
@@ -52,9 +52,9 @@ namespace FantasyChas_Backend.Controllers
                 // här kommer vi göra om Dto till model
                 Character newCharacter = new Character()
                 {
+                    User = user,
                     Name = charDto.Name,
                     Age = charDto.Age,
-                    UserId = user.Id,
                     Gender = charDto.Gender,
                     Level = charDto.Level,
                     HealthPoints = charDto.HealthPoints,
@@ -64,7 +64,9 @@ namespace FantasyChas_Backend.Controllers
                     Wisdom = charDto.Wisdom,
                     Constitution = charDto.Constitution,
                     Charisma = charDto.Charisma,
-                    Backstory = charDto.Backstory
+                    Backstory = charDto.Backstory,
+                    Profession = profRepo.GetProfessionById(charDto.ProfessionId),
+                    Species = speciesRepo.GetSpeciesById(charDto.SpeciesId)
                 };
                 //spara i Db
                 repo.AddCharacterToUser(newCharacter);

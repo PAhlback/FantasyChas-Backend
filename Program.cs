@@ -13,11 +13,13 @@ namespace FantasyChas_Backend
             var builder = WebApplication.CreateBuilder(args);
             DotNetEnv.Env.Load();
 
-            builder.Services.AddDbContext<ApplicationDbContext>(
-                options => options.UseInMemoryDatabase("AppDb"));
+            string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
             builder.Services.AddAuthorization();
 
+            // Choose what we want to include in the Identity object in the database?
             builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
             {
                 
@@ -32,6 +34,8 @@ namespace FantasyChas_Backend
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
+            builder.Services.AddScoped<IProfessionRepository, ProfessionRepository>();
+            builder.Services.AddScoped<ISpeciesRepository, SpeciesRepository>();
 
             var app = builder.Build();
 
@@ -44,6 +48,7 @@ namespace FantasyChas_Backend
                 app.UseSwaggerUI();
             }
 
+            // REMOVE this endpoint when ready
             app.MapGet("/user/character", () =>
             {
 

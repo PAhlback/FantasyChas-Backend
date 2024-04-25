@@ -16,7 +16,7 @@
         public string? Backstory { get; set; }
 
         // Ändra troligen till int. Beror på hur vi väljer att ta in från FE.
-        public string? ProfessionName { get; set; }
-        public string? SpeciesName { get; set; }
+        public int ProfessionId { get; set; }
+        public int SpeciesId { get; set; }
     }
 }

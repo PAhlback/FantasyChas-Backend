@@ -9,11 +9,11 @@ namespace FantasyChas_Backend.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        DbSet<ActiveStory> ActiveStories { get; set; }
+        public DbSet<ActiveStory> ActiveStories { get; set; }
         public DbSet<Character> Characters { get; set; }
-        DbSet<ChatHistory> ChatHistories { get; set; }
-        DbSet<SavedStory> SavedStories { get; set; }
-        DbSet<Profession> Professions { get; set; }
-        DbSet<Species> Species { get; set; }
+        public DbSet<ChatHistory> ChatHistories { get; set; }
+        public DbSet<SavedStory> SavedStories { get; set; }
+        public DbSet<Profession> Professions { get; set; }
+        public DbSet<Species> Species { get; set; }
     }
 }
