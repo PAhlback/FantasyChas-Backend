@@ -45,7 +45,7 @@ namespace FantasyChas_Backend.Repositories
             try
             {
                 var characters2 = _context.Characters
-                    .Where(u => u.UserId == userId);
+                    .Where(u => u.User.Id == userId);
 
                 if (characters2.Count() == 0)
                 {
@@ -53,7 +53,7 @@ namespace FantasyChas_Backend.Repositories
                 }
 
                 List<CharacterViewModel> characters = await _context.Characters
-                    .Where(u => u.UserId == userId)
+                    .Where(u => u.User.Id == userId)
                     .Select(c => new CharacterViewModel()
                     {
                         Name = c.Name,
