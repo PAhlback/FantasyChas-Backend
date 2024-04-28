@@ -10,7 +10,7 @@ namespace FantasyChas_Backend.Repositories
         public Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
         public void AddCharacterToUser(Character newCharacter);
         public void UpdateCharacter(Character updateThisCharacter);
-        public void DeleteCharacter(Character deleteThisCharacter);
+        public Task DeleteCharacterAsync(string userId, int characterId);
     }
 
     public class CharacterRepository : ICharacterRepository
@@ -35,9 +35,52 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public void DeleteCharacter(Character deleteThisCharacter)
+
+        // v1.0
+        //public async Task DeleteCharacterAsync(string userId, int characterId)
+        //{
+        //    try
+        //    {
+        //        var characterToDelete = await _context.Characters
+        //                                              .Where(c => c.User.Id == userId && c.Id == characterId)
+        //                                              .SingleOrDefaultAsync();
+
+        //        if (characterToDelete == null)
+        //        {
+        //            throw new Exception($"Character with ID {characterId} not found.");
+        //        }
+
+        //        _context.Characters.Remove(characterToDelete);
+        //        await _context.SaveChangesAsync();
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception("Unable to delete character.", ex);
+        //    }
+        //}
+
+        // v2.0
+        public async Task DeleteCharacterAsync(string userId, int characterId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                // ExecuteDeleteAsync directly executes delete operation without loading the entity into memory
+                var characterToDelete = await _context.Characters
+                                                      .Where(c => c.User.Id == userId && c.Id == characterId)
+                                                      .ExecuteDeleteAsync();
+
+                /* ExecuteDeleteAsync returns number of rows affected, check to make sure
+                   how many rows were affected, if no rows effected, throw an exception */
+                if (characterToDelete == 0)
+                {
+                    throw new Exception($"Character with ID {characterId} not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Unable to delete character.", ex);
+            }
         }
 
         public async Task<List<CharacterViewModel>> GetCharactersForUser(string userId)

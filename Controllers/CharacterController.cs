@@ -81,6 +81,25 @@ namespace FantasyChas_Backend.Controllers
         }
 
 
+        [HttpPost("/DeleteCharacter")]
+        public async Task<IActionResult> DeleteCharacterAsync(ICharacterRepository repo, int characterId)
+        {
+            try
+            {
+                IdentityUser user = await GetCurrentUserAsync();
+                string userId = user.Id;
+
+                await repo.DeleteCharacterAsync(userId, characterId);
+
+                return Ok($"Character with ID {characterId} successfully deleted.");
+            }
+            catch (Exception ex) 
+            { 
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         // Methods for class
         private Task<IdentityUser> GetCurrentUserAsync() => _userManager.GetUserAsync(User);
     }
