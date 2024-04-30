@@ -10,7 +10,7 @@ namespace FantasyChas_Backend.Repositories
         public Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
         public void AddCharacterToUser(Character newCharacter);
         public void UpdateCharacter(Character updateThisCharacter);
-        public void DeleteCharacter(Character deleteThisCharacter);
+        public Task DeleteCharacterAsync(string userId, int characterId);
     }
 
     public class CharacterRepository : ICharacterRepository
@@ -35,9 +35,26 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public void DeleteCharacter(Character deleteThisCharacter)
+        public async Task DeleteCharacterAsync(string userId, int characterId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var characterToDelete = await _context.Characters
+                                                      .Where(c => c.User.Id == userId && c.Id == characterId)
+                                                      .SingleOrDefaultAsync();
+
+                if (characterToDelete == null)
+                {
+                    throw new Exception($"Unable to delete character. Character with ID {characterId} not found.");
+                }
+
+                _context.Characters.Remove(characterToDelete);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public async Task<List<CharacterViewModel>> GetCharactersForUser(string userId)
