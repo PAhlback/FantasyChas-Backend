@@ -3,6 +3,7 @@ using FantasyChas_Backend.Data;
 using FantasyChas_Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OpenAI_API;
 
 namespace FantasyChas_Backend
 {
@@ -36,6 +37,8 @@ namespace FantasyChas_Backend
             builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
             builder.Services.AddScoped<IProfessionRepository, ProfessionRepository>();
             builder.Services.AddScoped<ISpeciesRepository, SpeciesRepository>();
+
+            builder.Services.AddSingleton(sp => new OpenAIAPI(Environment.GetEnvironmentVariable("OPENAI_KEY")));
 
             var app = builder.Build();
 
