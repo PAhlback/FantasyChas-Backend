@@ -77,7 +77,6 @@ namespace FantasyChas_Backend.Controllers
             {
                 return BadRequest("Bad bad");
             }
-
         }
 
 
