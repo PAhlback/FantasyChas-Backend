@@ -4,6 +4,8 @@ using FantasyChas_Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenAI_API;
+using FantasyChas_Backend.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace FantasyChas_Backend
 {
@@ -37,6 +39,9 @@ namespace FantasyChas_Backend
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredLength = 1;
                 options.Password.RequiredUniqueChars = 0;
+
+                // Email settings.
+                options.SignIn.RequireConfirmedEmail = true;
             });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -46,6 +51,8 @@ namespace FantasyChas_Backend
             builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
             builder.Services.AddScoped<IProfessionRepository, ProfessionRepository>();
             builder.Services.AddScoped<ISpeciesRepository, SpeciesRepository>();
+
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
 
             builder.Services.AddSingleton(sp => new OpenAIAPI(Environment.GetEnvironmentVariable("OPENAI_KEY")));
 
