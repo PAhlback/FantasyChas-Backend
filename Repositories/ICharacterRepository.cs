@@ -9,7 +9,7 @@ namespace FantasyChas_Backend.Repositories
     {
         public Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
         public void AddCharacterToUser(Character newCharacter);
-        public void UpdateCharacter(Character updateThisCharacter);
+        public Task UpdateCharacter(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
     }
 
@@ -98,9 +98,39 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public void UpdateCharacter(Character updateThisCharacter)
+        public async Task UpdateCharacter(int characterId, Character updatedCharacter)
         {
-            throw new NotImplementedException();
+            var characterToUpdate = _context.Characters
+                    .SingleOrDefault(u => u.Id == characterId && u.User.Id == updatedCharacter.User.Id);
+
+            if (characterToUpdate is null)
+            {
+                throw new Exception("Character not found for active user!");
+            }
+
+            characterToUpdate.Name = updatedCharacter.Name;
+            characterToUpdate.Age = updatedCharacter.Age;
+            characterToUpdate.Gender = updatedCharacter.Gender;
+            characterToUpdate.Level = updatedCharacter.Level;
+            characterToUpdate.HealthPoints = updatedCharacter.HealthPoints;
+            characterToUpdate.Strength = updatedCharacter.Strength;
+            characterToUpdate.Dexterity = updatedCharacter.Dexterity;
+            characterToUpdate.Intelligence = updatedCharacter.Intelligence;
+            characterToUpdate.Wisdom = updatedCharacter.Wisdom;
+            characterToUpdate.Constitution = updatedCharacter.Constitution;
+            characterToUpdate.Charisma = updatedCharacter.Charisma;
+            characterToUpdate.Backstory = updatedCharacter.Backstory;
+            characterToUpdate.Profession = updatedCharacter.Profession;
+            characterToUpdate.Species = updatedCharacter.Species;
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not update character");
+            }
         }
     }
 }

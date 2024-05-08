@@ -36,7 +36,7 @@ namespace FantasyChas_Backend.Controllers
 
                 return Ok(characters);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -70,7 +70,7 @@ namespace FantasyChas_Backend.Controllers
                 };
                 //spara i Db
                 repo.AddCharacterToUser(newCharacter);
-                
+
                 return Ok("Created character!");
             }
             catch
@@ -98,8 +98,45 @@ namespace FantasyChas_Backend.Controllers
             }
         }
 
+        [HttpPost("/UpdateCharacter")]
+        public async Task<IActionResult> UpdateCharacter(CharacterWithIdDto charDto, ICharacterRepository repo, IProfessionRepository profRepo, ISpeciesRepository speciesRepo)
+        {
+            try
+            {
+                IdentityUser user = await GetCurrentUserAsync();
+
+                Character updatedCharacter = new Character()
+                {
+                    User = user,
+                    Name = charDto.Name,
+                    Age = charDto.Age,
+                    Gender = charDto.Gender,
+                    Level = charDto.Level,
+                    HealthPoints = charDto.HealthPoints,
+                    Strength = charDto.Strength,
+                    Dexterity = charDto.Dexterity,
+                    Intelligence = charDto.Intelligence,
+                    Wisdom = charDto.Wisdom,
+                    Constitution = charDto.Constitution,
+                    Charisma = charDto.Charisma,
+                    Backstory = charDto.Backstory,
+                    Profession = profRepo.GetProfessionById(charDto.ProfessionId),
+                    Species = speciesRepo.GetSpeciesById(charDto.SpeciesId)
+                };
+                await repo.UpdateCharacter(charDto.Id, updatedCharacter);
+
+                return Ok("Character updated!");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
 
         // Methods for class
+        // magda undrar : varför "User" här nedan till höger?
         private Task<IdentityUser> GetCurrentUserAsync() => _userManager.GetUserAsync(User);
     }
 }
