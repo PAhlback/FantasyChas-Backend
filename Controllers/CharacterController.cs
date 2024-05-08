@@ -80,7 +80,7 @@ namespace FantasyChas_Backend.Controllers
         }
 
 
-        [HttpPost("/DeleteCharacter")]
+        [HttpDelete("/DeleteCharacter")]
         public async Task<IActionResult> DeleteCharacterAsync(ICharacterRepository repo, int characterId)
         {
             try
