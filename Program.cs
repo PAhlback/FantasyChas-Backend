@@ -1,6 +1,7 @@
 
 using FantasyChas_Backend.Data;
 using FantasyChas_Backend.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenAI_API;
@@ -18,6 +19,20 @@ namespace FantasyChas_Backend
 
             // Add services to the container.
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+
+            var AllowLocalhostOrigin = "_allowLocalhostOrigin";
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: AllowLocalhostOrigin,
+                                  policy =>
+                                  {
+                                      policy.WithOrigins("http://localhost:3000")
+                                                          .AllowAnyHeader()
+                                                          .AllowAnyMethod();
+                                  });
+            });
+
             builder.Services.AddAuthorization();
             builder.Services.AddControllers();
 
@@ -51,6 +66,20 @@ namespace FantasyChas_Backend
 
             var app = builder.Build();
 
+            // Middleware for logging CORS related problems
+            app.Use(async (context, next) =>
+            {
+                // Log information about incoming request
+                Console.WriteLine($"Request: {context.Request.Method} {context.Request.Path}");
+
+                // Log CORS related headers
+                Console.WriteLine($"Origin: {context.Request.Headers["Origin"]}");
+                Console.WriteLine($"Access-Control-Request-Method: {context.Request.Headers["Access-Control-Request-Method"]}");
+                Console.WriteLine($"Access-Control-Request-Headers: {context.Request.Headers["Access-Control-Request-Headers"]}");
+
+                await next.Invoke(context);
+            });
+
             app.MapIdentityApi<IdentityUser>();
 
             // Configure the HTTP request pipeline.
@@ -63,14 +92,14 @@ namespace FantasyChas_Backend
             // REMOVE this endpoint when ready
             app.MapGet("/user/character", () =>
             {
-
                 return Results.Ok("Hello!");
             }).RequireAuthorization();
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseCors(AllowLocalhostOrigin);
 
+            app.UseAuthorization();
 
             app.MapControllers();
 
