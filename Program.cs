@@ -29,7 +29,8 @@ namespace FantasyChas_Backend
                                   {
                                       policy.WithOrigins("http://localhost:3000")
                                                           .AllowAnyHeader()
-                                                          .AllowAnyMethod();
+                                                          .AllowAnyMethod()
+                                                          .AllowCredentials();
                                   });
             });
 
@@ -99,6 +100,7 @@ namespace FantasyChas_Backend
 
             app.UseCors(AllowLocalhostOrigin);
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
