@@ -41,7 +41,7 @@ namespace FantasyChas_Backend
                 options.Password.RequiredUniqueChars = 0;
 
                 // Email settings.
-                options.SignIn.RequireConfirmedEmail = true;
+                options.SignIn.RequireConfirmedEmail = false;
             });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
