@@ -8,6 +8,6 @@
         public DateTime Timestamp { get; set; }
 
         public virtual Character? Character { get; set; }
-        public virtual ActiveStory ActiveStory { get; set; }
+        public virtual ActiveStory? ActiveStory { get; set; }
     }
 }
