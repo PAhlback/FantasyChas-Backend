@@ -76,6 +76,8 @@ namespace FantasyChas_Backend.Repositories
                         Name = c.Name,
                         Age = c.Age,
                         Gender = c.Gender,
+                        Profession = c.Profession,
+                        Species = c.Species,
                         Level = c.Level,
                         HealthPoints = c.HealthPoints,
                         Strength = c.Strength,
@@ -85,8 +87,8 @@ namespace FantasyChas_Backend.Repositories
                         Constitution = c.Constitution,
                         Charisma = c.Charisma,
                         Backstory = c.Backstory,
-                        Profession = c.Profession,
-                        Species = c.Species
+                        Favourite = c.Favourite,
+                        ImageURL = c.ImageURL
                     })
                     .ToListAsync();
 
