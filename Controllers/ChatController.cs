@@ -73,7 +73,7 @@ namespace FantasyChas_Backend.Controllers
                 .LastOrDefaultAsync();
             if (activeStory is null)
             {
-                activeStory = new ActiveStory() { User = user, Name = "stayin alive", BasePrompt = "tratatta" , Character=activeCharacter};
+                activeStory = new ActiveStory() { User = user, Name = "stayin alive", BasePrompt = "tratatta", Characters = new List<Character>() { activeCharacter } };
                 await _context.ActiveStories.AddAsync(activeStory);
                 await _context.SaveChangesAsync();
             }

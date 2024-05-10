@@ -13,7 +13,5 @@ namespace FantasyChas_Backend.Data
         public DbSet<Character> Characters { get; set; }
         public DbSet<ChatHistory> ChatHistories { get; set; }
         public DbSet<SavedStory> SavedStories { get; set; }
-        public DbSet<Profession> Professions { get; set; }
-        public DbSet<Species> Species { get; set; }
     }
 }

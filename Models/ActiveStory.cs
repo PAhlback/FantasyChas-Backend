@@ -8,8 +8,8 @@ namespace FantasyChas_Backend.Models
         public string Name { get; set; }
         public string BasePrompt { get; set; }
 
+        public virtual ICollection<Character> Characters { get; set; }
         public virtual IdentityUser User { get; set; }
-        public virtual Character Character { get; set; }
         public virtual ICollection<ChatHistory> ChatHistories { get; set; }
     }
 }

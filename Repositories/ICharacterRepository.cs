@@ -85,8 +85,8 @@ namespace FantasyChas_Backend.Repositories
                         Constitution = c.Constitution,
                         Charisma = c.Charisma,
                         Backstory = c.Backstory,
-                        ProfessionName = c.Profession.ProfessionName,
-                        SpeciesName = c.Species.SpeciesName
+                        Profession = c.Profession,
+                        Species = c.Species
                     })
                     .ToListAsync();
 
@@ -122,6 +122,8 @@ namespace FantasyChas_Backend.Repositories
             characterToUpdate.Backstory = updatedCharacter.Backstory;
             characterToUpdate.Profession = updatedCharacter.Profession;
             characterToUpdate.Species = updatedCharacter.Species;
+            characterToUpdate.Favourite = updatedCharacter.Favourite;
+            characterToUpdate.ImageURL = updatedCharacter.ImageURL;
 
             try
             {
