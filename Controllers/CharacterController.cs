@@ -99,7 +99,7 @@ namespace FantasyChas_Backend.Controllers
             }
         }
 
-        [HttpPost("/UpdateCharacter")]
+        [HttpPatch("/UpdateCharacter")]
         public async Task<IActionResult> UpdateCharacter(CharacterWithIdDto charDto, ICharacterRepository repo)
         {
             try

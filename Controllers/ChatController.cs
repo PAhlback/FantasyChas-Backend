@@ -18,7 +18,7 @@ namespace FantasyChas_Backend.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<ChatController> _logger;
-        private static ApplicationDbContext _context;
+        private static ApplicationDbContext? _context;
 
 
         public ChatController(ILogger<ChatController> logger, UserManager<IdentityUser> userManager, ApplicationDbContext context)
