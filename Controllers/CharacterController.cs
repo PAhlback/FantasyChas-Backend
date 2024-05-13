@@ -3,6 +3,8 @@ using FantasyChas_Backend.Models;
 using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
 using FantasyChas_Backend.Repositories;
+using FantasyChas_Backend.Services;
+using FantasyChas_Backend.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,29 +12,34 @@ using Microsoft.AspNetCore.Mvc;
 namespace FantasyChas_Backend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [Authorize]
     public class CharacterController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<CharacterController> _logger;
+        private readonly ICharacterService _characterService;
 
-        public CharacterController(ILogger<CharacterController> logger, UserManager<IdentityUser> userManager)
+
+        public CharacterController(ILogger<CharacterController> logger, UserManager<IdentityUser> userManager, ICharacterService characterServices)
         {
             _logger = logger;
-
-            // Added UserManager to get access to the correct user in the entire DisplayCharacterController.
-            _userManager = userManager;
+            _userManager = userManager; // Add UserManager to get access to the correct user in the entire DisplayCharacterController.
+            _characterService = characterServices;
         }
 
-        [HttpGet("/GetCharacter")]
-        public async Task<IActionResult> GetAllCharacters(ICharacterRepository repo)// ta in aktiv user och välj characters för den
+        // magda undrar : varför "User" här nedan till höger?
+        private async Task<IdentityUser> GetCurrentUserAsync() => await _userManager.GetUserAsync(User);
+
+
+        [HttpGet("GetCharacters")]
+        public async Task<IActionResult> GetAllCharactersAsync(ICharacterService characterService)
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
 
-                List<CharacterViewModel> characters = await repo.GetCharactersForUser(user.Id);
+                List<CharacterViewModel> characters = await characterService.GetCharactersForUser(user.Id);
 
                 return Ok(characters);
             }
@@ -42,46 +49,23 @@ namespace FantasyChas_Backend.Controllers
             }
         }
 
-        [HttpPost("/AddCharacter")]
-        public async Task<IActionResult> AddCharacter(CharacterDto charDto, ICharacterRepository repo)
+        [HttpPost("CreateCharacter")]
+        public async Task<IActionResult> AddCharacterAsync(CharacterDto charDto)
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
-
-                Character newCharacter = new Character()
-                {
-                    User = user,
-                    Name = charDto.Name,
-                    Age = charDto.Age,
-                    Gender = charDto.Gender,
-                    Level = charDto.Level,
-                    HealthPoints = charDto.HealthPoints,
-                    Strength = charDto.Strength,
-                    Dexterity = charDto.Dexterity,
-                    Intelligence = charDto.Intelligence,
-                    Wisdom = charDto.Wisdom,
-                    Constitution = charDto.Constitution,
-                    Charisma = charDto.Charisma,
-                    Backstory = charDto.Backstory,
-                    Favourite = charDto.Favourite,
-                    ImageURL = charDto.ImageURL,
-                    Profession = charDto.Profession,
-                    Species = charDto.Species
-                };
-                //spara i Db
-                repo.AddCharacterToUser(newCharacter);
-
-                return Ok("Created character!");
+                Character character = await _characterService.CreateCharacterAsync(user.Id, charDto);
+                return Ok(character);
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest("Bad bad");
+                return BadRequest(ex.Message);
             }
         }
 
 
-        [HttpDelete("/DeleteCharacter")]
+        [HttpDelete("DeleteCharacter")]
         public async Task<IActionResult> DeleteCharacterAsync(ICharacterRepository repo, int characterId)
         {
             try
@@ -99,8 +83,8 @@ namespace FantasyChas_Backend.Controllers
             }
         }
 
-        [HttpPatch("/UpdateCharacter")]
-        public async Task<IActionResult> UpdateCharacter(CharacterWithIdDto charDto, ICharacterRepository repo)
+        [HttpPatch("UpdateCharacter")]
+        public async Task<IActionResult> UpdateCharacterAsync(CharacterWithIdDto charDto, ICharacterRepository repo)
         {
             try
             {
@@ -136,10 +120,5 @@ namespace FantasyChas_Backend.Controllers
             }
 
         }
-
-
-        // Methods for class
-        // magda undrar : varför "User" här nedan till höger?
-        private Task<IdentityUser> GetCurrentUserAsync() => _userManager.GetUserAsync(User);
     }
 }

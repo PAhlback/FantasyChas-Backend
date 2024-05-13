@@ -1,14 +1,16 @@
 ﻿using FantasyChas_Backend.Data;
 using FantasyChas_Backend.Models;
+using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace FantasyChas_Backend.Repositories
 {
     public interface ICharacterRepository
     {
-        public Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
-        public void AddCharacterToUser(Character newCharacter);
+        public Task<List<Character>> GetCharacters();
+        public Task<Character> CreateCharacterAsync(string userId, CharacterDto charDto);
         public Task UpdateCharacter(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
     }
@@ -22,16 +24,54 @@ namespace FantasyChas_Backend.Repositories
             _context = context;
         }
 
-        public void AddCharacterToUser(Character newCharacter)
+        public async Task<List<Character>> GetCharacters()
         {
             try
             {
-                _context.Characters.Add(newCharacter);
-                _context.SaveChanges();
-            }
-            catch
-            {
+                var characters = await _context.Characters
+                    .ToListAsync();
 
+                return characters;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not get characters", ex);
+            }
+        }
+
+        public async Task<Character> CreateCharacterAsync(string userId, CharacterDto charDto)
+        {
+            try
+            {
+                Character newCharacter = new Character()
+                {
+                    User = await _context.Users.FindAsync(userId),
+                    Name = charDto.Name,
+                    Age = charDto.Age,
+                    Gender = charDto.Gender,
+                    Level = charDto.Level,
+                    HealthPoints = charDto.HealthPoints,
+                    Strength = charDto.Strength,
+                    Dexterity = charDto.Dexterity,
+                    Intelligence = charDto.Intelligence,
+                    Wisdom = charDto.Wisdom,
+                    Constitution = charDto.Constitution,
+                    Charisma = charDto.Charisma,
+                    Backstory = charDto.Backstory,
+                    Favourite = charDto.Favourite,
+                    ImageURL = charDto.ImageURL,
+                    Profession = charDto.Profession,
+                    Species = charDto.Species
+                };
+
+                _context.Characters.Add(newCharacter);
+                await _context.SaveChangesAsync();
+
+                return newCharacter;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to create character", ex);
             }
         }
 
@@ -57,46 +97,6 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public async Task<List<CharacterViewModel>> GetCharactersForUser(string userId)
-        {
-            try
-            {
-                var characters2 = _context.Characters
-                    .Where(u => u.User.Id == userId);
-
-                if (characters2.Count() == 0)
-                {
-                    throw new Exception("No characters found!");
-                }
-
-                List<CharacterViewModel> characters = await _context.Characters
-                    .Where(u => u.User.Id == userId)
-                    .Select(c => new CharacterViewModel()
-                    {
-                        Name = c.Name,
-                        Age = c.Age,
-                        Gender = c.Gender,
-                        Level = c.Level,
-                        HealthPoints = c.HealthPoints,
-                        Strength = c.Strength,
-                        Dexterity = c.Dexterity,
-                        Intelligence = c.Intelligence,
-                        Wisdom = c.Wisdom,
-                        Constitution = c.Constitution,
-                        Charisma = c.Charisma,
-                        Backstory = c.Backstory,
-                        Profession = c.Profession,
-                        Species = c.Species
-                    })
-                    .ToListAsync();
-
-                return characters;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Could not get characters");
-            }
-        }
 
         public async Task UpdateCharacter(int characterId, Character updatedCharacter)
         {

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using OpenAI_API;
 using FantasyChas_Backend.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using FantasyChas_Backend.Services.ServiceInterfaces;
 
 namespace FantasyChas_Backend
 {
@@ -64,10 +65,13 @@ namespace FantasyChas_Backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
+            // Repos
             builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 
+            // Services
+            builder.Services.AddScoped<ICharacterService, CharacterService>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
-
             builder.Services.AddSingleton(sp => new OpenAIAPI(Environment.GetEnvironmentVariable("OPENAI_KEY")));
 
             var app = builder.Build();
