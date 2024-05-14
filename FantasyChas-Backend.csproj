@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,6 +7,13 @@
     <InvariantGlobalization>false</InvariantGlobalization>
     <RootNamespace>FantasyChas_Backend</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="FantasyChas-Backend-Tests\**" />
+    <Content Remove="FantasyChas-Backend-Tests\**" />
+    <EmbeddedResource Remove="FantasyChas-Backend-Tests\**" />
+    <None Remove="FantasyChas-Backend-Tests\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="3.0.0" />
