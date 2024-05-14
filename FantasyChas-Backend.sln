@@ -5,8 +5,6 @@ VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FantasyChas-Backend", "FantasyChas-Backend.csproj", "{766D4D74-B044-4C11-8ACD-5328331316DF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FantasyChas-Backend-Tests", "..\FantasyChas-Backend-Tests\FantasyChas-Backend-Tests.csproj", "{C9CE6425-7822-40A7-AA37-086C368A3884}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{766D4D74-B044-4C11-8ACD-5328331316DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{766D4D74-B044-4C11-8ACD-5328331316DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{766D4D74-B044-4C11-8ACD-5328331316DF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9CE6425-7822-40A7-AA37-086C368A3884}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9CE6425-7822-40A7-AA37-086C368A3884}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9CE6425-7822-40A7-AA37-086C368A3884}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9CE6425-7822-40A7-AA37-086C368A3884}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
