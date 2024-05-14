@@ -20,12 +20,11 @@ namespace FantasyChas_Backend.Controllers
         private readonly ILogger<CharacterController> _logger;
         private readonly ICharacterService _characterService;
 
-
-        public CharacterController(ILogger<CharacterController> logger, UserManager<IdentityUser> userManager, ICharacterService characterServices)
+        public CharacterController(ILogger<CharacterController> logger, UserManager<IdentityUser> userManager, ICharacterService characterService)
         {
             _logger = logger;
             _userManager = userManager; // Add UserManager to get access to the correct user in the entire DisplayCharacterController.
-            _characterService = characterServices;
+            _characterService = characterService;
         }
 
         // magda undrar : varför "User" här nedan till höger?
@@ -49,16 +48,16 @@ namespace FantasyChas_Backend.Controllers
             }
         }
 
-        [HttpPost("CreateCharacter")]
-        public async Task<IActionResult> CreateCharacterAsync(ICharacterService characterService, CharacterDto charDto)
+        [HttpPost("AddCharacter")]
+        public async Task<IActionResult> AddCharacterAsync(CharacterDto charDto)
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
 
-                Character character = await _characterService.CreateCharacterAsync(user, charDto);
+                await _characterService.CreateCharacterAsync(user, charDto);
                 
-                return Ok(character);
+                return Ok("Character successfully created and added!");
             }
             catch (Exception ex)
             {
@@ -67,13 +66,13 @@ namespace FantasyChas_Backend.Controllers
         }
 
         [HttpPatch("UpdateCharacter")]
-        public async Task<IActionResult> UpdateCharacterAsync(ICharacterService characterService, CharacterWithIdDto charDto)
+        public async Task<IActionResult> UpdateCharacterAsync(CharacterWithIdDto charDto)
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
 
-                Character character = await _characterService.UpdateCharacterAsync(user, charDto);
+                await _characterService.UpdateCharacterAsync(user, charDto);
 
                 return Ok("Character successfully updated!");
             }
@@ -84,14 +83,14 @@ namespace FantasyChas_Backend.Controllers
         }
 
         [HttpDelete("DeleteCharacter")]
-        public async Task<IActionResult> DeleteCharacterAsync(ICharacterService characterService, int characterId)
+        public async Task<IActionResult> DeleteCharacterAsync(int characterId)
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
                 string userId = user.Id;
 
-                await characterService.DeleteCharacterAsync(userId, characterId);
+                await _characterService.DeleteCharacterAsync(userId, characterId);
 
                 return Ok($"Character with ID {characterId} successfully deleted.");
             }

@@ -57,7 +57,7 @@ namespace FantasyChas_Backend.Services
             }
         }
 
-        public async Task<Character> CreateCharacterAsync(IdentityUser user, CharacterDto charDto)
+        public async Task CreateCharacterAsync(IdentityUser user, CharacterDto charDto)
         {
             try
             {
@@ -83,8 +83,6 @@ namespace FantasyChas_Backend.Services
                 };
 
                 await _characterRepository.AddCharacterAsync(newCharacter);
-
-                return newCharacter;
             }
             catch (Exception ex)
             {
@@ -92,7 +90,7 @@ namespace FantasyChas_Backend.Services
             }
         }
 
-        public async Task<Character> UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto)
+        public async Task UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto)
         {
             try
             {
@@ -118,8 +116,6 @@ namespace FantasyChas_Backend.Services
                 };
 
                 await _characterRepository.UpdateCharacterAsync(charDto.Id, updatedCharacter);
-
-                return updatedCharacter;
             }
             catch (Exception ex)
             {
