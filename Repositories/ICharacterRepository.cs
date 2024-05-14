@@ -13,7 +13,7 @@ namespace FantasyChas_Backend.Repositories
     {
         public Task<List<Character>> GetCharacters();
         public Task AddCharacterAsync(Character newCharacter);
-        public Task UpdateCharacter(int characterId, Character updatedCharacter);
+        public Task UpdateCharacterAsync(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
     }
 
@@ -54,33 +54,11 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public async Task DeleteCharacterAsync(string userId, int characterId)
+        public async Task UpdateCharacterAsync(int characterId, Character updatedCharacter)
         {
-            try
-            {
-                var characterToDelete = await _context.Characters
-                                                      .Where(c => c.User.Id == userId && c.Id == characterId)
-                                                      .SingleOrDefaultAsync();
 
-                if (characterToDelete == null)
-                {
-                    throw new Exception($"Unable to delete character. Character with ID {characterId} not found.");
-                }
-
-                _context.Characters.Remove(characterToDelete);
-                await _context.SaveChangesAsync();
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-
-        public async Task UpdateCharacter(int characterId, Character updatedCharacter)
-        {
             var characterToUpdate = _context.Characters
-                    .SingleOrDefault(u => u.Id == characterId && u.User.Id == updatedCharacter.User.Id);
+                 .SingleOrDefault(u => u.Id == characterId && u.User.Id == updatedCharacter.User.Id);
 
             if (characterToUpdate is null)
             {
@@ -106,11 +84,33 @@ namespace FantasyChas_Backend.Repositories
 
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
                 throw new Exception("Could not update character");
+            }
+        }
+
+        public async Task DeleteCharacterAsync(string userId, int characterId)
+        {
+            try
+            {
+                var characterToDelete = await _context.Characters
+                                                      .Where(c => c.User.Id == userId && c.Id == characterId)
+                                                      .SingleOrDefaultAsync();
+
+                if (characterToDelete == null)
+                {
+                    throw new Exception($"Unable to delete character. Character with ID {characterId} not found.");
+                }
+
+                _context.Characters.Remove(characterToDelete);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
             }
         }
     }

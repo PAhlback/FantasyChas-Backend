@@ -61,7 +61,7 @@ namespace FantasyChas_Backend.Services
         {
             try
             {
-                Character newCharacter = new Character
+                Character newCharacter = new Character()
                 {
                     User = user,
                     Name = charDto.Name,
@@ -89,6 +89,53 @@ namespace FantasyChas_Backend.Services
             catch (Exception ex)
             {
                 throw new Exception("Failed to create character", ex);
+            }
+        }
+
+        public async Task<Character> UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto)
+        {
+            try
+            {
+                Character updatedCharacter = new Character()
+                {
+                    User = user,
+                    Name = charDto.Name,
+                    Age = charDto.Age,
+                    Gender = charDto.Gender,
+                    Level = charDto.Level,
+                    HealthPoints = charDto.HealthPoints,
+                    Strength = charDto.Strength,
+                    Dexterity = charDto.Dexterity,
+                    Intelligence = charDto.Intelligence,
+                    Wisdom = charDto.Wisdom,
+                    Constitution = charDto.Constitution,
+                    Charisma = charDto.Charisma,
+                    Backstory = charDto.Backstory,
+                    Favourite = charDto.Favourite,
+                    ImageURL = charDto.ImageURL,
+                    Profession = charDto.Profession,
+                    Species = charDto.Species
+                };
+
+                await _characterRepository.UpdateCharacterAsync(charDto.Id, updatedCharacter);
+
+                return updatedCharacter;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to update character", ex);
+            }
+        }
+
+        public async Task DeleteCharacterAsync(string userId, int characterId)
+        {
+            try
+            {
+                await _characterRepository.DeleteCharacterAsync(userId, characterId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to delete character", ex);
             }
         }
     }

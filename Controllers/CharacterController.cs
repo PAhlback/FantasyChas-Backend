@@ -50,7 +50,7 @@ namespace FantasyChas_Backend.Controllers
         }
 
         [HttpPost("CreateCharacter")]
-        public async Task<IActionResult> AddCharacterAsync(ICharacterService characterService, CharacterDto charDto)
+        public async Task<IActionResult> CreateCharacterAsync(ICharacterService characterService, CharacterDto charDto)
         {
             try
             {
@@ -66,18 +66,16 @@ namespace FantasyChas_Backend.Controllers
             }
         }
 
-
-        [HttpDelete("DeleteCharacter")]
-        public async Task<IActionResult> DeleteCharacterAsync(ICharacterRepository repo, int characterId)
+        [HttpPatch("UpdateCharacter")]
+        public async Task<IActionResult> UpdateCharacterAsync(ICharacterService characterService, CharacterWithIdDto charDto)
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
-                string userId = user.Id;
 
-                await repo.DeleteCharacterAsync(userId, characterId);
+                Character character = await _characterService.UpdateCharacterAsync(user, charDto);
 
-                return Ok($"Character with ID {characterId} successfully deleted.");
+                return Ok("Character successfully updated!");
             }
             catch (Exception ex)
             {
@@ -85,42 +83,22 @@ namespace FantasyChas_Backend.Controllers
             }
         }
 
-        [HttpPatch("UpdateCharacter")]
-        public async Task<IActionResult> UpdateCharacterAsync(CharacterWithIdDto charDto, ICharacterRepository repo)
+        [HttpDelete("DeleteCharacter")]
+        public async Task<IActionResult> DeleteCharacterAsync(ICharacterService characterService, int characterId)
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
+                string userId = user.Id;
 
-                Character updatedCharacter = new Character()
-                {
-                    User = user,
-                    Name = charDto.Name,
-                    Age = charDto.Age,
-                    Gender = charDto.Gender,
-                    Level = charDto.Level,
-                    HealthPoints = charDto.HealthPoints,
-                    Strength = charDto.Strength,
-                    Dexterity = charDto.Dexterity,
-                    Intelligence = charDto.Intelligence,
-                    Wisdom = charDto.Wisdom,
-                    Constitution = charDto.Constitution,
-                    Charisma = charDto.Charisma,
-                    Backstory = charDto.Backstory,
-                    Favourite = charDto.Favourite,
-                    ImageURL = charDto.ImageURL,
-                    Profession = charDto.Profession,
-                    Species = charDto.Species
-                };
-                await repo.UpdateCharacter(charDto.Id, updatedCharacter);
+                await characterService.DeleteCharacterAsync(userId, characterId);
 
-                return Ok("Character updated!");
+                return Ok($"Character with ID {characterId} successfully deleted.");
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
         }
     }
 }

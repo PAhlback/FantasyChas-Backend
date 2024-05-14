@@ -9,5 +9,7 @@ namespace FantasyChas_Backend.Services.ServiceInterfaces
     {
         Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
         Task<Character> CreateCharacterAsync(IdentityUser user, CharacterDto charDto);
+        Task<Character> UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto);
+        Task DeleteCharacterAsync(string userId, int CharacterId);
     }
 }
