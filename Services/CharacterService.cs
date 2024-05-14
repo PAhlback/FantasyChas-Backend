@@ -4,6 +4,7 @@ using FantasyChas_Backend.Repositories;
 using FantasyChas_Backend.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using FantasyChas_Backend.Services.ServiceInterfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace FantasyChas_Backend.Services
 {
@@ -56,11 +57,32 @@ namespace FantasyChas_Backend.Services
             }
         }
 
-        public async Task<Character> CreateCharacterAsync(string userId, CharacterDto charDto)
+        public async Task<Character> CreateCharacterAsync(IdentityUser user, CharacterDto charDto)
         {
             try
             {
-                var newCharacter = await _characterRepository.CreateCharacterAsync(userId, charDto);
+                Character newCharacter = new Character
+                {
+                    User = user,
+                    Name = charDto.Name,
+                    Age = charDto.Age,
+                    Gender = charDto.Gender,
+                    Level = charDto.Level,
+                    HealthPoints = charDto.HealthPoints,
+                    Strength = charDto.Strength,
+                    Dexterity = charDto.Dexterity,
+                    Intelligence = charDto.Intelligence,
+                    Wisdom = charDto.Wisdom,
+                    Constitution = charDto.Constitution,
+                    Charisma = charDto.Charisma,
+                    Backstory = charDto.Backstory,
+                    Favourite = charDto.Favourite,
+                    ImageURL = charDto.ImageURL,
+                    Profession = charDto.Profession,
+                    Species = charDto.Species
+                };
+
+                await _characterRepository.AddCharacterAsync(newCharacter);
 
                 return newCharacter;
             }

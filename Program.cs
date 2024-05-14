@@ -65,7 +65,6 @@ namespace FantasyChas_Backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-
             // Repos
             builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 

@@ -33,7 +33,7 @@ namespace FantasyChas_Backend.Controllers
 
 
         [HttpGet("GetCharacters")]
-        public async Task<IActionResult> GetAllCharactersAsync(ICharacterService characterService)
+        public async Task<IActionResult> GetUserCharactersAsync(ICharacterService characterService)
         {
             try
             {
@@ -50,12 +50,14 @@ namespace FantasyChas_Backend.Controllers
         }
 
         [HttpPost("CreateCharacter")]
-        public async Task<IActionResult> AddCharacterAsync(CharacterDto charDto)
+        public async Task<IActionResult> AddCharacterAsync(ICharacterService characterService, CharacterDto charDto)
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
-                Character character = await _characterService.CreateCharacterAsync(user.Id, charDto);
+
+                Character character = await _characterService.CreateCharacterAsync(user, charDto);
+                
                 return Ok(character);
             }
             catch (Exception ex)

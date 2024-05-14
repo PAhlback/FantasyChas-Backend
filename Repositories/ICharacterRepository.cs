@@ -2,7 +2,9 @@
 using FantasyChas_Backend.Models;
 using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
+using FantasyChas_Backend.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FantasyChas_Backend.Repositories
@@ -10,7 +12,7 @@ namespace FantasyChas_Backend.Repositories
     public interface ICharacterRepository
     {
         public Task<List<Character>> GetCharacters();
-        public Task<Character> CreateCharacterAsync(string userId, CharacterDto charDto);
+        public Task AddCharacterAsync(Character newCharacter);
         public Task UpdateCharacter(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
     }
@@ -29,7 +31,7 @@ namespace FantasyChas_Backend.Repositories
             try
             {
                 var characters = await _context.Characters
-                    .ToListAsync();
+                                               .ToListAsync();
 
                 return characters;
             }
@@ -39,35 +41,12 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public async Task<Character> CreateCharacterAsync(string userId, CharacterDto charDto)
+        public async Task AddCharacterAsync(Character newCharacter)
         {
             try
             {
-                Character newCharacter = new Character()
-                {
-                    User = await _context.Users.FindAsync(userId),
-                    Name = charDto.Name,
-                    Age = charDto.Age,
-                    Gender = charDto.Gender,
-                    Level = charDto.Level,
-                    HealthPoints = charDto.HealthPoints,
-                    Strength = charDto.Strength,
-                    Dexterity = charDto.Dexterity,
-                    Intelligence = charDto.Intelligence,
-                    Wisdom = charDto.Wisdom,
-                    Constitution = charDto.Constitution,
-                    Charisma = charDto.Charisma,
-                    Backstory = charDto.Backstory,
-                    Favourite = charDto.Favourite,
-                    ImageURL = charDto.ImageURL,
-                    Profession = charDto.Profession,
-                    Species = charDto.Species
-                };
-
                 _context.Characters.Add(newCharacter);
                 await _context.SaveChangesAsync();
-
-                return newCharacter;
             }
             catch (Exception ex)
             {
