@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="FantasyChas-Backend-Tests\**" />
+    <Content Remove="FantasyChas-Backend-Tests\**" />
+    <EmbeddedResource Remove="FantasyChas-Backend-Tests\**" />
+    <None Remove="FantasyChas-Backend-Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="3.0.0" />
     <PackageReference Include="MailKit" Version="4.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />

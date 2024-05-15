@@ -73,6 +73,7 @@ namespace FantasyChas_Backend.Repositories
                     .Where(u => u.User.Id == userId)
                     .Select(c => new CharacterViewModel()
                     {
+                        Id = c.Id,
                         Name = c.Name,
                         Age = c.Age,
                         Gender = c.Gender,
