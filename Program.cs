@@ -66,6 +66,8 @@ namespace FantasyChas_Backend
 
             builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 
+            builder.Services.AddScoped<IActiveStoryRepository, ActiveStoryRepository>();
+
             builder.Services.AddTransient<IEmailSender, EmailSender>();
 
             builder.Services.AddSingleton(sp => new OpenAIAPI(Environment.GetEnvironmentVariable("OPENAI_KEY")));

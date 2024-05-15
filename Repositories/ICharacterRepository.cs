@@ -11,6 +11,8 @@ namespace FantasyChas_Backend.Repositories
         public void AddCharacterToUser(Character newCharacter);
         public Task UpdateCharacter(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
+        Task<Character> GetCharacterByIdAsync(int characterId);
+        public Task UpdateCharacterWithActiveStory(int characterId, int activeStoryId);
     }
 
     public class CharacterRepository : ICharacterRepository
@@ -57,6 +59,11 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
+        public async Task<Character> GetCharacterByIdAsync(int characterId)
+        {
+            return await _context.Characters.FindAsync(characterId);
+        }
+
         public async Task<List<CharacterViewModel>> GetCharactersForUser(string userId)
         {
             try
@@ -100,6 +107,7 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
+
         public async Task UpdateCharacter(int characterId, Character updatedCharacter)
         {
             var characterToUpdate = _context.Characters
@@ -136,5 +144,39 @@ namespace FantasyChas_Backend.Repositories
                 throw new Exception("Could not update character");
             }
         }
+
+        public async Task UpdateCharacterWithActiveStory(int characterId, int activeStoryId)
+        {
+            var characterToUpdate = _context.Characters
+                .Include(c => c.User) // Ensure user is included to avoid null reference exception
+                .SingleOrDefault(u => u.Id == characterId);
+
+            if (characterToUpdate is null)
+            {
+                throw new Exception("Character not found!");
+            }
+
+            // Retrieve the ActiveStory by its Id
+            var activeStory = _context.ActiveStories
+                .SingleOrDefault(s => s.Id == activeStoryId);
+
+            if (activeStory is null)
+            {
+                throw new Exception("ActiveStory not found!");
+            }
+
+            // Associate the ActiveStory with the Character
+            characterToUpdate.ActiveStory = activeStory;
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not update character with ActiveStory");
+            }
+        }
+
     }
 }
