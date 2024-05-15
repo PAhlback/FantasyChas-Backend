@@ -65,8 +65,6 @@ namespace FantasyChas_Backend
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
-            builder.Services.AddScoped<IProfessionRepository, ProfessionRepository>();
-            builder.Services.AddScoped<ISpeciesRepository, SpeciesRepository>();
 
             builder.Services.AddTransient<IEmailSender, EmailSender>();
 

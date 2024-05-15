@@ -43,13 +43,12 @@ namespace FantasyChas_Backend.Controllers
         }
 
         [HttpPost("/AddCharacter")]
-        public async Task<IActionResult> AddCharacter(CharacterDto charDto, ICharacterRepository repo, IProfessionRepository profRepo, ISpeciesRepository speciesRepo)// här kommer det va Dto, eventuellt UserId separat inparameter
+        public async Task<IActionResult> AddCharacter(CharacterDto charDto, ICharacterRepository repo)
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
 
-                // här kommer vi göra om Dto till model
                 Character newCharacter = new Character()
                 {
                     User = user,
@@ -65,8 +64,10 @@ namespace FantasyChas_Backend.Controllers
                     Constitution = charDto.Constitution,
                     Charisma = charDto.Charisma,
                     Backstory = charDto.Backstory,
-                    Profession = profRepo.GetProfessionById(charDto.ProfessionId),
-                    Species = speciesRepo.GetSpeciesById(charDto.SpeciesId)
+                    Favourite = charDto.Favourite,
+                    ImageURL = charDto.ImageURL,
+                    Profession = charDto.Profession,
+                    Species = charDto.Species
                 };
                 //spara i Db
                 repo.AddCharacterToUser(newCharacter);
@@ -92,14 +93,14 @@ namespace FantasyChas_Backend.Controllers
 
                 return Ok($"Character with ID {characterId} successfully deleted.");
             }
-            catch (Exception ex) 
-            { 
+            catch (Exception ex)
+            {
                 return BadRequest(ex.Message);
             }
         }
 
-        [HttpPost("/UpdateCharacter")]
-        public async Task<IActionResult> UpdateCharacter(CharacterWithIdDto charDto, ICharacterRepository repo, IProfessionRepository profRepo, ISpeciesRepository speciesRepo)
+        [HttpPatch("/UpdateCharacter")]
+        public async Task<IActionResult> UpdateCharacter(CharacterWithIdDto charDto, ICharacterRepository repo)
         {
             try
             {
@@ -120,8 +121,10 @@ namespace FantasyChas_Backend.Controllers
                     Constitution = charDto.Constitution,
                     Charisma = charDto.Charisma,
                     Backstory = charDto.Backstory,
-                    Profession = profRepo.GetProfessionById(charDto.ProfessionId),
-                    Species = speciesRepo.GetSpeciesById(charDto.SpeciesId)
+                    Favourite = charDto.Favourite,
+                    ImageURL = charDto.ImageURL,
+                    Profession = charDto.Profession,
+                    Species = charDto.Species
                 };
                 await repo.UpdateCharacter(charDto.Id, updatedCharacter);
 

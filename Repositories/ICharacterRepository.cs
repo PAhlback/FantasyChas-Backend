@@ -73,9 +73,12 @@ namespace FantasyChas_Backend.Repositories
                     .Where(u => u.User.Id == userId)
                     .Select(c => new CharacterViewModel()
                     {
+                        Id = c.Id,
                         Name = c.Name,
                         Age = c.Age,
                         Gender = c.Gender,
+                        Profession = c.Profession,
+                        Species = c.Species,
                         Level = c.Level,
                         HealthPoints = c.HealthPoints,
                         Strength = c.Strength,
@@ -85,8 +88,8 @@ namespace FantasyChas_Backend.Repositories
                         Constitution = c.Constitution,
                         Charisma = c.Charisma,
                         Backstory = c.Backstory,
-                        ProfessionName = c.Profession.ProfessionName,
-                        SpeciesName = c.Species.SpeciesName
+                        Favourite = c.Favourite,
+                        ImageURL = c.ImageURL
                     })
                     .ToListAsync();
 
@@ -122,6 +125,8 @@ namespace FantasyChas_Backend.Repositories
             characterToUpdate.Backstory = updatedCharacter.Backstory;
             characterToUpdate.Profession = updatedCharacter.Profession;
             characterToUpdate.Species = updatedCharacter.Species;
+            characterToUpdate.Favourite = updatedCharacter.Favourite;
+            characterToUpdate.ImageURL = updatedCharacter.ImageURL;
 
             try
             {

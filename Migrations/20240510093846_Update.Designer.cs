@@ -4,6 +4,7 @@ using FantasyChas_Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FantasyChas_Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240510093846_Update")]
+    partial class Update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +66,6 @@ namespace FantasyChas_Backend.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Backstory")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Charisma")
@@ -79,7 +81,6 @@ namespace FantasyChas_Backend.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Gender")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("HealthPoints")
@@ -95,18 +96,15 @@ namespace FantasyChas_Backend.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Profession")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("SavedStoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Species")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Strength")
@@ -137,7 +135,7 @@ namespace FantasyChas_Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ActiveStoryId")
+                    b.Property<int>("ActiveStoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Answer")
@@ -419,7 +417,9 @@ namespace FantasyChas_Backend.Migrations
                 {
                     b.HasOne("FantasyChas_Backend.Models.ActiveStory", "ActiveStory")
                         .WithMany("ChatHistories")
-                        .HasForeignKey("ActiveStoryId");
+                        .HasForeignKey("ActiveStoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("FantasyChas_Backend.Models.Character", "Character")
                         .WithMany()
