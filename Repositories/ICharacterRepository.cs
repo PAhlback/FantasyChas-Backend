@@ -15,6 +15,7 @@ namespace FantasyChas_Backend.Repositories
         public Task AddCharacterAsync(Character newCharacter);
         public Task UpdateCharacterAsync(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
+        Task<Character> GetCharacterByIdAsync(int characterId);
     }
 
     public class CharacterRepository : ICharacterRepository
@@ -113,6 +114,12 @@ namespace FantasyChas_Backend.Repositories
             {
                 throw;
             }
+        }
+
+        public async Task<Character> GetCharacterByIdAsync(int characterId)
+        {
+            return await _context.Characters
+                .SingleOrDefaultAsync(c => c.Id == characterId);
         }
     }
 }

@@ -1,12 +1,16 @@
 ﻿using FantasyChas_Backend.Data;
+using FantasyChas_Backend.Models;
+using FantasyChas_Backend.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace FantasyChas_Backend.Repositories
 {
     public interface IChatRepository
     {
-        //public Task<ChatAnswerViewModel> GetAnswerFromChatGPT(ChatQueryDto query);
+        public Task<List<ChatHistory>> GetChatHistory(int characterId);
+        public Task<string> GetChatSummary(int characterId);
     }
-    public class ChatRepository:IChatRepository
+    public class ChatRepository : IChatRepository
     {
         private static ApplicationDbContext _context;
 
@@ -15,9 +19,26 @@ namespace FantasyChas_Backend.Repositories
             _context = context;
         }
 
-        //public Task<ChatAnswerViewModel> GetAnswerFromChatGPT(ChatQueryDto query)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public async Task<List<ChatHistory>> GetChatHistory(int characterId)
+        {
+            var history = await _context.ActiveStories
+                .Where(a => a.Characters.SingleOrDefault().Id == characterId)
+                .Include(a => a.Chats)
+                .SelectMany(c => c.Chats.LastOrDefault().ChatHistory)
+                .ToListAsync();
+
+            return history;
+        }
+
+        public async Task<string> GetChatSummary(int characterId)
+        {
+            var summary = await _context.ActiveStories
+                .Where(a => a.Characters.SingleOrDefault().Id == characterId)
+                .Include(a => a.Chats)
+                .Select(a => a.Chats.LastOrDefault().ChatSummary)
+                .SingleOrDefaultAsync();
+
+            return summary;
+        }
     }
 }

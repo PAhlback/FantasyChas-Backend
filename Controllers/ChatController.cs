@@ -37,20 +37,20 @@ namespace FantasyChas_Backend.Controllers
         // get svar från AI 
         // get senaste XX meddelanden i storyn - alternativt föregående chat
 
-        //[HttpPost("")]
-        //public async Task<IActionResult> PlaceholderAsync(StoryChatPromptDto chatPrompt)
-        //{
-        //    try
-        //    {
-        //        // var jsonObject = sendToChatService(chatMessage));
+        [HttpPost("PlaceholderAsync")]
+        public async Task<IActionResult> PlaceholderAsync(StoryChatPromptDto chatPromptObject)
+        {
+            try
+            {
+                var jsonObject = await _chatService.SendToChatServiceAsync(chatPromptObject);
 
-        //        return Ok();
-        //    }
-        //    catch
-        //    {
-
-        //    }
-        //}
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
 
         //        [HttpPost("getAnswerFromChatGPT")]
         //        public async Task<IActionResult> GetAnswerFromChatGPT(string query, OpenAIAPI api)
