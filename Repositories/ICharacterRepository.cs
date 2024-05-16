@@ -15,6 +15,8 @@ namespace FantasyChas_Backend.Repositories
         public Task AddCharacterAsync(Character newCharacter);
         public Task UpdateCharacterAsync(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
+        Task<bool> CharacterExistsAsync(int characterId);
+        public Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
     }
 
     public class CharacterRepository : ICharacterRepository
@@ -113,6 +115,44 @@ namespace FantasyChas_Backend.Repositories
             {
                 throw;
             }
+        }
+
+        public async Task ConnectCharToStoryAsync(int characterId, int storyId, string userId)
+        {
+            var characterToUpdate = _context.Characters
+                .Include(c => c.User)
+                .SingleOrDefault(u => u.Id == characterId && u.User.Id == userId);
+
+            if (characterToUpdate is null)
+            {
+                throw new Exception("Character not found or not associated with the user!");
+            }
+
+            // Retrieve the ActiveStory by its Id
+            var activeStory = _context.ActiveStories
+                .SingleOrDefault(s => s.Id == storyId);
+
+            if (activeStory is null)
+            {
+                throw new Exception("Story not found!");
+            }
+
+            // Associate the ActiveStory with the Character
+            characterToUpdate.ActiveStory = activeStory;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not update character with Story");
+            }
+        }
+
+        public async Task<bool> CharacterExistsAsync(int characterId)
+        {
+            return await _context.Characters.AnyAsync(c => c.Id == characterId);
         }
     }
 }

@@ -134,5 +134,22 @@ namespace FantasyChas_Backend.Services
                 throw new Exception("Failed to delete character", ex);
             }
         }
+
+        public async Task ConnectCharToStoryAsync(int characterId, int storyId, string userId)
+        {
+            try
+            {
+                await _characterRepository.ConnectCharToStoryAsync(characterId, storyId, userId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to connect character to story", ex);
+            }
+        }
+
+        public async Task<bool> CharacterExistsAsync(int characterId)
+        {
+            return await _characterRepository.CharacterExistsAsync(characterId);
+        }
     }
 }
