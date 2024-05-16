@@ -10,6 +10,6 @@ namespace FantasyChas_Backend.Models
 
         public virtual ICollection<Character> Characters { get; set; }
         public virtual IdentityUser User { get; set; }
-        public virtual ICollection<ChatHistory> ChatHistories { get; set; }
+        public virtual ICollection<Chat> Chats { get; set; }
     }
 }
