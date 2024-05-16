@@ -29,7 +29,7 @@ namespace FantasyChas_Backend.Services
                 string? summary = await _chatRepository.GetChatSummary(chatPromptObject.CharacterId);
 
                 // Ta bort ID och ImageURL innan vi skickar vidare till ChatGPT
-                Character? character = await _characterRepository.GetCharacterByIdAsync(chatPromptObject.CharacterId);
+                CharacterViewModel? character = await _characterRepository.GetCharacterByIdAsync(chatPromptObject.CharacterId);
                 string? serializedObject = Newtonsoft.Json.JsonConvert.SerializeObject(character);
 
                 var messages = new List<ChatMessage>

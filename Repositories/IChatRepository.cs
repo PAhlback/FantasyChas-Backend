@@ -23,13 +23,40 @@ namespace FantasyChas_Backend.Repositories
         {
             try
             {
-                var history = await _context.ActiveStories
-                //.Where(a => a.Characters.SingleOrDefault().Id == characterId)
-                .Include(a => a.Chats)
-                .SelectMany(c => c.Chats.ChatHistory)
-                .ToListAsync();
+                ////var history = await _context.ActiveStories
+                ////.Where(a => a.Characters.SingleOrDefault().Id == characterId)
+                ////.Include(a => a.Chats)
+                ////.SelectMany(c => c.Chats.ChatHistory)
+                ////.ToListAsync();
 
-                return history;
+                //ActiveStory? story = await _context.ActiveStories
+                //    .Where(a => a.Characters.FirstOrDefault().Id == characterId)
+                //    .SingleOrDefaultAsync();
+
+                //List<Chat> chats = await _context.Chats
+                //    .Where(c => c.ActiveStory == story)
+                //    .ToListAsync();
+
+                //List<ChatHistory> chatHistory = new List<ChatHistory>();
+                //foreach (var chat in chats)
+                //{
+                //    if(chat.ChatHistory != null)
+                //    {
+                //        foreach (var ch in chat.ChatHistory)
+                //        {
+                //            chatHistory.Add(ch);
+                //        }
+                //    }
+                //}
+
+                //return chatHistory;
+                var chatHistory = await _context.Chats
+                    .Include(c => c.ChatHistory)
+                    .Where(c => c.ActiveStory.Characters.Any(ch => ch.Id == characterId))
+                    .SelectMany(c => c.ChatHistory)
+                    .ToListAsync();
+
+                return chatHistory;
             }
             catch
             {
@@ -39,11 +66,15 @@ namespace FantasyChas_Backend.Repositories
 
         public async Task<string> GetChatSummary(int characterId)
         {
-            var summary = await _context.ActiveStories
-                .Where(a => a.Characters.SingleOrDefault().Id == characterId)
-                .Include(a => a.Chats)
-                .Select(a => a.Chats.LastOrDefault().ChatSummary)
-                .SingleOrDefaultAsync();
+            ActiveStory? story = await _context.ActiveStories
+                    .Where(a => a.Characters.FirstOrDefault().Id == characterId)
+                    .SingleOrDefaultAsync();
+
+            List<Chat> chats = await _context.Chats
+                .Where(c => c.ActiveStory == story)
+                .ToListAsync();
+
+            string summary = chats.LastOrDefault().ChatSummary;
 
             return summary;
         }
