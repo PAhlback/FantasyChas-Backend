@@ -21,13 +21,20 @@ namespace FantasyChas_Backend.Repositories
 
         public async Task<List<ChatHistory>> GetChatHistory(int characterId)
         {
-            var history = await _context.ActiveStories
-                .Where(a => a.Characters.SingleOrDefault().Id == characterId)
+            try
+            {
+                var history = await _context.ActiveStories
+                //.Where(a => a.Characters.SingleOrDefault().Id == characterId)
                 .Include(a => a.Chats)
-                .SelectMany(c => c.Chats.LastOrDefault().ChatHistory)
+                .SelectMany(c => c.Chats.ChatHistory)
                 .ToListAsync();
 
-            return history;
+                return history;
+            }
+            catch
+            {
+                throw new Exception();
+            }
         }
 
         public async Task<string> GetChatSummary(int characterId)

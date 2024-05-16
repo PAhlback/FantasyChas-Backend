@@ -25,12 +25,12 @@ namespace FantasyChas_Backend.Services
             try
             {
                 // Skicka in karaktärsid till repo för att hämta history
-                List<ChatHistory> history = await _chatRepository.GetChatHistory(chatPromptObject.CharacterId);
-                string summary = await _chatRepository.GetChatSummary(chatPromptObject.CharacterId);
+                List<ChatHistory>? history = await _chatRepository.GetChatHistory(chatPromptObject.CharacterId);
+                string? summary = await _chatRepository.GetChatSummary(chatPromptObject.CharacterId);
 
                 // Ta bort ID och ImageURL innan vi skickar vidare till ChatGPT
-                Character character = await _characterRepository.GetCharacterByIdAsync(chatPromptObject.CharacterId);
-                string serializedObject = Newtonsoft.Json.JsonConvert.SerializeObject(character);
+                Character? character = await _characterRepository.GetCharacterByIdAsync(chatPromptObject.CharacterId);
+                string? serializedObject = Newtonsoft.Json.JsonConvert.SerializeObject(character);
 
                 var messages = new List<ChatMessage>
                             {
