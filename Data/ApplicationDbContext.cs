@@ -11,6 +11,7 @@ namespace FantasyChas_Backend.Data
 
         public DbSet<ActiveStory> ActiveStories { get; set; }
         public DbSet<Character> Characters { get; set; }
+        public DbSet<Chat> Chats { get; set; }
         public DbSet<ChatHistory> ChatHistories { get; set; }
         public DbSet<SavedStory> SavedStories { get; set; }
     }
