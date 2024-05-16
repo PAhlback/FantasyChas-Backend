@@ -13,7 +13,7 @@ using OpenAI_API.Models;
 namespace FantasyChas_Backend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [Authorize]
     public class ChatController : ControllerBase
     {
@@ -33,7 +33,7 @@ namespace FantasyChas_Backend.Controllers
         }
 
 
-        [HttpPost("/getAnswerFromChatGPT")]
+        [HttpPost("getAnswerFromChatGPT")]
         public async Task<IActionResult> GetAnswerFromChatGPT(string query, OpenAIAPI api)
         {
             IdentityUser user = await GetCurrentUserAsync();

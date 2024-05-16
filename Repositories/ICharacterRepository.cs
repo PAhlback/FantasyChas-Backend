@@ -1,15 +1,19 @@
 ﻿using FantasyChas_Backend.Data;
 using FantasyChas_Backend.Models;
+using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
+using FantasyChas_Backend.Services.ServiceInterfaces;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FantasyChas_Backend.Repositories
 {
     public interface ICharacterRepository
     {
-        public Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
-        public void AddCharacterToUser(Character newCharacter);
-        public Task UpdateCharacter(int characterId, Character updatedCharacter);
+        public Task<List<Character>> GetCharactersForUserAsync(string userId);
+        public Task AddCharacterAsync(Character newCharacter);
+        public Task UpdateCharacterAsync(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
     }
 
@@ -22,89 +26,40 @@ namespace FantasyChas_Backend.Repositories
             _context = context;
         }
 
-        public void AddCharacterToUser(Character newCharacter)
+        public async Task<List<Character>> GetCharactersForUserAsync(string userId)
         {
             try
             {
-                _context.Characters.Add(newCharacter);
-                _context.SaveChanges();
-            }
-            catch
-            {
-
-            }
-        }
-
-        public async Task DeleteCharacterAsync(string userId, int characterId)
-        {
-            try
-            {
-                var characterToDelete = await _context.Characters
-                                                      .Where(c => c.User.Id == userId && c.Id == characterId)
-                                                      .SingleOrDefaultAsync();
-
-                if (characterToDelete == null)
-                {
-                    throw new Exception($"Unable to delete character. Character with ID {characterId} not found.");
-                }
-
-                _context.Characters.Remove(characterToDelete);
-                await _context.SaveChangesAsync();
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public async Task<List<CharacterViewModel>> GetCharactersForUser(string userId)
-        {
-            try
-            {
-                var characters2 = _context.Characters
-                    .Where(u => u.User.Id == userId);
-
-                if (characters2.Count() == 0)
-                {
-                    throw new Exception("No characters found!");
-                }
-
-                List<CharacterViewModel> characters = await _context.Characters
-                    .Where(u => u.User.Id == userId)
-                    .Select(c => new CharacterViewModel()
-                    {
-                        Id = c.Id,
-                        Name = c.Name,
-                        Age = c.Age,
-                        Gender = c.Gender,
-                        Profession = c.Profession,
-                        Species = c.Species,
-                        Level = c.Level,
-                        HealthPoints = c.HealthPoints,
-                        Strength = c.Strength,
-                        Dexterity = c.Dexterity,
-                        Intelligence = c.Intelligence,
-                        Wisdom = c.Wisdom,
-                        Constitution = c.Constitution,
-                        Charisma = c.Charisma,
-                        Backstory = c.Backstory,
-                        Favourite = c.Favourite,
-                        ImageURL = c.ImageURL
-                    })
-                    .ToListAsync();
+                var characters = await _context.Characters
+                                               .Where(u => u.User.Id == userId)
+                                               .ToListAsync();
 
                 return characters;
             }
             catch (Exception ex)
             {
-                throw new Exception("Could not get characters");
+                throw new Exception("Could not get characters", ex);
             }
         }
 
-        public async Task UpdateCharacter(int characterId, Character updatedCharacter)
+        public async Task AddCharacterAsync(Character newCharacter)
         {
+            try
+            {
+                _context.Characters.Add(newCharacter);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to create character", ex);
+            }
+        }
+
+        public async Task UpdateCharacterAsync(int characterId, Character updatedCharacter)
+        {
+
             var characterToUpdate = _context.Characters
-                    .SingleOrDefault(u => u.Id == characterId && u.User.Id == updatedCharacter.User.Id);
+                 .SingleOrDefault(u => u.Id == characterId && u.User.Id == updatedCharacter.User.Id);
 
             if (characterToUpdate is null)
             {
@@ -130,11 +85,33 @@ namespace FantasyChas_Backend.Repositories
 
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
                 throw new Exception("Could not update character");
+            }
+        }
+
+        public async Task DeleteCharacterAsync(string userId, int characterId)
+        {
+            try
+            {
+                var characterToDelete = await _context.Characters
+                                                      .Where(c => c.User.Id == userId && c.Id == characterId)
+                                                      .SingleOrDefaultAsync();
+
+                if (characterToDelete == null)
+                {
+                    throw new Exception($"Unable to delete character. Character with ID {characterId} not found.");
+                }
+
+                _context.Characters.Remove(characterToDelete);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
             }
         }
     }
