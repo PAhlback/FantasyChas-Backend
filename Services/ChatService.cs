@@ -4,5 +4,6 @@ namespace FantasyChas_Backend.Services
 {
     public class ChatService : IChatService
     {
+
     }
 }
