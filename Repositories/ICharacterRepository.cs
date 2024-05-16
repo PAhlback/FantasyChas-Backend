@@ -11,7 +11,7 @@ namespace FantasyChas_Backend.Repositories
 {
     public interface ICharacterRepository
     {
-        public Task<List<Character>> GetCharacters();
+        public Task<List<Character>> GetCharactersForUserAsync(string userId);
         public Task AddCharacterAsync(Character newCharacter);
         public Task UpdateCharacterAsync(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
@@ -26,11 +26,12 @@ namespace FantasyChas_Backend.Repositories
             _context = context;
         }
 
-        public async Task<List<Character>> GetCharacters()
+        public async Task<List<Character>> GetCharactersForUserAsync(string userId)
         {
             try
             {
                 var characters = await _context.Characters
+                                               .Where(u => u.User.Id == userId)
                                                .ToListAsync();
 
                 return characters;

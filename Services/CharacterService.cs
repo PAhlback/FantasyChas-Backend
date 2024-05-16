@@ -21,7 +21,7 @@ namespace FantasyChas_Backend.Services
         {
             try
             {
-                var characters = await _characterRepository.GetCharacters();
+                var characters = await _characterRepository.GetCharactersForUserAsync(userId);
 
                 if (characters.Count() == 0)
                 {
@@ -29,9 +29,9 @@ namespace FantasyChas_Backend.Services
                 }
 
                 List<CharacterViewModel> userCharacters = characters
-                    .Where(u => u.User.Id == userId)
                     .Select(c => new CharacterViewModel()
                     {
+                        Id = c.Id,
                         Name = c.Name,
                         Age = c.Age,
                         Gender = c.Gender,
