@@ -32,7 +32,13 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: |
+          dotnet test --no-build --verbosity normal
+          test_exit_code=$?
+          if [ $test_exit_code -ne 0 ]; then
+            echo "Tests failed. Exiting."
+            exit $test_exit_code
+          fi
 
       - name: Build Docker image
         run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
