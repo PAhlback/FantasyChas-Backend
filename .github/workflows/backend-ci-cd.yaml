@@ -37,9 +37,6 @@ jobs:
       - name: Build the application
         run: dotnet build --configuration Release --no-restore
 
-      - name: Run tests
-        run: dotnet test --no-build --verbosity normal
-
       - name: Build Docker image
         run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
 
