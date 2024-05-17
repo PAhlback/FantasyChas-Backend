@@ -13,6 +13,8 @@ namespace FantasyChas_Backend.Services
         private readonly ICharacterRepository _characterRepository;
         private readonly IOpenAiService _openAiService;
 
+        private readonly int _maxTokensAllowed = 16000;
+
         public ChatService(IChatRepository chatRepository, ICharacterRepository characterRepository, IOpenAiService openAiService)
         {
             _chatRepository = chatRepository;
@@ -62,7 +64,7 @@ namespace FantasyChas_Backend.Services
                     Message = response.Choices[0].Message.TextContent
                 };
 
-                if(response.Usage.TotalTokens > 16000)
+                if(response.Usage.TotalTokens > _maxTokensAllowed)
                 {
                     // Lägg till metod för att skapa ett nytt ChattObjekt och länka den med ActiveStory.
                 }
