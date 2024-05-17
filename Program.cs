@@ -8,6 +8,7 @@ using OpenAI_API;
 using FantasyChas_Backend.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using FantasyChas_Backend.Services.ServiceInterfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FantasyChas_Backend
 {
@@ -66,10 +67,12 @@ namespace FantasyChas_Backend
             builder.Services.AddSwaggerGen();
 
             // Repos
+            builder.Services.AddScoped<IActiveStoryRepository, ActiveStoryRepository>();
             builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
             builder.Services.AddScoped<IChatRepository, ChatRepository>();
 
             // Services
+            builder.Services.AddScoped<IActiveStoryService, ActiveStoryService>();
             builder.Services.AddScoped<ICharacterService, CharacterService>();
             builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IOpenAiService, OpenAiService>();
@@ -106,6 +109,20 @@ namespace FantasyChas_Backend
             {
                 return Results.Ok("Hello!");
             }).RequireAuthorization();
+
+            // Temporary logout button
+            app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager,
+                [FromBody] object empty) =>
+            {
+                if (empty != null)
+                {
+                    await signInManager.SignOutAsync();
+                    return Results.Ok();
+                }
+                return Results.Unauthorized();
+            })
+            //.WithOpenApi()
+            .RequireAuthorization();
 
             app.UseHttpsRedirection();
 
