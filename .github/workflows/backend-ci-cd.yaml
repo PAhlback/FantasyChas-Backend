@@ -1,12 +1,18 @@
-name: Build, Test, Dockerize, and Deploy .NET Application
+name: Build, Test, Dockerize, Deploy, and Destroy .NET Application
 
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
+  workflow_dispatch:
+    inputs:
+      destroy:
+        description: 'Destroy Terraform-managed resources'
+        required: true
+        default: 'false'
 
 env:
   REGISTRY: ghcr.io
@@ -38,7 +44,7 @@ jobs:
         run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
 
       - name: Log in to GitHub Container Registry
-        run: echo ${{ secrets.GHCR_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ secrets.GHCR_USERNAME }} --password-stdin
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
 
       - name: Push Docker image
         run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
@@ -67,26 +73,26 @@ jobs:
           TF_VAR_ghcr_username: ${{ secrets.GHCR_USERNAME }}
           TF_VAR_ghcr_token: ${{ secrets.GHCR_TOKEN }}
 
-      destroy:
-          name: Destroy Infrastructure
-          runs-on: ubuntu-latest
-          if: github.event.inputs.destroy == 'true'
-          steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-          
-            - name: Setup Terraform
-              uses: hashicorp/setup-terraform@v1
-          
-            - name: Terraform Init
-              run: terraform -chdir=terraform init
-          
-            - name: Terraform Destroy
-              run: terraform -chdir=terraform destroy -auto-approve
-              env:
-                ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-                ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-                ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-                ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-                TF_VAR_ghcr_username: ${{ secrets.GHCR_USERNAME }}
-                TF_VAR_ghcr_token: ${{ secrets.GHCR_TOKEN }}
+  destroy:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.destroy == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform init
+
+      - name: Terraform Destroy
+        run: terraform -chdir=terraform destroy -auto-approve
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          TF_VAR_ghcr_username: ${{ secrets.GHCR_USERNAME }}
+          TF_VAR_ghcr_token: ${{ secrets.GHCR_TOKEN }}
