@@ -200,13 +200,11 @@ namespace FantasyChas_Backend.Controllers
         //}
 
 
-        [HttpPost("CreateCharacterWithChatGPT")]
-        public async Task<IActionResult> CreateCharacterWithChatGPT()
-        {
-            IdentityUser user = await GetCurrentUserAsync();
-
-
-        }
+        //[HttpPost("CreateCharacterWithChatGPT")]
+        //public async Task<IActionResult> CreateCharacterWithChatGPT()
+        //{
+        //    IdentityUser user = await GetCurrentUserAsync();
+        //}
 
 
     }
