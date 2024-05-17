@@ -147,9 +147,9 @@ namespace FantasyChas_Backend.Services
             }
         }
 
-        public async Task<bool> CharacterExistsAsync(int characterId)
+        public async Task<bool> CharacterExistsAsync(int characterId, string userId)
         {
-            return await _characterRepository.CharacterExistsAsync(characterId);
+            return await _characterRepository.CharacterExistsAsync(characterId, userId);
         }
     }
 }

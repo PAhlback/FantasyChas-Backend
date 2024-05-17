@@ -15,7 +15,7 @@ namespace FantasyChas_Backend.Repositories
         public Task AddCharacterAsync(Character newCharacter);
         public Task UpdateCharacterAsync(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
-        Task<bool> CharacterExistsAsync(int characterId);
+        Task<bool> CharacterExistsAsync(int characterId, string userId);
         public Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
     }
 
@@ -121,7 +121,7 @@ namespace FantasyChas_Backend.Repositories
         {
             var characterToUpdate = _context.Characters
                 .Include(c => c.User)
-                .SingleOrDefault(u => u.Id == characterId && u.User.Id == userId);
+                .SingleOrDefault(c => c.Id == characterId && c.User.Id == userId);
 
             if (characterToUpdate is null)
             {
@@ -150,9 +150,10 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public async Task<bool> CharacterExistsAsync(int characterId)
+        public async Task<bool> CharacterExistsAsync(int characterId, string userId)
         {
-            return await _context.Characters.AnyAsync(c => c.Id == characterId);
+            return await _context.Characters
+                .AnyAsync(c => c.Id == characterId && c.User.Id == userId);
         }
     }
 }

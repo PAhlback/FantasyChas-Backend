@@ -33,7 +33,7 @@ namespace FantasyChas_Backend.Controllers
             {
                 IdentityUser user = await GetCurrentUserAsync();
 
-                bool characterExists = await _characterService.CharacterExistsAsync(storyDto.CharacterId);
+                bool characterExists = await _characterService.CharacterExistsAsync(storyDto.CharacterId, user.Id);
                 if (!characterExists)
                 {
                     return NotFound("Character not found");

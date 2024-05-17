@@ -110,6 +110,7 @@ namespace FantasyChas_Backend
                 return Results.Ok("Hello!");
             }).RequireAuthorization();
 
+            // Temporary logout button
             app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager,
                 [FromBody] object empty) =>
             {
