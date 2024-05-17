@@ -40,18 +40,21 @@ jobs:
       - name: Push Docker image
         run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
+      - name: Set Docker image details as output
+        id: vars
+        run: |
+          echo "::set-output name=docker_image::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          echo "::set-output name=docker_registry_server::${{ env.REGISTRY }}"
+          echo "::set-output name=docker_registry_username::${{ github.actor }}"
+          echo "::set-output name=docker_registry_password::${{ secrets.GITHUB_TOKEN }}"
+
   deploy:
-    runs-on: ubuntu-latest
     needs: build
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
@@ -61,6 +64,8 @@ jobs:
 
       - name: Terraform Apply
         run: terraform -chdir=terraform apply -auto-approve
-
-      - name: Terraform Destroy
-        run: terraform -chdir=terraform destroy -auto-approve
+        env:
+          TF_VAR_docker_image: ${{ needs.build.outputs.docker_image }}
+          TF_VAR_docker_registry_server: ${{ needs.build.outputs.docker_registry_server }}
+          TF_VAR_docker_registry_username: ${{ needs.build.outputs.docker_registry_username }}
+          TF_VAR_docker_registry_password: ${{ needs.build.outputs.docker_registry_password }}
