@@ -3,10 +3,10 @@ name: Build, Test, Dockerize, and Deploy .NET Application
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 env:
   REGISTRY: ghcr.io
@@ -31,6 +31,10 @@ jobs:
       - name: Build the application
         run: dotnet build --configuration Release --no-restore
 
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal
+        working-directory: ${{ github.workspace }}
+
       - name: Build Docker image
         run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
 
@@ -54,10 +58,13 @@ jobs:
       - name: Terraform Init
         run: terraform -chdir=terraform init
 
+      - name: Prepare Azure credentials
+        run: echo '${{ secrets.AZURE_CREDENTIALS }}' > ~/.azure/credentials.json
+
       - name: Terraform Apply
         run: terraform -chdir=terraform apply -auto-approve
         env:
-          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
