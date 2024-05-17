@@ -54,6 +54,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Check if resource group exists
+        id: check_rg
+        run: |
+          exists=$(az group exists --name rg-fantasychas)
+          echo "::set-output name=exists::$exists"
+
+      - name: Import resource group
+        if: steps.check_rg.outputs.exists == 'true'
+        run: |
+          terraform import azurerm_resource_group.rg /subscriptions/
+          338906d8-4c3f-4170-8dfe-09d3ec8664a6/resourceGroups/rg-fantasychas
+
+      - name: Check if virtual network exists
+        id: check_vnet
+        run: |
+          exists=$(az network vnet show --name vnet-fantasychas --resource-group rg-fantasychas --query "name" -o tsv)
+          echo "::set-output name=exists::$exists"
+
+      - name: Import virtual network
+        if: steps.check_vnet.outputs.exists == 'vnet-fantasychas'
+        run: |
+          terraform import azurerm_virtual_network.vnet /subscriptions/
+          338906d8-4c3f-4170-8dfe-09d3ec8664a6/resourceGroups/rg-fantasychas/providers/Microsoft.Network/virtualNetworks/vnet-fantasychas
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
