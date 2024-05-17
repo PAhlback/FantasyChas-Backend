@@ -11,5 +11,7 @@ namespace FantasyChas_Backend.Services.ServiceInterfaces
         Task CreateCharacterAsync(IdentityUser user, CharacterDto charDto);
         Task UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto);
         Task DeleteCharacterAsync(string userId, int CharacterId);
+        Task<bool> CharacterExistsAsync(int characterId, string userId);
+        Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
     }
 }
