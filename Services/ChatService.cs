@@ -55,12 +55,19 @@ namespace FantasyChas_Backend.Services
 
                 var response = await _openAiService.GetChatGPTResultAsync(messages);
 
-                Console.WriteLine(response);
+                //Console.WriteLine(response);
 
                 StoryChatResponseViewModel result = new StoryChatResponseViewModel()
                 {
                     Message = response.Choices[0].Message.TextContent
                 };
+
+                if(response.Usage.TotalTokens > 16000)
+                {
+                    // Lägg till metod för att skapa ett nytt ChattObjekt och länka den med ActiveStory.
+                }
+
+
 
                 return result;
             }
