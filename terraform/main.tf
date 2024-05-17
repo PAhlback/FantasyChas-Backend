@@ -1,3 +1,13 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.0.0"
+    }
+  }
+  required_version = ">= 0.14.9"
+}
+
 provider "azurerm" {
   features {}
 }
@@ -7,24 +17,32 @@ resource "azurerm_resource_group" "rg" {
   location = "West Europe"
 }
 
-resource "azurerm_service_plan" "asp" {
+resource "azurerm_app_service_plan" "asp" {
   name                = "asp-fantasychas"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  os_type             = "Linux"
+  kind                = "Linux"
+  reserved            = true
+   os_type             = "Linux"
   sku_name            = "B1"
 }
 
-resource "azurerm_linux_web_app" "app" {
+resource "azurerm_app_service" "app" {
   name                = "app-fantasychas"
+  location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_service_plan.asp.location
-  service_plan_id     = azurerm_service_plan.asp.id
+  app_service_plan_id = azurerm_app_service_plan.asp.id
+  https_only          = true
 
   site_config {
-    always_on = true  # For example, enable always-on
+    linux_fx_version = "DOCKER|${var.docker_image}"
+    always_on        = true
+    minimum_tls_version = "1.2"
   }
+
   app_settings = {
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false"
+    "DOCKER_REGISTRY_SERVER_URL"      = "https://${var.docker_registry_server}"
+    "DOCKER_REGISTRY_SERVER_USERNAME" = var.docker_registry_username
+    "DOCKER_REGISTRY_SERVER_PASSWORD" = var.docker_registry_password
   }
 }
