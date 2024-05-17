@@ -1,10 +1,6 @@
-using FantasyChas_Backend.Data;
-using FantasyChas_Backend.Models;
 using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
-using FantasyChas_Backend.Repositories;
 using FantasyChas_Backend.Services;
-using FantasyChas_Backend.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

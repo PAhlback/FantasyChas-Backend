@@ -1,10 +1,5 @@
 ﻿using FantasyChas_Backend.Data;
 using FantasyChas_Backend.Models;
-using FantasyChas_Backend.Models.DTOs;
-using FantasyChas_Backend.Models.ViewModels;
-using FantasyChas_Backend.Services.ServiceInterfaces;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FantasyChas_Backend.Repositories
@@ -17,7 +12,7 @@ namespace FantasyChas_Backend.Repositories
         public Task DeleteCharacterAsync(string userId, int characterId);
         Task<bool> CharacterExistsAsync(int characterId, string userId);
         public Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
-        Task<CharacterViewModel> GetCharacterByIdAsync(int characterId);
+        Task<Character> GetCharacterByIdAsync(int characterId);
     }
 
     public class CharacterRepository : ICharacterRepository
@@ -118,30 +113,10 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public async Task<CharacterViewModel> GetCharacterByIdAsync(int characterId)
+        public async Task<Character> GetCharacterByIdAsync(int characterId)
         {
-            CharacterViewModel? character = await _context.Characters
+            Character? character = await _context.Characters
                 .Where(c => c.Id == characterId)
-                .Select(c => new CharacterViewModel()
-                {
-                    Id = characterId,
-                    Name = c.Name,
-                    Age = c.Age,
-                    Gender = c.Gender,
-                    Level = c.Level,
-                    HealthPoints = c.HealthPoints,
-                    Strength = c.Strength,
-                    Dexterity = c.Dexterity,
-                    Intelligence = c.Intelligence,
-                    Wisdom = c.Wisdom,
-                    Constitution = c.Constitution,
-                    Charisma = c.Charisma,
-                    Favourite = c.Favourite,
-                    ImageURL = c.ImageURL,
-                    Backstory = c.Backstory,
-                    Profession = c.Profession,
-                    Species = c.Species
-                })
                 .SingleOrDefaultAsync();
 
             return character;

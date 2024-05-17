@@ -1,13 +1,21 @@
-﻿using FantasyChas_Backend.Models.DTOs;
-using FantasyChas_Backend.Models;
-using FantasyChas_Backend.Repositories;
+﻿using FantasyChas_Backend.Models;
+using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using FantasyChas_Backend.Services.ServiceInterfaces;
+using FantasyChas_Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
 
 namespace FantasyChas_Backend.Services
 {
+    public interface ICharacterService
+    {
+        Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
+        Task CreateCharacterAsync(IdentityUser user, CharacterDto charDto);
+        Task UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto);
+        Task DeleteCharacterAsync(string userId, int CharacterId);
+        Task<bool> CharacterExistsAsync(int characterId, string userId);
+        Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
+        Task<CharacterViewModel> ConvertCharacterToViewModelAsync(Character character);
+    }
     public class CharacterService : ICharacterService
     {
         private readonly ICharacterRepository _characterRepository;
@@ -150,6 +158,38 @@ namespace FantasyChas_Backend.Services
         public async Task<bool> CharacterExistsAsync(int characterId, string userId)
         {
             return await _characterRepository.CharacterExistsAsync(characterId, userId);
+        }
+
+        public async Task<CharacterViewModel> ConvertCharacterToViewModelAsync(Character character)
+        {
+            try
+            {
+                CharacterViewModel? characterViewModel = new CharacterViewModel()
+                {
+                    Id = character.Id,
+                    Name = character.Name,
+                    Age = character.Age,
+                    Gender = character.Gender,
+                    Level = character.Level,
+                    HealthPoints = character.HealthPoints,
+                    Strength = character.Strength,
+                    Dexterity = character.Dexterity,
+                    Intelligence = character.Intelligence,
+                    Wisdom = character.Wisdom,
+                    Constitution = character.Constitution,
+                    Charisma = character.Charisma,
+                    Favourite = character.Favourite,
+                    ImageURL = character.ImageURL,
+                    Backstory = character.Backstory,
+                    Profession = character.Profession,
+                    Species = character.Species
+                };
+                return characterViewModel;
+            }
+            catch
+            {
+                throw new Exception();
+            }
         }
     }
 }

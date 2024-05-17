@@ -2,24 +2,62 @@
 using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
 using FantasyChas_Backend.Repositories;
-using FantasyChas_Backend.Services.ServiceInterfaces;
+using Microsoft.EntityFrameworkCore;
 using OpenAI_API.Chat;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FantasyChas_Backend.Services
 {
+    public interface IChatService
+    {
+        Task<StoryChatResponseViewModel> SendToChatServiceAsync(StoryChatPromptDto chatPromptObject);
+        Task AddChatHistory(string message, int chatId, int characterId);
+    }
+
     public class ChatService : IChatService
     {
         private readonly IChatRepository _chatRepository;
         private readonly ICharacterRepository _characterRepository;
         private readonly IOpenAiService _openAiService;
+        private readonly ICharacterService _characterService;
 
         private readonly int _maxTokensAllowed = 16000;
 
-        public ChatService(IChatRepository chatRepository, ICharacterRepository characterRepository, IOpenAiService openAiService)
+        public ChatService(IChatRepository chatRepository, ICharacterRepository characterRepository, IOpenAiService openAiService, ICharacterService characterService)
         {
             _chatRepository = chatRepository;
             _characterRepository = characterRepository;
             _openAiService = openAiService;
+            _characterService = characterService;
+        }
+
+        public async Task AddChatHistory(string message, int chatId, int characterId)
+        {
+            try
+            {
+                Character? character = new Character();
+
+                if (characterId > 0)
+                {
+                    character = await _characterRepository.GetCharacterByIdAsync(characterId);
+                }
+
+                Chat? chat = await _chatRepository.GetChatByIdAsync(chatId);
+
+                var historyLine = new ChatHistory
+                {
+                    Character = character,
+                    Chat = chat,
+                    Message = message,
+                    Timestamp = DateTime.Now
+                };
+
+                await _chatRepository.SaveChatHistoryMessageInDatabase(historyLine);
+            }
+            catch
+            {
+                throw new Exception();
+            }
         }
 
         public async Task<StoryChatResponseViewModel> SendToChatServiceAsync(StoryChatPromptDto chatPromptObject)
@@ -28,11 +66,12 @@ namespace FantasyChas_Backend.Services
             {
                 // Skicka in karaktärsid till repo för att hämta history och senaste ChatSummary
                 List<ChatHistory>? history = await _chatRepository.GetChatHistory(chatPromptObject.CharacterId);
-                string? summary = await _chatRepository.GetChatSummary(chatPromptObject.CharacterId);
+                Chat? chat = await _chatRepository.GetChat(chatPromptObject.CharacterId);
 
                 // ToDo: Ta bort ID och ImageURL innan vi skickar vidare till ChatGPT
-                CharacterViewModel? character = await _characterRepository.GetCharacterByIdAsync(chatPromptObject.CharacterId);
-                string? serializedObject = Newtonsoft.Json.JsonConvert.SerializeObject(character);
+                Character? character = await _characterRepository.GetCharacterByIdAsync(chatPromptObject.CharacterId);
+                CharacterViewModel? characterViewModel = await _characterService.ConvertCharacterToViewModelAsync(character);
+                string? serializedObject = Newtonsoft.Json.JsonConvert.SerializeObject(characterViewModel);
 
                 var messages = new List<ChatMessage>
                             {
@@ -64,7 +103,13 @@ namespace FantasyChas_Backend.Services
                     Message = response.Choices[0].Message.TextContent
                 };
 
-                if(response.Usage.TotalTokens > _maxTokensAllowed)
+
+                // spara i chathistory
+                await AddChatHistory(chatPromptObject.Message, chat.Id, chatPromptObject.CharacterId);
+                await AddChatHistory(result.Message, chat.Id, 0);
+
+
+                if (response.Usage.TotalTokens > _maxTokensAllowed)
                 {
                     // Lägg till metod för att skapa ett nytt ChattObjekt och länka den med ActiveStory.
                 }
