@@ -15,7 +15,7 @@ namespace FantasyChas_Backend.Repositories
         public Task AddCharacterAsync(Character newCharacter);
         public Task UpdateCharacterAsync(int characterId, Character updatedCharacter);
         public Task DeleteCharacterAsync(string userId, int characterId);
-        Task<Character> GetCharacterByIdAsync(int characterId);
+        Task<CharacterViewModel> GetCharacterByIdAsync(int characterId);
     }
 
     public class CharacterRepository : ICharacterRepository
@@ -116,10 +116,33 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public async Task<Character> GetCharacterByIdAsync(int characterId)
+        public async Task<CharacterViewModel> GetCharacterByIdAsync(int characterId)
         {
-            return await _context.Characters
-                .SingleOrDefaultAsync(c => c.Id == characterId);
+            CharacterViewModel? character = await _context.Characters
+                .Where(c => c.Id == characterId)
+                .Select(c => new CharacterViewModel()
+                {
+                    Id = characterId,
+                    Name = c.Name,
+                    Age = c.Age,
+                    Gender = c.Gender,
+                    Level = c.Level,
+                    HealthPoints = c.HealthPoints,
+                    Strength = c.Strength,
+                    Dexterity = c.Dexterity,
+                    Intelligence = c.Intelligence,
+                    Wisdom = c.Wisdom,
+                    Constitution = c.Constitution,
+                    Charisma = c.Charisma,
+                    Favourite = c.Favourite,
+                    ImageURL = c.ImageURL,
+                    Backstory = c.Backstory,
+                    Profession = c.Profession,
+                    Species = c.Species
+                })
+                .SingleOrDefaultAsync();
+
+            return character;
         }
     }
 }

@@ -13,6 +13,8 @@ namespace FantasyChas_Backend.Services
         private readonly ICharacterRepository _characterRepository;
         private readonly IOpenAiService _openAiService;
 
+        private readonly int _maxTokensAllowed = 16000;
+
         public ChatService(IChatRepository chatRepository, ICharacterRepository characterRepository, IOpenAiService openAiService)
         {
             _chatRepository = chatRepository;
@@ -29,7 +31,7 @@ namespace FantasyChas_Backend.Services
                 string? summary = await _chatRepository.GetChatSummary(chatPromptObject.CharacterId);
 
                 // Ta bort ID och ImageURL innan vi skickar vidare till ChatGPT
-                Character? character = await _characterRepository.GetCharacterByIdAsync(chatPromptObject.CharacterId);
+                CharacterViewModel? character = await _characterRepository.GetCharacterByIdAsync(chatPromptObject.CharacterId);
                 string? serializedObject = Newtonsoft.Json.JsonConvert.SerializeObject(character);
 
                 var messages = new List<ChatMessage>
@@ -55,12 +57,19 @@ namespace FantasyChas_Backend.Services
 
                 var response = await _openAiService.GetChatGPTResultAsync(messages);
 
-                Console.WriteLine(response);
+                //Console.WriteLine(response);
 
                 StoryChatResponseViewModel result = new StoryChatResponseViewModel()
                 {
                     Message = response.Choices[0].Message.TextContent
                 };
+
+                if(response.Usage.TotalTokens > _maxTokensAllowed)
+                {
+                    // Lägg till metod för att skapa ett nytt ChattObjekt och länka den med ActiveStory.
+                }
+
+
 
                 return result;
             }

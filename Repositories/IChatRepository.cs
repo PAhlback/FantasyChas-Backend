@@ -7,8 +7,9 @@ namespace FantasyChas_Backend.Repositories
 {
     public interface IChatRepository
     {
-        public Task<List<ChatHistory>> GetChatHistory(int characterId);
-        public Task<string> GetChatSummary(int characterId);
+        Task<List<ChatHistory>> GetChatHistory(int characterId);
+        Task<string> GetChatSummary(int characterId);
+        Task SaveChatHistoryMessageInDatabase(string message, int chatId, int? characterId);
     }
     public class ChatRepository : IChatRepository
     {
@@ -31,7 +32,7 @@ namespace FantasyChas_Backend.Repositories
                     .SelectMany(c => c.ChatHistory) 
                     .ToListAsync();
 
-                return history;
+                return chatHistory;
             }
             catch
             {
@@ -51,7 +52,18 @@ namespace FantasyChas_Backend.Repositories
                         )
                 .SingleOrDefaultAsync();
 
+            List<Chat> chats = await _context.Chats
+                .Where(c => c.ActiveStory == story)
+                .ToListAsync();
+
+            string summary = chats.LastOrDefault().ChatSummary;
+
             return summary;
+        }
+
+        public Task SaveChatHistoryMessageInDatabase(ChatHistory chatHistory)
+        {
+            
         }
     }
 }
