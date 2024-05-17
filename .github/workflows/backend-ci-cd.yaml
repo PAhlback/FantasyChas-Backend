@@ -33,7 +33,7 @@ jobs:
 
       - name: Run tests
         run: dotnet test FantasyChas-Backend-Tests.dll --no-build --verbosity normal
-        working-directory: ${{ github.workspace }}/FantasyChas-Backend/FantasyChas-Backend/bin/Debug/net8.0
+        working-directory: ${{ github.workspace }}/bin/Debug/net8.0
 
       - name: Build Docker image
         run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
