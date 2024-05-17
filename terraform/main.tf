@@ -41,10 +41,4 @@ resource "azurerm_app_service" "app" {
     always_on        = true
     minimum_tls_version = "1.2"
   }
-
-  app_settings = {
-    "DOCKER_REGISTRY_SERVER_URL"      = "https://${var.docker_registry_server}"
-    "DOCKER_REGISTRY_SERVER_USERNAME" = var.docker_registry_username
-    "DOCKER_REGISTRY_SERVER_PASSWORD" = var.docker_registry_password
-  }
 }
