@@ -21,12 +21,8 @@ resource "azurerm_app_service_plan" "asp" {
   name                = "asp-fantasychas"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  kind                = "Linux"
-  reserved            = true
-  sku {
-    tier = "Basic"
-    size = "B1"
-  }
+  os_type             = "Linux"
+  sku_name            = "B1"
 }
 
 resource "azurerm_app_service" "app" {
@@ -37,8 +33,6 @@ resource "azurerm_app_service" "app" {
   https_only          = true
 
   site_config {
-    linux_fx_version = "DOCKER|${var.docker_image}"
-    always_on        = true
     minimum_tls_version = "1.2"
   }
 }
