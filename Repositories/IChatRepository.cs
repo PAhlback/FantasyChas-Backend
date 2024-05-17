@@ -24,10 +24,12 @@ namespace FantasyChas_Backend.Repositories
             try
             {
                 var history = await _context.ActiveStories
-                //.Where(a => a.Characters.SingleOrDefault().Id == characterId)
-                .Include(a => a.Chats)
-                .SelectMany(c => c.Chats.ChatHistory)
-                .ToListAsync();
+                    .Where(a => a.Characters.Any(c => c.Id == characterId)) 
+                    .SelectMany(a => a.Chats) 
+                    .OrderByDescending(c => c.Id)  // inte optimalt
+                    .Take(1) 
+                    .SelectMany(c => c.ChatHistory) 
+                    .ToListAsync();
 
                 return history;
             }
@@ -42,7 +44,11 @@ namespace FantasyChas_Backend.Repositories
             var summary = await _context.ActiveStories
                 .Where(a => a.Characters.SingleOrDefault().Id == characterId)
                 .Include(a => a.Chats)
-                .Select(a => a.Chats.LastOrDefault().ChatSummary)
+                .Select(a => a.Chats
+                                .OrderByDescending(c => c.Id) // inte optimalt
+                                .FirstOrDefault()
+                                .ChatSummary
+                        )
                 .SingleOrDefaultAsync();
 
             return summary;
