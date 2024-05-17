@@ -75,7 +75,7 @@ resource "azurerm_virtual_machine" "vm" {
   os_profile {
     computer_name  = "vm-fantasychas"
     admin_username = "azureuser"
-    admin_password = "varförfunkarlösernordetinte127!"
+    admin_password = "Varförfunkarlösernordetinte127!"
   }
 
   os_profile_linux_config {
