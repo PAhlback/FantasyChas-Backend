@@ -44,7 +44,7 @@ namespace FantasyChas_Backend.Controllers
             {
                 var jsonObject = await _chatService.SendToChatServiceAsync(chatPromptObject);
 
-                return Ok();
+                return Ok(jsonObject);
             }
             catch
             {

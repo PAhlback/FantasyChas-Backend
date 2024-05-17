@@ -32,7 +32,7 @@ namespace FantasyChas_Backend.Repositories
                     .SelectMany(c => c.ChatHistory) 
                     .ToListAsync();
 
-                return chatHistory;
+                return history;
             }
             catch
             {
@@ -52,18 +52,12 @@ namespace FantasyChas_Backend.Repositories
                         )
                 .SingleOrDefaultAsync();
 
-            List<Chat> chats = await _context.Chats
-                .Where(c => c.ActiveStory == story)
-                .ToListAsync();
-
-            string summary = chats.LastOrDefault().ChatSummary;
-
             return summary;
         }
 
-        public Task SaveChatHistoryMessageInDatabase(ChatHistory chatHistory)
+        public Task SaveChatHistoryMessageInDatabase(string message, int chatId, int? characterId)
         {
-            
+            throw new NotImplementedException();
         }
     }
 }
