@@ -35,22 +35,29 @@ namespace FantasyChas_Backend.Services
         {
             try
             {
+                string stringCharacterId = characterId.ToString();
+
                 Character? character = new Character();
 
-                if (characterId > 0)
+                if (stringCharacterId != "0")
                 {
-                    character = await _characterRepository.GetCharacterByIdAsync(characterId);
+                    int actualCharacterId = int.Parse(stringCharacterId);
+                    character = await _characterRepository.GetCharacterByIdAsync(actualCharacterId);
                 }
 
                 Chat? chat = await _chatRepository.GetChatByIdAsync(chatId);
 
                 var historyLine = new ChatHistory
                 {
-                    Character = character,
                     Chat = chat,
                     Message = message,
                     Timestamp = DateTime.Now
                 };
+
+                if(character.Name != null)
+                {
+                    historyLine.Character = character;
+                }
 
                 await _chatRepository.SaveChatHistoryMessageInDatabase(historyLine);
             }
