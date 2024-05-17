@@ -68,8 +68,7 @@ jobs:
       - name: Import resource group
         if: steps.check_rg.outputs.exists == 'true'
         run: |
-          terraform import azurerm_resource_group.rg /subscriptions/
-          338906d8-4c3f-4170-8dfe-09d3ec8664a6/resourceGroups/rg-fantasychas
+          terraform import azurerm_resource_group.rg /subscriptions/338906d8-4c3f-4170-8dfe-09d3ec8664a6/resourceGroups/rg-fantasychas
 
       - name: Check if virtual network exists
         id: check_vnet
@@ -80,8 +79,51 @@ jobs:
       - name: Import virtual network
         if: steps.check_vnet.outputs.exists == 'vnet-fantasychas'
         run: |
-          terraform import azurerm_virtual_network.vnet /subscriptions/
-          338906d8-4c3f-4170-8dfe-09d3ec8664a6/resourceGroups/rg-fantasychas/providers/Microsoft.Network/virtualNetworks/vnet-fantasychas
+          terraform import azurerm_virtual_network.vnet /subscriptions/338906d8-4c3f-4170-8dfe-09d3ec8664a6/resourceGroups/rg-fantasychas/providers/Microsoft.Network/virtualNetworks/vnet-fantasychas
+
+      - name: Check if subnet exists
+        id: check_subnet
+        run: |
+          exists=$(az network vnet subnet show --name subnet-fantasychas --resource-group rg-fantasychas --vnet-name vnet-fantasychas --query "name" -o tsv)
+          echo "::set-output name=exists::$exists"
+
+      - name: Import subnet
+        if: steps.check_subnet.outputs.exists == 'subnet-fantasychas'
+        run: |
+          terraform import azurerm_subnet.subnet /subscriptions/338906d8-4c3f-4170-8dfe-09d3ec8664a6/resourceGroups/rg-fantasychas/providers/Microsoft.Network/virtualNetworks/vnet-fantasychas/subnets/subnet-fantasychas
+
+      - name: Check if network interface exists
+        id: check_nic
+        run: |
+          exists=$(az network nic show --name nic-fantasychas --resource-group rg-fantasychas --query "name" -o tsv)
+          echo "::set-output name=exists::$exists"
+
+      - name: Import network interface
+        if: steps.check_nic.outputs.exists == 'nic-fantasychas'
+        run: |
+          terraform import azurerm_network_interface.nic /subscriptions/338906d8-4c3f-4170-8dfe-09d3ec8664a6/resourceGroups/rg-fantasychas/providers/Microsoft.Network/networkInterfaces/nic-fantasychas
+
+      - name: Check if public IP exists
+        id: check_public_ip
+        run: |
+          exists=$(az network public-ip show --name pip-fantasychas --resource-group rg-fantasychas --query "name" -o tsv)
+          echo "::set-output name=exists::$exists"
+
+      - name: Import public IP
+        if: steps.check_public_ip.outputs.exists == 'pip-fantasychas'
+        run: |
+          terraform import azurerm_public_ip.public_ip /subscriptions/338906d8-4c3f-4170-8dfe-09d3ec8664a6/resourceGroups/rg-fantasychas/providers/Microsoft.Network/publicIPAddresses/pip-fantasychas
+
+      - name: Check if virtual machine exists
+        id: check_vm
+        run: |
+          exists=$(az vm show --name vm-fantasychas --resource-group rg-fantasychas --query "name" -o tsv)
+          echo "::set-output name=exists::$exists"
+
+      - name: Import virtual machine
+        if: steps.check_vm.outputs.exists == 'vm-fantasychas'
+        run: |
+          terraform import azurerm_virtual_machine.vm /subscriptions/338906d8-4c3f-4170-8dfe-09d3ec8664a6/resourceGroups/rg-fantasychas/providers/Microsoft.Compute/virtualMachines/vm-fantasychas
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
