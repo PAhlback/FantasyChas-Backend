@@ -32,7 +32,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test ./FantasyChas-Backend/FantasyChas-Backend-Tests --no-build --verbosity normal
+        run: dotnet test ./FantasyChas-Backend/FantasyChas-Backend-Tests/FantasyChas-Backend-Tests.csproj --no-build --verbosity normal
 
       - name: Build Docker image
         run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
