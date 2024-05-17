@@ -1,5 +1,5 @@
 ﻿using FantasyChas_Backend.Models.DTOs;
-using FantasyChas_Backend.Services.ServiceInterfaces;
+using FantasyChas_Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

@@ -1,11 +1,14 @@
-﻿using FantasyChas_Backend.Models.DTOs;
-using FantasyChas_Backend.Models;
+﻿using FantasyChas_Backend.Models;
+using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Repositories;
-using FantasyChas_Backend.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Identity;
 
 namespace FantasyChas_Backend.Services
 {
+    public interface IActiveStoryService
+    {
+        Task<int> CreateStoryAsync(IdentityUser user, ActiveStoryDto storyDto);
+    }
     public class ActiveStoryService : IActiveStoryService
     {
         private readonly IActiveStoryRepository _activeStoryRepository;

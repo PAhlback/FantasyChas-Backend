@@ -1,16 +1,9 @@
 ﻿using FantasyChas_Backend.Data;
-using FantasyChas_Backend.Models;
 using FantasyChas_Backend.Models.DTOs;
-using FantasyChas_Backend.Repositories;
-using FantasyChas_Backend.Services.ServiceInterfaces;
+using FantasyChas_Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using OpenAI_API;
-using OpenAI_API.Chat;
-using OpenAI_API.Models;
 
 namespace FantasyChas_Backend.Controllers
 {
@@ -37,20 +30,20 @@ namespace FantasyChas_Backend.Controllers
         // get svar från AI 
         // get senaste XX meddelanden i storyn - alternativt föregående chat
 
-        //[HttpPost("")]
-        //public async Task<IActionResult> PlaceholderAsync(StoryChatPromptDto chatPrompt)
-        //{
-        //    try
-        //    {
-        //        // var jsonObject = sendToChatService(chatMessage));
+        [HttpPost("PlaceholderAsync")]
+        public async Task<IActionResult> PlaceholderAsync(StoryChatPromptDto chatPromptObject)
+        {
+            try
+            {
+                var jsonObject = await _chatService.SendToChatServiceAsync(chatPromptObject);
 
-        //        return Ok();
-        //    }
-        //    catch
-        //    {
-
-        //    }
-        //}
+                return Ok(jsonObject);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
 
         //        [HttpPost("getAnswerFromChatGPT")]
         //        public async Task<IActionResult> GetAnswerFromChatGPT(string query, OpenAIAPI api)
