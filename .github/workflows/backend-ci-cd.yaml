@@ -23,8 +23,8 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Build .NET application
-        run: dotnet build --configuration Release
+      - name: .NET Publish
+        run: dotnet publish -c Release --self-contained -o ./publish
 
       - name: Docker login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
