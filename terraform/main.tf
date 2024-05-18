@@ -1,25 +1,14 @@
-variable "ghcr_token" {
-  description = "GitHub Container Registry token"
-  type        = string
-}
-
-variable "ghcr_username" {
-  description = "GitHub Container Registry username"
-  type        = string
-}
-
 terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0.2"
+      version = "~>2.0"
     }
   }
-
-  required_version = ">= 1.1.0"
-
   backend "remote" {
+    hostname     = "app.terraform.io"
     organization = "FantasyChas-Backend"
+
     workspaces {
       name = "FantasyChas-Backend2"
     }
@@ -31,85 +20,57 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "FantasyChasResourceGroup"
-  location = "Sweden Central"
+  name     = "FantasyChas-Backend"
+  location = "West Europe"
 }
 
-resource "azurerm_virtual_network" "main" {
-  name                = "fantasychas-network"
+resource "azurerm_virtual_network" "vnet" {
+  name                = "FantasyChas-Backend-vnet"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
   address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
 }
 
-resource "azurerm_subnet" "internal" {
-  name                 = "internal"
+resource "azurerm_subnet" "subnet" {
+  name                 = "FantasyChas-Backend-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.main.name
-  address_prefixes     = ["10.0.2.0/24"]
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
-resource "azurerm_public_ip" "pip" {
-  name                = "fantasychas-terraform-pip"
-  resource_group_name = azurerm_resource_group.rg.name
+resource "azurerm_network_interface" "nic" {
+  name                = "FantasyChas-Backend-nic"
   location            = azurerm_resource_group.rg.location
-  allocation_method   = "Dynamic"
-}
-
-resource "azurerm_network_interface" "main" {
-  name                = "fantasychas-terraform-nic1"
   resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
 
   ip_configuration {
-    name                          = "primary"
-    subnet_id                     = azurerm_subnet.internal.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.pip.id
-  }
-}
-
-resource "azurerm_network_interface" "internal" {
-  name                = "fantasychas-terraform-nic2"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.internal.id
+    name                          = "FantasyChas-Backend-ip-config"
+    subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
   }
 }
 
-resource "azurerm_linux_virtual_machine" "main" {
-  name                = "fantasychas-terraform-vm"
+resource "azurerm_linux_virtual_machine" "vm" {
+  name                = "FantasyChas-Backend-vm"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  size                = "Standard_B1s"
-  admin_username      = "adminuser"
-  admin_password      = "Varförfunkarintelösernordet127!"
-  network_interface_ids = [
-    azurerm_network_interface.main.id,
-    azurerm_network_interface.internal.id,
-  ]
-
-  tags = {
-    environment = "dev"
-  }
-
-  provisioner "local-exec" {
-    command = <<EOF
-      sudo apt-get update
-      sudo apt-get install -y docker.io
-      sudo systemctl start docker
-      sudo systemctl enable docker
-      sudo docker pull ghcr.io/f-eighty7/fantasychas-backend:latest
-      sudo docker run -d -p 80:80 ghcr.io/f-eighty7/fantasychas-backend:latest
-EOF
-  }
+  size                = "Standard_F2"
+  admin_username      = "admin"
+  network_interface_id = azurerm_network_interface.nic.id
 
   os_disk {
-    storage_account_type = "Standard_LRS"
     caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
   }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "22_04-lts"
+    version   = "latest"
+  }
+
+  admin_password = "FantasyChas-Backend"
+
+  disable_password_authentication = false
 }

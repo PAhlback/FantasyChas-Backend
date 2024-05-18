@@ -1,92 +1,80 @@
-name: Build, Test, Dockerize, Deploy, and Destroy .NET Application
+name: CI/CD Workflow
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      destroy:
-        description: "Destroy Terraform infrastructure"
-        required: false
-        default: "false"
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: f-eighty7/fantasychas-backend
+  TF_VERSION: '1.0.0'
+  TF_WORKSPACE: 'default'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: '6.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Build .NET application
+        run: dotnet build --configuration Release
 
-      - name: Build the application
-        run: dotnet build --configuration Release --no-restore
+      - name: Docker login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build Docker image
-        run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
-
-      - name: Log in to GitHub Container Registry
-        run: echo ${{ secrets.GHCR_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
-
-      - name: Push Docker image
-        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Build and push Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/app:${{ github.sha }} .
+          docker push ghcr.io/${{ github.repository }}/app:${{ github.sha }}
 
   deploy:
+    needs: build
     runs-on: ubuntu-latest
-
-    needs: [build]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Terraform
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: '1.1.0'
+          terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Configure Terraform
-        run: terraform -chdir=terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Workspace Select
+        run: terraform workspace select ${{ env.TF_WORKSPACE }}
+
+      - name: Terraform Plan
+        run: terraform plan -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
 
       - name: Terraform Apply
-        run: terraform -chdir=terraform apply -auto-approve
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        run: terraform apply -auto-approve -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
 
   destroy:
+    if: github.event_name == 'workflow_dispatch'
+    needs: deploy
     runs-on: ubuntu-latest
-    needs: [deploy]
-
-    if: ${{ github.event.inputs.destroy == 'true' }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Terraform
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: '1.1.0'
+          terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Configure Terraform
-        run: terraform -chdir=terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
+      - name: Terraform Init
+        run: terraform init
 
-      - name: Destroy Terraform resources
-        run: terraform -chdir=terraform destroy -auto-approve
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      - name: Terraform Workspace Select
+        run: terraform workspace select ${{ env.TF_WORKSPACE }}
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
