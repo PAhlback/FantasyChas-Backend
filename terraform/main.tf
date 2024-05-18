@@ -7,6 +7,14 @@ terraform {
   }
 
   required_version = ">= 1.1.0"
+
+  backend "remote" {
+    organization = "FantasyChas-Backend"
+
+    workspaces {
+      name = "FantasyChas-Backend"
+    }
+  }
 }
 
 provider "azurerm" {
@@ -66,7 +74,7 @@ resource "azurerm_virtual_machine" "vm" {
     managed_disk_type = "Standard_LRS"
   }
 
-  source_image_reference {
+  storage_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
     sku       = "18.04-LTS"
