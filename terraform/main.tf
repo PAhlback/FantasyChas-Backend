@@ -89,3 +89,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   disable_password_authentication = false
 }
+
+variable "docker_image" {
+  description = "The Docker image to use"
+  type        = string
+}
