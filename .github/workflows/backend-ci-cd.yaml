@@ -1,16 +1,18 @@
 name: Build, Test, Dockerize, Deploy, and Destroy .NET Application
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       destroy:
         description: "Destroy Terraform infrastructure"
         required: false
         default: "false"
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: f-eighty7/fantasychas-backend
 
 jobs:
   build:
@@ -20,25 +22,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build the application
-        run: dotnet build --configuration Release --no-restore
-
-      - name: Build Docker image
-        run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
-
-      - name: Log in to GitHub Container Registry
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
-
-      - name: Push Docker image
-        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      # Your existing steps for building and pushing Docker image...
 
   deploy:
     runs-on: ubuntu-latest
@@ -48,23 +32,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-        
 
-
-      - name: Terraform Init
-        run: terraform -chdir=terraform init
+      - name: Terraform Plan
+        run: terraform -chdir=terraform plan
+        env:
+          TF_VAR_ghcr_username: ${{ secrets.GHCR_USERNAME }}
+          TF_VAR_ghcr_token: ${{ secrets.GHCR_TOKEN }}
 
       - name: Terraform Apply
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.inputs.destroy != 'true'
         run: terraform -chdir=terraform apply -auto-approve
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -85,8 +65,11 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: Terraform Init
-        run: terraform -chdir=terraform init
+      - name: Terraform Plan
+        run: terraform -chdir=terraform plan
+        env:
+          TF_VAR_ghcr_username: ${{ secrets.GHCR_USERNAME }}
+          TF_VAR_ghcr_token: ${{ secrets.GHCR_TOKEN }}
 
       - name: Terraform Destroy
         run: terraform -chdir=terraform destroy -auto-approve
@@ -96,4 +79,4 @@ jobs:
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           TF_VAR_ghcr_username: ${{ secrets.GHCR_USERNAME }}
-          TF_VAR_ghcr_token: ${{ secrets.GHCR_TOKEN }}
+          TF_VAR_ghcr_token: ${{ secrets.GHCR_TOKEN }
