@@ -57,9 +57,8 @@ resource "azurerm_network_interface" "nic2" {
 
   ip_configuration {
     name                          = "primary"
-    subnet_id                     = azurerm_subnet.internal.id
+    subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.pip.id
   }
 }
 
@@ -70,8 +69,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
   size                = "Standard_B1s"
   admin_username      = "admin"
   network_interface_ids = [
-    azurerm_network_interface.main.id,
-    azurerm_network_interface.internal.id,
+    azurerm_network_interface.nic.id,
+    azurerm_network_interface.nic2.id,
   ]
 
   os_disk {
