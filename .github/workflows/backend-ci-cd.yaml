@@ -48,9 +48,6 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Workspace Select
-        run: terraform workspace select ${{ env.TF_WORKSPACE }}
-
       - name: Terraform Plan
         run: terraform plan -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
 
