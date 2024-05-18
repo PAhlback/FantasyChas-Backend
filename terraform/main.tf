@@ -7,6 +7,7 @@ terraform {
   }
 
   required_version = ">= 1.1.0"
+}
 
 provider "azurerm" {
   features {}
@@ -65,7 +66,7 @@ resource "azurerm_virtual_machine" "vm" {
     managed_disk_type = "Standard_LRS"
   }
 
-  storage_image_reference {
+  source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
     sku       = "18.04-LTS"
