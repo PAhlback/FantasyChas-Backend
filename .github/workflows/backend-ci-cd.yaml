@@ -7,7 +7,7 @@ on:
         description: "Destroy Terraform infrastructure"
         required: false
         default: "false"
-        
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: f-eighty7/fantasychas-backend
@@ -56,21 +56,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
-
-      - name: Setup Terraform Backend
-        id: backend
-        run: |
-          cat > backend.tf << EOF
-          terraform {
-            backend "remote" {
-              organization = "${secrets.TF_CLOUD_ORGANIZATION}"
-  
-              workspaces {
-                name = "${secrets.TF_CLOUD_WORKSPACE}"
-              }
-            }
-          }
-          EOF
   
       - name: Terraform Init
         id: init
