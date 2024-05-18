@@ -50,13 +50,29 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
+resource "azurerm_network_interface" "nic2" {
+  name                = "FantasyChas-Backend-nic2"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  ip_configuration {
+    name                          = "primary"
+    subnet_id                     = azurerm_subnet.internal.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.pip.id
+  }
+}
+
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = "FantasyChas-Backend-vm"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  size                = "Standard_F2"
+  size                = "Standard_B1s"
   admin_username      = "admin"
-  network_interface_id = azurerm_network_interface.nic.id
+  network_interface_ids = [
+    azurerm_network_interface.main.id,
+    azurerm_network_interface.internal.id,
+  ]
 
   os_disk {
     caching              = "ReadWrite"
@@ -70,7 +86,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  admin_password = "FantasyChas-Backend"
+  admin_password = "Varförfunkarkodeninte123?"
 
   disable_password_authentication = false
 }
