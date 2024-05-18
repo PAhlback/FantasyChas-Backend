@@ -83,6 +83,25 @@ resource "azurerm_linux_virtual_machine" "main" {
     azurerm_network_interface.internal.id,
   ]
 
+  os_profile_linux_config {
+    disable_password_authentication = true
+  }
+
+  tags = {
+    environment = "dev"
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+      sudo apt-get update
+      sudo apt-get install -y docker.io
+      sudo systemctl start docker
+      sudo systemctl enable docker
+      sudo docker pull ghcr.io/f-eighty7/fantasychas-backend:latest
+      sudo docker run -d -p 80:80 ghcr.io/f-eighty7/fantasychas-backend:latest
+EOF
+  }
+
   source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
