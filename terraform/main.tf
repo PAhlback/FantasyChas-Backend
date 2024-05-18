@@ -87,7 +87,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  custom_data = <<-EOF
+  custom_data = base64encode(<<-EOF
     #cloud-config
     package_upgrade: true
     packages:
@@ -97,7 +97,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
       - systemctl enable docker
       - docker pull ${var.docker_image}
       - docker run -d -p 80:80 ${var.docker_image}
-  EOF
+  EOF)
 }
 
 variable "docker_image" {
