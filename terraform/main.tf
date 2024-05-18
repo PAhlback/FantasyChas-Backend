@@ -71,6 +71,10 @@ resource "azurerm_linux_virtual_machine" "main" {
   size                            =  "Standard_B1s"
   admin_username       = "adminuser"
   admin_password       = "Varförfunkarintelösernordet127!"
+  network_interface_ids = [
+    azurerm_network_interface.main.id,
+    azurerm_network_interface.internal.id,
+  ]
 
   source_image_reference {
     publisher = "Canonical"
@@ -84,4 +88,3 @@ resource "azurerm_linux_virtual_machine" "main" {
     caching              = "ReadWrite"
   }
 }
-

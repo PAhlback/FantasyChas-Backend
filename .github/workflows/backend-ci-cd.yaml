@@ -69,6 +69,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [deploy]
 
+    if: ${{ github.event.inputs.destroy == 'true' }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
