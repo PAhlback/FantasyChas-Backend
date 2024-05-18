@@ -32,13 +32,10 @@ jobs:
       - name: Build and push Docker image
         run: |
           REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$REPO_NAME/app:${{ github.sha }} .
-          docker push ghcr.io/$REPO_NAME/app:${{ github.sha }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set DOCKER_IMAGE environment variable
-        run: echo "DOCKER_IMAGE=ghcr.io/${{ github.repository }}/app:${{ github.sha }}" >> $GITHUB_ENV
+          DOCKER_IMAGE=ghcr.io/$REPO_NAME/app:${{ github.sha }}
+          docker build -t $DOCKER_IMAGE .
+          docker push $DOCKER_IMAGE
+          echo "DOCKER_IMAGE=$DOCKER_IMAGE" >> $GITHUB_ENV
 
   deploy:
     needs: build
@@ -76,6 +73,7 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
         working-directory: terraform
 
       - name: Terraform Apply
@@ -85,10 +83,12 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
         working-directory: terraform
 
   destroy:
     if: github.event.inputs.destroy == 'true'
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
