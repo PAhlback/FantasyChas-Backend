@@ -12,7 +12,7 @@ terraform {
     organization = "FantasyChas-Backend"
 
     workspaces {
-      name = "FantasyChas-Backend"
+      name = "FantasyChas-Backend2"
     }
   }
 }
