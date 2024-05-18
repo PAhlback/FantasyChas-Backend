@@ -9,115 +9,79 @@ terraform {
   required_version = ">= 1.1.0"
 }
 
-terraform {
-  backend "remote" {
-    organization = "FantasyChas-Backend"
- 
-    workspaces {
-      name = "FantasyChas-Backend2"
-    }
-  }
-}
-
 provider "azurerm" {
   features {}
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-fantasychas"
-  location = "West Europe"
+  name     = "FantasyChasResourceGroup"
+  location = "Sweden Central"
 }
 
-resource "azurerm_virtual_network" "vnet" {
-  name                = "vnet-fantasychas"
+resource "azurerm_virtual_network" "main" {
+  name                = "fantasychas-network"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-resource "azurerm_subnet" "subnet" {
-  name                 = "subnet-fantasychas"
+resource "azurerm_subnet" "internal" {
+  name                 = "internal"
   resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.1.0/24"]
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.2.0/24"]
 }
 
-resource "azurerm_network_interface" "nic" {
-  name                = "nic-fantasychas"
-  location            = azurerm_resource_group.rg.location
+resource "azurerm_public_ip" "pip" {
+  name                = "fantasychas-terraform-pip"
   resource_group_name = azurerm_resource_group.rg.name
-
-  ip_configuration {
-    name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public_ip.id
-  }
-}
-
-resource "azurerm_public_ip" "public_ip" {
-  name                = "pip-fantasychas"
   location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
 }
 
-resource "azurerm_virtual_machine" "vm" {
-  name                  = "vm-fantasychas"
-  location              = azurerm_resource_group.rg.location
-  resource_group_name   = azurerm_resource_group.rg.name
-  network_interface_ids = [azurerm_network_interface.nic.id]
-  vm_size               = "Standard_B1s"
+resource "azurerm_network_interface" "main" {
+  name                = "fantasychas-terraform-nic1"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
 
-  storage_os_disk {
-    name              = "osdisk"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
-  }
-
-  os_profile {
-    computer_name  = "vm-fantasychas"
-    admin_username = "azureuser"
-    admin_password = "Varförfunkarintelösernordet127!"
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-
-  tags = {
-    environment = "dev"
-  }
-
-  provisioner "local-exec" {
-    command = <<EOF
-      echo "#!/bin/bash
-      sudo apt-get update
-      sudo apt-get install -y docker.io
-      sudo systemctl start docker
-      sudo systemctl enable docker
-      sudo docker login ghcr.io -u ${var.ghcr_username} -p ${var.ghcr_token}
-      sudo docker pull ${var.image_name}
-      sudo docker run -d -p 80:80 ${var.image_name}" > /tmp/init.sh
-      chmod +x /tmp/init.sh
-      /tmp/init.sh
-EOF
+  ip_configuration {
+    name                          = "primary"
+    subnet_id                     = azurerm_subnet.internal.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.pip.id
   }
 }
 
-variable "ghcr_username" {
-  description = "GitHub Container Registry username"
-  type        = string
+resource "azurerm_network_interface" "internal" {
+  name                = "fantasychas-terraform-nic2"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.internal.id
+    private_ip_address_allocation = "Dynamic"
+  }
 }
 
-variable "ghcr_token" {
-  description = "GitHub Container Registry token"
-  type        = string
+resource "azurerm_linux_virtual_machine" "main" {
+  name                            = "fantasychas-terraform-vm"
+  resource_group_name             = azurerm_resource_group.rg.name
+  location                        = azurerm_resource_group.rg.location
+  size                            =  "Standard_B1s"
+  admin_username       = "adminuser"
+  admin_password       = "Varförfunkarintelösernordet127!"
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
+    version   = "latest"
+  }
+
+  os_disk {
+    storage_account_type = "Standard_LRS"
+    caching              = "ReadWrite"
+  }
 }
 
-variable "image_name" {
-  description = "Docker image name"
-  type        = string
-  default     = "ghcr.io/f-eighty7/fantasychas-backend:latest"
-}
