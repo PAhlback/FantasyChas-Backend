@@ -62,7 +62,8 @@ jobs:
         run: terraform -chdir=terraform init
 
       - name: Terraform Apply
-        run: terraform -chdir=terraform apply -auto-approve
+        run: terraform -chdir=terraform apply -auto-approve -var "ghcr_username=${{ secrets.GHCR_USERNAME }}" -var "ghcr_token=${{ secrets.GHCR_TOKEN }}"
+
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
