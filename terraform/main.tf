@@ -1,3 +1,13 @@
+variable "ghcr_token" {
+  description = "GitHub Container Registry token"
+  type        = string
+}
+
+variable "ghcr_username" {
+  description = "GitHub Container Registry username"
+  type        = string
+}
+
 terraform {
   required_providers {
     azurerm = {
@@ -91,17 +101,6 @@ resource "azurerm_linux_virtual_machine" "main" {
     environment = "dev"
   }
 
-  provisioner "local-exec" {
-    command = <<EOF
-      sudo apt-get update
-      sudo apt-get install -y docker.io
-      sudo systemctl start docker
-      sudo systemctl enable docker
-      sudo docker pull ghcr.io/f-eighty7/fantasychas-backend:latest
-      sudo docker run -d -p 80:80 ghcr.io/f-eighty7/fantasychas-backend:latest
-EOF
-  }
-
   source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
@@ -112,5 +111,16 @@ EOF
   os_disk {
     storage_account_type = "Standard_LRS"
     caching              = "ReadWrite"
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+      sudo apt-get update
+      sudo apt-get install -y docker.io
+      sudo systemctl start docker
+      sudo systemctl enable docker
+      sudo docker pull ghcr.io/f-eighty7/fantasychas-backend:latest
+      sudo docker run -d -p 80:80 ghcr.io/f-eighty7/fantasychas-backend:latest
+EOF
   }
 }
