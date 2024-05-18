@@ -50,8 +50,8 @@ jobs:
 
       - name: Install Azure CLI
         run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-          az --version  # Verify Azure CLI installation
+          sudo apt-get update
+          sudo apt-get install -y azure-cli
 
       - name: Setup Azure CLI
         uses: azure/login@v1
