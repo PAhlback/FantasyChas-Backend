@@ -1,5 +1,7 @@
 name: Build, Test, Dockerize, Deploy, and Destroy .NET Application
 
+on: workflow_dispatch
+
 pull_request:
     branches:
       - master
