@@ -34,15 +34,11 @@ jobs:
           REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
           docker build -t ghcr.io/$REPO_NAME/app:${{ github.sha }} .
           docker push ghcr.io/$REPO_NAME/app:${{ github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set Docker Image Output
-        run: echo "DOCKER_IMAGE=ghcr.io/${{ github.repository }}/app:${{ github.sha }}" > docker_image.env
-
-      - name: Upload Docker Image Environment File
-        uses: actions/upload-artifact@v2
-        with:
-          name: docker-image-env
-          path: docker_image.env
+      - name: Set DOCKER_IMAGE environment variable
+        run: echo "DOCKER_IMAGE=ghcr.io/${{ github.repository }}/app:${{ github.sha }}" >> $GITHUB_ENV
 
   deploy:
     needs: build
@@ -56,20 +52,6 @@ jobs:
         with:
           terraform_version: '1.0.0'
 
-      - name: Download Docker Image Environment File
-        uses: actions/download-artifact@v2
-        with:
-          name: docker-image-env
-          path: .
-
-      - name: Read Docker Image from Environment File
-        id: read-docker-image
-        run: |
-          echo "::set-env name=DOCKER_IMAGE::$(grep '^DOCKER_IMAGE=' docker_image.env | cut -d'=' -f2)"
-      - name: Terraform Plan
-        run: terraform plan -var="docker_image=${{ env.DOCKER_IMAGE }}"
-        working-directory: terraform
-
       - name: Azure Login
         run: |
           export ARM_CLIENT_ID="${{ secrets.AZURE_CLIENT_ID }}"
@@ -77,13 +59,18 @@ jobs:
           export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           export ARM_TENANT_ID="${{ secrets.AZURE_TENANT_ID }}"
           az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Terraform Init
         run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
         working-directory: terraform
 
       - name: Terraform Plan
-        run: terraform plan -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
+        run: terraform plan -var="docker_image=$DOCKER_IMAGE"
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -92,7 +79,7 @@ jobs:
         working-directory: terraform
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
+        run: terraform apply -auto-approve -var="docker_image=$DOCKER_IMAGE"
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -101,8 +88,7 @@ jobs:
         working-directory: terraform
 
   destroy:
-    if: github.event_name == 'workflow_dispatch'
-    needs: deploy
+    if: github.event.inputs.destroy == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -119,3 +105,8 @@ jobs:
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
         working-directory: terraform
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
