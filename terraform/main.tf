@@ -30,7 +30,7 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_resource_group" "fantasychas_rg" {
+resource "azurerm_resource_group" "rg" {
   name     = "FantasyChasResourceGroup"
   location = "Sweden Central"
 }
@@ -38,28 +38,28 @@ resource "azurerm_resource_group" "fantasychas_rg" {
 resource "azurerm_virtual_network" "main" {
   name                = "fantasychas-network"
   address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.fantasychas_rg.location
-  resource_group_name = azurerm_resource_group.fantasychas_rg.name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 }
 
 resource "azurerm_subnet" "internal" {
   name                 = "internal"
-  resource_group_name  = azurerm_resource_group.fantasychas_rg.name
+  resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.2.0/24"]
 }
 
 resource "azurerm_public_ip" "pip" {
   name                = "fantasychas-terraform-pip"
-  resource_group_name = azurerm_resource_group.fantasychas_rg.name
-  location            = azurerm_resource_group.fantasychas_rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
   allocation_method   = "Dynamic"
 }
 
 resource "azurerm_network_interface" "main" {
   name                = "fantasychas-terraform-nic1"
-  resource_group_name = azurerm_resource_group.fantasychas_rg.name
-  location            = azurerm_resource_group.fantasychas_rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
 
   ip_configuration {
     name                          = "primary"
@@ -71,8 +71,8 @@ resource "azurerm_network_interface" "main" {
 
 resource "azurerm_network_interface" "internal" {
   name                = "fantasychas-terraform-nic2"
-  resource_group_name = azurerm_resource_group.fantasychas_rg.name
-  location            = azurerm_resource_group.fantasychas_rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
 
   ip_configuration {
     name                          = "internal"
@@ -95,6 +95,17 @@ resource "azurerm_linux_virtual_machine" "main" {
 
   tags = {
     environment = "dev"
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+      sudo apt-get update
+      sudo apt-get install -y docker.io
+      sudo systemctl start docker
+      sudo systemctl enable docker
+      sudo docker pull ghcr.io/f-eighty7/fantasychas-backend:latest
+      sudo docker run -d -p 80:80 ghcr.io/f-eighty7/fantasychas-backend:latest
+EOF
   }
 
   source_image_reference {
