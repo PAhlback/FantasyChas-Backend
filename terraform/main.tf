@@ -82,23 +82,30 @@ resource "azurerm_network_interface" "internal" {
 }
 
 resource "azurerm_linux_virtual_machine" "main" {
-  name                            = "fantasychas-terraform-vm"
-  resource_group_name             = azurerm_resource_group.rg.name
-  location                        = azurerm_resource_group.rg.location
-  size                            =  "Standard_B1s"
-  admin_username       = "adminuser"
-  admin_password       = "Varförfunkarintelösernordet127!"
+  name                = "fantasychas-terraform-vm"
+  resource_group_name = azurerm_resource_group.fantasychas_rg.name
+  location            = azurerm_resource_group.fantasychas_rg.location
+  size                = "Standard_B1s"
+  admin_username      = "adminuser"
+  admin_password      = "Varförfunkarintelösernordet127!"
   network_interface_ids = [
     azurerm_network_interface.main.id,
     azurerm_network_interface.internal.id,
   ]
 
-  os_profile_linux_config {
-    disable_password_authentication = true
-  }
-
   tags = {
     environment = "dev"
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+      sudo apt-get update
+      sudo apt-get install -y docker.io
+      sudo systemctl start docker
+      sudo systemctl enable docker
+      sudo docker pull ghcr.io/f-eighty7/fantasychas-backend:latest
+      sudo docker run -d -p 80:80 ghcr.io/f-eighty7/fantasychas-backend:latest
+EOF
   }
 
   source_image_reference {
@@ -111,16 +118,5 @@ resource "azurerm_linux_virtual_machine" "main" {
   os_disk {
     storage_account_type = "Standard_LRS"
     caching              = "ReadWrite"
-  }
-
-  provisioner "local-exec" {
-    command = <<EOF
-      sudo apt-get update
-      sudo apt-get install -y docker.io
-      sudo systemctl start docker
-      sudo systemctl enable docker
-      sudo docker pull ghcr.io/f-eighty7/fantasychas-backend:latest
-      sudo docker run -d -p 80:80 ghcr.io/f-eighty7/fantasychas-backend:latest
-EOF
   }
 }
