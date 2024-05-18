@@ -97,7 +97,8 @@ runcmd:
   - systemctl enable docker
   - docker pull ${var.docker_image}
   - docker run -d -p 80:80 ${var.docker_image}
-EOF)
+EOF
+  )
 }
 
 variable "docker_image" {
