@@ -94,7 +94,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
   admin_username      = "fantasyadmin"
-  admin_password = "Varförfunkarkodeninte123?"
+  admin_password      = "Varförfunkarkodeninte123?"
   disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.nic.id,
