@@ -9,6 +9,16 @@ terraform {
   required_version = ">= 1.1.0"
 }
 
+terraform {
+  backend "remote" {
+    organization = "FantasyChas-Backend"
+ 
+    workspaces {
+      name = "FantasyChas-Backend2"
+    }
+  }
+}
+
 provider "azurerm" {
   features {}
 }
