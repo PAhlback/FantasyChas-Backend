@@ -82,7 +82,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
     azurerm_network_interface.nic.id,
     azurerm_network_interface.nic2.id,
   ]
-  public_ip_address_id = azurerm_public_ip.pip.id
 
   os_disk {
     caching              = "ReadWrite"
