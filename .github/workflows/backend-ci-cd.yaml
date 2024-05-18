@@ -47,19 +47,34 @@ jobs:
         with:
           terraform_version: '1.0.0'
 
-      - name: Azure Login
-        run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-
+        - name: Azure Login
+        run: |
+          export ARM_CLIENT_ID="${{ secrets.AZURE_CLIENT_ID }}"
+          export ARM_CLIENT_SECRET="${{ secrets.AZURE_CLIENT_SECRET }}"
+          export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          export ARM_TENANT_ID="${{ secrets.AZURE_TENANT_ID }}"
+          az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+          
       - name: Terraform Init
         run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
         working-directory: terraform
 
       - name: Terraform Plan
         run: terraform plan -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         working-directory: terraform
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         working-directory: terraform
 
   destroy:

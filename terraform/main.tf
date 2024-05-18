@@ -88,6 +88,17 @@ resource "azurerm_linux_virtual_machine" "vm" {
   admin_password = "Varförfunkarkodeninte123?"
 
   disable_password_authentication = false
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get update",
+      "sudo apt-get install -y docker.io",
+      "sudo systemctl start docker",
+      "sudo systemctl enable docker",
+      "sudo docker pull ${var.docker_image}",
+      "sudo docker run -d -p 80:80 ${var.docker_image}",
+    ]
+  }
 }
 
 variable "docker_image" {
