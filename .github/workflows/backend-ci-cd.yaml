@@ -51,6 +51,9 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
+      - name: Azure Login
+        run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+
       - name: Terraform Init
         run: terraform init -backend-config="token=${{ env.TF_API_TOKEN }}"
         working-directory: terraform
@@ -62,11 +65,6 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
         working-directory: terraform
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
   destroy:
     if: github.event_name == 'workflow_dispatch'
