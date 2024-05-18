@@ -47,12 +47,19 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+        working-directory: terraform
+
+      - name: Terraform Workspace Select
+        run: terraform workspace select ${{ env.TF_WORKSPACE }}
+        working-directory: terraform
 
       - name: Terraform Plan
         run: terraform plan -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
+        working-directory: terraform
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
+        working-directory: terraform
 
   destroy:
     if: github.event_name == 'workflow_dispatch'
@@ -69,6 +76,12 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+        working-directory: terraform
+
+      - name: Terraform Workspace Select
+        run: terraform workspace select ${{ env.TF_WORKSPACE }}
+        working-directory: terraform
 
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
+        working-directory: terraform
