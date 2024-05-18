@@ -35,6 +35,15 @@ jobs:
           docker build -t ghcr.io/$REPO_NAME/app:${{ github.sha }} .
           docker push ghcr.io/$REPO_NAME/app:${{ github.sha }}
 
+      - name: Set Docker Image Output
+        run: echo "DOCKER_IMAGE=ghcr.io/${{ github.repository }}/app:${{ github.sha }}" > docker_image.env
+
+      - name: Upload Docker Image Environment File
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-image-env
+          path: docker_image.env
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -46,6 +55,20 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: '1.0.0'
+
+      - name: Download Docker Image Environment File
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-image-env
+          path: .
+
+      - name: Read Docker Image from Environment File
+        id: read-docker-image
+        run: |
+          echo "::set-env name=DOCKER_IMAGE::$(grep '^DOCKER_IMAGE=' docker_image.env | cut -d'=' -f2)"
+      - name: Terraform Plan
+        run: terraform plan -var="docker_image=${{ env.DOCKER_IMAGE }}"
+        working-directory: terraform
 
       - name: Azure Login
         run: |
