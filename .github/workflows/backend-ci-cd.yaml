@@ -51,9 +51,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Azure CLI
-        uses: azure/setup-azure-cli@v1
-      
-      
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y azure-cli
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
@@ -63,7 +63,6 @@ jobs:
       - name: Terraform Init
         run: terraform init -backend-config="token=${{ env.TF_API_TOKEN }}"
         working-directory: terraform
-        
 
       - name: Terraform Plan
         run: terraform plan -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
