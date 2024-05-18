@@ -52,8 +52,9 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -backend-config="token=${{ env.TF_API_TOKEN }}"
         working-directory: terraform
+        
 
       - name: Terraform Plan
         run: terraform plan -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
