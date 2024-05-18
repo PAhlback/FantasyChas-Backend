@@ -87,16 +87,17 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt-get update",
-      "sudo apt-get install -y docker.io",
-      "sudo systemctl start docker",
-      "sudo systemctl enable docker",
-      "sudo docker pull ${var.docker_image}",
-      "sudo docker run -d -p 80:80 ${var.docker_image}",
-    ]
-  }
+  custom_data = <<-EOF
+    #cloud-config
+    package_upgrade: true
+    packages:
+      - docker.io
+    runcmd:
+      - systemctl start docker
+      - systemctl enable docker
+      - docker pull ${var.docker_image}
+      - docker run -d -p 80:80 ${var.docker_image}
+  EOF
 }
 
 variable "docker_image" {
