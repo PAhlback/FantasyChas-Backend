@@ -88,16 +88,16 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   custom_data = base64encode(<<-EOF
-    #cloud-config
-    package_upgrade: true
-    packages:
-      - docker.io
-    runcmd:
-      - systemctl start docker
-      - systemctl enable docker
-      - docker pull ${var.docker_image}
-      - docker run -d -p 80:80 ${var.docker_image}
-  EOF)
+#cloud-config
+package_upgrade: true
+packages:
+  - docker.io
+runcmd:
+  - systemctl start docker
+  - systemctl enable docker
+  - docker pull ${var.docker_image}
+  - docker run -d -p 80:80 ${var.docker_image}
+EOF)
 }
 
 variable "docker_image" {
