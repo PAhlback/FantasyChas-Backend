@@ -83,8 +83,8 @@ resource "azurerm_network_interface" "internal" {
 
 resource "azurerm_linux_virtual_machine" "main" {
   name                = "fantasychas-terraform-vm"
-  resource_group_name = azurerm_resource_group.fantasychas_rg.name
-  location            = azurerm_resource_group.fantasychas_rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
   admin_username      = "adminuser"
   admin_password      = "Varförfunkarintelösernordet127!"
@@ -106,13 +106,6 @@ resource "azurerm_linux_virtual_machine" "main" {
       sudo docker pull ghcr.io/f-eighty7/fantasychas-backend:latest
       sudo docker run -d -p 80:80 ghcr.io/f-eighty7/fantasychas-backend:latest
 EOF
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
-    version   = "latest"
   }
 
   os_disk {
