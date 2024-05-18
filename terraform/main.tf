@@ -76,13 +76,6 @@ resource "azurerm_virtual_machine" "vm" {
     managed_disk_type = "Standard_LRS"
   }
 
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "18.04-LTS"
-    version   = "latest"
-  }
-
   os_profile {
     computer_name  = "vm-fantasychas"
     admin_username = "azureuser"
