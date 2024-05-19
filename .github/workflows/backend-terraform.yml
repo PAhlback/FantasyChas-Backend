@@ -47,14 +47,18 @@ jobs:
 
       - name: Terraform Init
         run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}" terraform
+        working-directory: terraform
 
       - name: Terraform Plan
         run: terraform plan
+        working-directory: terraform
 
       - name: Terraform Apply
         if: ${{ github.event.inputs.destroy != 'true' }}
         run: terraform apply --auto-approve
+        working-directory: terraform
 
       - name: Terraform Destroy
         if: ${{ github.event.inputs.destroy == 'true' }}
         run: terraform destroy --auto-approve
+        working-directory: terraform
