@@ -1,0 +1,39 @@
+name: Backend Docker Build and Push
+
+on:
+  workflow_dispatch:
+    inputs:
+      destroy:
+        description: 'Destroy infrastructure?'
+        required: true
+        default: 'false'
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: .NET Publish
+        run: dotnet publish -c Release --self-contained --runtime linux-x64 -o ./publish
+
+      - name: Docker login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+          BACKEND_DOCKER_IMAGE=ghcr.io/$REPO_NAME/app:${{ github.sha }}
+          docker build -t $BACKEND_DOCKER_IMAGE .
+          docker push $BACKEND_DOCKER_IMAGE
+          echo "BACKEND_DOCKER_IMAGE=$BACKEND_DOCKER_IMAGE" >> $GITHUB_ENV
