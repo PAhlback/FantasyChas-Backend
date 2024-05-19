@@ -68,6 +68,10 @@ jobs:
           chmod 600 $HOME/.ssh/masterchass.pub
         shell: bash
 
+      - name: Generate Docker Auth
+        run: echo -n "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" | base64
+        id: docker_auth
+
       - name: Terraform Init
         run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
         working-directory: terraform
@@ -106,7 +110,17 @@ jobs:
           terraform_version: '1.0.0'
 
       - name: Azure Login
-        run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+        run: |
+          export ARM_CLIENT_ID="${{ secrets.AZURE_CLIENT_ID }}"
+          export ARM_CLIENT_SECRET="${{ secrets.AZURE_CLIENT_SECRET }}"
+          export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          export ARM_TENANT_ID="${{ secrets.AZURE_TENANT_ID }}"
+          az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Create SSH directory if not exists
         run: mkdir -p $HOME/.ssh
