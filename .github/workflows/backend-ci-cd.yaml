@@ -96,7 +96,7 @@ jobs:
           FRONTEND_DOCKER_IMAGE: ${{ env.FRONTEND_DOCKER_IMAGE }}
         working-directory: terraform
 
-    destroy:
+  destroy:
       if: github.event.inputs.destroy == 'true'
       needs: deploy
       runs-on: ubuntu-latest
