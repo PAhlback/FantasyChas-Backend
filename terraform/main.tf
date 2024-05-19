@@ -122,9 +122,7 @@ runcmd:
   - systemctl start docker
   - systemctl enable docker
   - docker pull ${var.backend_docker_image}
-  - docker pull ${var.frontend_docker_image}
   - docker run -d -p 80:80 ${var.backend_docker_image}
-  - docker run -d -p 3000:3000 ${var.frontend_docker_image}
 
 write_files:
   - path: /home/fantasyadmin/.ssh/authorized_keys
@@ -140,7 +138,9 @@ variable "docker_image" {
   type        = string
 }
 
-variable "frontend_docker_image" {
-  description = "The Docker image for the frontend service"
-  type        = string
-}
+#variable "frontend_docker_image" {
+#  description = "The Docker image for the frontend service"
+#  type        = string
+#}
+#- docker pull ${var.frontend_docker_image}
+#- docker run -d -p 3000:3000 ${var.frontend_docker_image}
