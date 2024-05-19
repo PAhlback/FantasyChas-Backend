@@ -94,8 +94,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
   admin_username      = "fantasyadmin"
-    disable_password_authentication = true  # Disable password authentication
-
+    disable_password_authentication = true 
   admin_ssh_key {
     username   = "fantasyadmin"
     public_key = file("~/.ssh/masterchass.pub")
