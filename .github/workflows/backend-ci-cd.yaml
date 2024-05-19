@@ -64,12 +64,17 @@ jobs:
       - name: Create SSH directory if not exists
         run: mkdir -p $HOME/.ssh
 
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/masterchass.pub
+        shell: bash
+
       - name: Terraform Init
         run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
         working-directory: terraform
 
       - name: Terraform Plan
-        run: terraform plan -var="backend_docker_image=$BACKEND_DOCKER_IMAGE" #-var="frontend_docker_image=$FRONTEND_DOCKER_IMAGE"
+        run: terraform plan
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -80,7 +85,7 @@ jobs:
         working-directory: terraform
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="backend_docker_image=$BACKEND_DOCKER_IMAGE" #-var="frontend_docker_image=$FRONTEND_DOCKER_IMAGE"
+        run: terraform apply -auto-approve
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -110,9 +115,14 @@ jobs:
       - name: Create SSH directory if not exists
         run: mkdir -p $HOME/.ssh
 
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/masterchass.pub
+        shell: bash
+
       - name: Terraform Init
         run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
         working-directory: terraform
         
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve -var="backend_docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}" #-var="frontend_docker_image=ghcr.io/${{ github.repository
+        run: terraform destroy -auto-approve -var="backend_docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"

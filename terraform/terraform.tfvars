@@ -1,1 +1,1 @@
-backend_docker_image = "ghcr.io/yourusername/yourimage:tag"
+backend_docker_image = "ghcr.io/yourusername/yourrepo:${{ github.sha }}"
