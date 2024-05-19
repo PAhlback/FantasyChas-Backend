@@ -96,35 +96,28 @@ jobs:
           FRONTEND_DOCKER_IMAGE: ${{ env.FRONTEND_DOCKER_IMAGE }}
         working-directory: terraform
 
-  destroy:
-    if: github.event.inputs.destroy == 'true'
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: '1.0.0'
-
-      - name: Azure Login
-        run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-
-
-      - name: Create SSH directory if not exists
-        run: mkdir -p $HOME/.ssh
-
-      - name: Set up SSH key
-        run: |
-          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/masterchass.pub
-          chmod 600 $HOME/.ssh/masterchass.pub
-        shell: bash
-
-      - name: Terraform Init
-        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
-        working-directory: terraform
-        
-      - name: Terraform Destroy
-        run: terraform destroy -auto-approve -var="backend_docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}" #-var="frontend_docker_image=ghcr.io/${{ github.repository
+    destroy:
+      if: github.event.inputs.destroy == 'true'
+      needs: deploy
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v1
+          with:
+            terraform_version: '1.0.0'
+        - name: Azure Login
+          run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+        - name: Terraform Init
+          run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
+          working-directory: terraform
+              
+        - name: Terraform Destroy
+          run: terraform destroy -auto-approve -var="docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
+          working-directory: terraform
+          env:
+            ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+            ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+            ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
