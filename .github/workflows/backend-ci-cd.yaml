@@ -107,8 +107,10 @@ jobs:
           uses: hashicorp/setup-terraform@v1
           with:
             terraform_version: '1.0.0'
+        
         - name: Azure Login
           run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+        
         - name: Terraform Init
           run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
           working-directory: terraform
