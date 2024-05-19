@@ -22,7 +22,6 @@ jobs:
 
       - name: .NET Publish
         run: dotnet publish -c Release --self-contained --runtime linux-x64 -o ./publish
-        
 
       - name: Docker login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -60,21 +59,21 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
-
       - name: Create SSH directory if not exists
         run: mkdir -p $HOME/.ssh
 
       - name: Set up SSH key
         run: |
           echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/masterchass.pub
+          chmod 600 $HOME/.ssh/masterchass.pub
         shell: bash
 
       - name: Terraform Init
-        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
+        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}" terraform
         working-directory: terraform
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -var="backend_docker_image=$BACKEND_DOCKER_IMAGE"
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -85,7 +84,7 @@ jobs:
         working-directory: terraform
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -var="backend_docker_image=$BACKEND_DOCKER_IMAGE"
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -111,18 +110,18 @@ jobs:
       - name: Azure Login
         run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
 
-
       - name: Create SSH directory if not exists
         run: mkdir -p $HOME/.ssh
 
       - name: Set up SSH key
         run: |
           echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/masterchass.pub
+          chmod 600 $HOME/.ssh/masterchass.pub
         shell: bash
 
       - name: Terraform Init
-        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
+        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}" terraform
         working-directory: terraform
-        
+
       - name: Terraform Destroy
         run: terraform destroy -auto-approve -var="backend_docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}"
