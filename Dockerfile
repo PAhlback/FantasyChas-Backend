@@ -11,13 +11,10 @@ COPY ["FantasyChas-Backend.csproj", "./"]
 RUN dotnet restore "FantasyChas-Backend.csproj"
 COPY . .
 WORKDIR "/src/."
-RUN dotnet build "FantasyChas-Backend.csproj" -c Release -o /app/build
-
-FROM build AS publish
-RUN dotnet publish "FantasyChas-Backend.csproj" -c Release -o /app/publish
+RUN dotnet publish "FantasyChas-Backend.csproj" -c Release -o /app/publish -r linux-x64 --self-contained true
 
 # Use the base image to run the application
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "FantasyChas-Backend.dll"]
+COPY --from=build /app/publish .
+ENTRYPOINT ["./FantasyChas-Backend"]
