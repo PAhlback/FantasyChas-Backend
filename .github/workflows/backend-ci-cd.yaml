@@ -65,7 +65,7 @@ jobs:
         working-directory: terraform
 
       - name: Terraform Plan
-        run: terraform plan -var="backend_docker_image=$BACKEND_DOCKER_IMAGE" -var="frontend_docker_image=$FRONTEND_DOCKER_IMAGE"
+        run: terraform plan -var="backend_docker_image=$BACKEND_DOCKER_IMAGE" #-var="frontend_docker_image=$FRONTEND_DOCKER_IMAGE"
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -76,7 +76,7 @@ jobs:
         working-directory: terraform
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="backend_docker_image=$BACKEND_DOCKER_IMAGE" -var="frontend_docker_image=$FRONTEND_DOCKER_IMAGE"
+        run: terraform apply -auto-approve -var="backend_docker_image=$BACKEND_DOCKER_IMAGE" #-var="frontend_docker_image=$FRONTEND_DOCKER_IMAGE"
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -107,7 +107,7 @@ jobs:
         working-directory: terraform
         
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve -var="backend_docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}" -var="frontend_docker_image=ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}"
+        run: terraform destroy -auto-approve -var="backend_docker_image=ghcr.io/${{ github.repository }}/app:${{ github.sha }}" #-var="frontend_docker_image=ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}"
         working-directory: terraform
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
