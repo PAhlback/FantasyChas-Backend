@@ -133,7 +133,7 @@ EOF
   )
 }
 
-variable backend_docker_image" {
+variable "backend_docker_image" {
   description = "The Docker image to use"
   type        = string
 }
