@@ -27,7 +27,7 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: .NET Publish
-        run: dotnet publish -c Release --self-contained -o ./publish
+        run: dotnet publish -c Release --self-contained --runtime linux-x64 -o ./publish
 
       - name: Docker login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
