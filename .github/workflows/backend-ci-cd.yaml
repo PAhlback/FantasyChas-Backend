@@ -122,5 +122,5 @@ jobs:
         working-directory: terraform
         
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+        run: terraform destroy -auto-approve -var="backend_docker_image=${{ env.BACKEND_DOCKER_IMAGE }}" #-var="frontend_docker_image=$FRONTEND_DOCKER_IMAGE"
         working-directory: terraform
