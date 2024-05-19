@@ -69,7 +69,7 @@ jobs:
         shell: bash
 
       - name: Terraform Init
-        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}" terraform
+        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
         working-directory: terraform
 
       - name: Terraform Plan
@@ -120,7 +120,7 @@ jobs:
         shell: bash
 
       - name: Terraform Init
-        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}" terraform
+        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
         working-directory: terraform
 
       - name: Terraform Destroy
