@@ -45,9 +45,10 @@ namespace FantasyChas_Backend.Repositories
             {
                 var history = await _context.ActiveStories
                     .Where(a => a.Characters.Any(c => c.Id == characterId))
-                    .SelectMany(a => a.Chats)
-                    .OrderByDescending(c => c.Id)  // inte optimalt
-                    .Take(1)
+                    .Select(a => a.Chats
+                                    .OrderByDescending(c => c.Id)
+                                    .FirstOrDefault()
+                                    )
                     .SelectMany(c => c.ChatHistory)
                     .ToListAsync();
 
@@ -63,6 +64,7 @@ namespace FantasyChas_Backend.Repositories
         {
             try
             {
+                // Den här fungerar troligen inte om det senare går att ha flera karaktärer på en story.
                 var chat = await _context.ActiveStories
                     .Where(a => a.Characters.SingleOrDefault().Id == characterId)
                     .Include(a => a.Chats)
