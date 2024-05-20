@@ -65,6 +65,14 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
+      - name: Create SSH directory if not exists
+        run: mkdir -p $HOME/.ssh
+  
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/masterchass.pub
+        shell: bash
+
       - name: Terraform Init
         run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
         working-directory: terraform
@@ -104,6 +112,11 @@ jobs:
 
       - name: Azure Login
         run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/masterchass.pub
+        shell: bash
 
       - name: Terraform Init
         run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
