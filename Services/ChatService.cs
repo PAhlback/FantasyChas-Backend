@@ -10,9 +10,10 @@ namespace FantasyChas_Backend.Services
 {
     public interface IChatService
     {
-        Task<StoryChatResponseViewModel> SendToChatServiceAsync(StoryChatPromptDto chatPromptObject);
         Task AddChatHistoryAsync(string message, int chatId, int characterId);
         Task AddChatObjectWithSummaryAsync(int activeStoryId, List<ChatMessage> previousChatHistory, string previousSummary);
+        Task<StoryChatResponseViewModel> SendToChatServiceAsync(StoryChatPromptDto chatPromptObject);
+        Task AddFirstChatObjectToActiveStoryAsync(int activeStoryId);
     }
 
     public class ChatService : IChatService
@@ -110,6 +111,25 @@ namespace FantasyChas_Backend.Services
 
                 // return behövs egentligen inte
                 return;
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task AddFirstChatObjectToActiveStoryAsync(int activeStoryId)
+        {
+            try
+            {
+                ActiveStory story = await _activeStoryService.GetActiveStoryByIdAsync(activeStoryId);
+                Chat newChat = new Chat
+                {
+                    ChatSummary = story.BasePrompt,
+                    ActiveStory = story
+                };
+
+                await _chatRepository.AddChatAsync(newChat);
             }
             catch (Exception ex) 
             {
