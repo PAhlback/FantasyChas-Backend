@@ -16,11 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Docker image name
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-image
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
@@ -37,7 +32,7 @@ jobs:
         working-directory: terraform
         
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve -var="backend_docker_image=$(cat DOCKER_IMAGE.txt)"
+        run: terraform destroy -auto-approve
         working-directory: terraform
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}

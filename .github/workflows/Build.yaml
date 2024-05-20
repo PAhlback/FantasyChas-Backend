@@ -31,7 +31,9 @@ jobs:
           REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
           DOCKER_IMAGE=ghcr.io/$REPO_NAME/app:${{ github.sha }}
           docker build -t $DOCKER_IMAGE .
+          docker tag $DOCKER_IMAGE ghcr.io/$REPO_NAME/app:latest
           docker push $DOCKER_IMAGE
+          docker push ghcr.io/$REPO_NAME/app:latest
           echo "DOCKER_IMAGE=$DOCKER_IMAGE" >> $GITHUB_ENV
 
       - name: Set Docker image name
