@@ -60,6 +60,9 @@ jobs:
         with:
           name: docker-image
 
+      - name: Set Docker image name
+        run: echo "DOCKER_IMAGE=$(cat DOCKER_IMAGE.txt)" >> $GITHUB_ENV
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
