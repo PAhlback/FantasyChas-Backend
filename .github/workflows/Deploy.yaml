@@ -14,10 +14,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: docker-image
-
+        
       - name: Print Docker image name
         run: cat DOCKER_IMAGE.txt
-
+        
       - name: Set Docker image name
         run: echo "DOCKER_IMAGE=$(cat DOCKER_IMAGE.txt)" >> $GITHUB_ENV
 
@@ -41,7 +41,7 @@ jobs:
 
       - name: Create SSH directory if not exists
         run: mkdir -p $HOME/.ssh
-
+  
       - name: Set up SSH key
         run: |
           echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/masterchass.pub

@@ -21,6 +21,12 @@ jobs:
         with:
           name: docker-image
 
+      - name: Print Docker image name
+        run: cat DOCKER_IMAGE.txt
+
+      - name: Set Docker image name
+        run: echo "DOCKER_IMAGE=$(cat DOCKER_IMAGE.txt)" >> $GITHUB_ENV
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -39,7 +45,7 @@ jobs:
         working-directory: terraform
         
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve -var="backend_docker_image=$(cat DOCKER_IMAGE.txt)"
+        run: terraform destroy -auto-approve -var="backend_docker_image=$DOCKER_IMAGE"
         working-directory: terraform
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
