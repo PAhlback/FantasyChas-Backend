@@ -7,10 +7,10 @@ terraform {
   }
   backend "remote" {
     hostname     = "app.terraform.io"
-    organization = "MasterChass-Backend"
+    organization = "MasterChass"
 
     workspaces {
-      name = "MasterChass-Backend2"
+      name = "MasterChass-Backend"
     }
   }
 }
