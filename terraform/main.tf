@@ -129,15 +129,3 @@ runcmd:
 EOF
   )
 }
-
-variable "backend_docker_image" {
-  description = "The Docker image to use"
-  type        = string
-}
-
-#variable "frontend_docker_image" {
-#  description = "The Docker image for the frontend service"
-#  type        = string
-#}
-#- docker pull ${var.frontend_docker_image}
-#- docker run -d -p 3000:3000 ${var.frontend_docker_image}
