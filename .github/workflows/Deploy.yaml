@@ -13,7 +13,8 @@ jobs:
       - name: Download Docker image name
         uses: actions/download-artifact@v3
         with:
-          name: docker-image
+          name: fantasychas-backend/app
+
         
       - name: Print Docker image name
         run: cat DOCKER_IMAGE.txt
