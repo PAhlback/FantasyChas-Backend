@@ -138,6 +138,9 @@ jobs:
       - name: Azure Login
         run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
 
+      - name: Create SSH directory if not exists
+        run: mkdir -p $HOME/.ssh
+      
       - name: Set up SSH key
         run: |
           echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/masterchass.pub
