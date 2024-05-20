@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build .NET application
+        run: dotnet build --configuration Release
+
+      - name: .NET Publish
+        run: dotnet publish -c Release --self-contained --runtime linux-x64 -o ./publish
+
+      - name: Docker login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+          DOCKER_IMAGE=ghcr.io/$REPO_NAME/app:${{ github.sha }}
+          docker build -t $DOCKER_IMAGE .
+          docker push $DOCKER_IMAGE
+          echo "DOCKER_IMAGE=$DOCKER_IMAGE" >> $GITHUB_ENV
+
+      - name: Set Docker image name
+        run: echo "${{ env.DOCKER_IMAGE }}" > DOCKER_IMAGE.txt
+        
+      - name: Archive Docker image name
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image
+          path: ./DOCKER_IMAGE.txt
