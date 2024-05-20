@@ -124,9 +124,9 @@ packages:
 runcmd:
   - systemctl start docker
   - systemctl enable docker
-  - docker pull ghcr.io/f-eighty7/chaschallenger-backend/app:latest
+  - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker pull ghcr.io/f-eighty7/fantasy-chas-backend/app:latest
-  - docker run -d -p 80:80 ghcr.io/f-eighty7/haschallenger/app:latest
+  - docker run -d -p 80:80 ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker run -d -p 80:80 ghcr.io/f-eighty7/fantasy-chas--backend/app:latest
 EOF
   )
