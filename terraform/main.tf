@@ -127,4 +127,5 @@ runcmd:
   - docker pull ghcr.io/f-eighty7/FantasyChas-Backend/app:latest
   - docker run -d -p 80:80 ghcr.io/f-eighty7/FantasyChas-Backend/app:latest
 EOF
-)
+  )
+}
