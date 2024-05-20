@@ -7,10 +7,10 @@ terraform {
   }
   backend "remote" {
     hostname     = "app.terraform.io"
-    organization = "FantasyChas-Backend"
+    organization = "MasterChass-Backend"
 
     workspaces {
-      name = "FantasyChas-Backend2"
+      name = "MasterChass-Backend2"
     }
   }
 }
@@ -20,38 +20,38 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "FantasyChas-Backend"
+  name     = "MasterChass-Backend"
   location = "West Europe"
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "FantasyChas-Backend-vnet"
+  name                = "MasterChass-Backend-vnet"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   address_space       = ["10.0.0.0/16"]
 }
 
 resource "azurerm_subnet" "subnet" {
-  name                 = "FantasyChas-Backend-subnet"
+  name                 = "MasterChass-Backend-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
 }
 
 resource "azurerm_public_ip" "pip" {
-  name                = "FantasyChas-Backend-pip"
+  name                = "MasterChass-Backend-pip"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   allocation_method   = "Static"  
 }
 
 resource "azurerm_network_interface" "nic" {
-  name                = "FantasyChas-Backend-nic"
+  name                = "MasterChass-Backend-nic"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
-    name                          = "FantasyChas-Backend-primary"
+    name                          = "MasterChass-Backend-primary"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.pip.id
@@ -59,7 +59,7 @@ resource "azurerm_network_interface" "nic" {
 }
 
 resource "azurerm_network_security_group" "nsg" {
-  name                = "FantasyChas-Backend-nsg"
+  name                = "MasterChass-Backend-nsg"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -77,26 +77,26 @@ resource "azurerm_network_security_group" "nsg" {
 }
 
 resource "azurerm_network_interface" "nic2" {
-  name                = "FantasyChas-Backend-nic2"
+  name                = "MasterChass-Backend-nic2"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
   ip_configuration {
-    name                          = "FantasyChas-Backend-internal"
+    name                          = "MasterChass-Backend-internal"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
   }
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "FantasyChas-Backend-vm"
+  name                = "MasterChass-Backend-vm"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
-  admin_username      = "fantasyadmin"
+  admin_username      = "masterchassadmin"
     disable_password_authentication = true 
   admin_ssh_key {
-    username   = "fantasyadmin"
+    username   = "masterchassadmin"
     public_key = file("~/.ssh/masterchass.pub")
   }
   network_interface_ids = [
@@ -123,8 +123,7 @@ packages:
   - docker.io
 runcmd:
   - systemctl start docker
-  - systemctl enable docker
-  - docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
+  - systemctl enable dockerfantasychas-backend/app:latest
   - docker run -d -p 80:80 ghcr.io/f-eighty7/fantasychas-backend/app:latest
 EOF
   )
