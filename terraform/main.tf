@@ -124,8 +124,8 @@ packages:
 runcmd:
   - systemctl start docker
   - systemctl enable docker
-  - docker pull ${var.backend_docker_image}
-  - docker run -d -p 80:80 ${var.backend_docker_image}
+  - docker pull ghcr.io/https://github.com/f-eighty7/FantasyChas-Backend/app:latest
+  - docker run -d -p 80:80 ghcr.io/https://github.com/f-eighty7/FantasyChas-Backend/app:latest
 EOF
   )
 }
