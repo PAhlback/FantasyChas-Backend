@@ -1,20 +1,33 @@
-﻿using FantasyChas_Backend.Models.DTOs;
-using FantasyChas_Backend.Models;
-using FantasyChas_Backend.Repositories;
+﻿using FantasyChas_Backend.Models;
+using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using FantasyChas_Backend.Services.ServiceInterfaces;
+using FantasyChas_Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
+using OpenAI_API.Chat;
 
 namespace FantasyChas_Backend.Services
 {
+    public interface ICharacterService
+    {
+        Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
+        Task CreateCharacterAsync(IdentityUser user, CharacterDto charDto);
+        Task<NewCharacterViewModel> CreateCharacterWithAiAsync(NewCharacterViewModel newCharacter);
+        Task UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto);
+        Task DeleteCharacterAsync(string userId, int CharacterId);
+        Task<bool> CharacterExistsAsync(int characterId, string userId);
+        Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
+        Task<CharacterViewModel> ConvertCharacterToViewModelAsync(Character character);
+    }
     public class CharacterService : ICharacterService
     {
         private readonly ICharacterRepository _characterRepository;
+        private readonly IOpenAiService _openAiService;
 
-        public CharacterService(ICharacterRepository characterRepository)
+        public CharacterService(ICharacterRepository characterRepository, IOpenAiService openAiService)
         {
             _characterRepository = characterRepository;
+            _openAiService = openAiService;
         }
 
         public async Task<List<CharacterViewModel>> GetCharactersForUser(string userId)
@@ -150,6 +163,85 @@ namespace FantasyChas_Backend.Services
         public async Task<bool> CharacterExistsAsync(int characterId, string userId)
         {
             return await _characterRepository.CharacterExistsAsync(characterId, userId);
+        }
+
+        public async Task<CharacterViewModel> ConvertCharacterToViewModelAsync(Character character)
+        {
+            try
+            {
+                CharacterViewModel? characterViewModel = new CharacterViewModel()
+                {
+                    Id = character.Id,
+                    Name = character.Name,
+                    Age = character.Age,
+                    Gender = character.Gender,
+                    Level = character.Level,
+                    HealthPoints = character.HealthPoints,
+                    Strength = character.Strength,
+                    Dexterity = character.Dexterity,
+                    Intelligence = character.Intelligence,
+                    Wisdom = character.Wisdom,
+                    Constitution = character.Constitution,
+                    Charisma = character.Charisma,
+                    Favourite = character.Favourite,
+                    ImageURL = character.ImageURL,
+                    Backstory = character.Backstory,
+                    Profession = character.Profession,
+                    Species = character.Species
+                };
+                return characterViewModel;
+            }
+            catch
+            {
+                throw new Exception();
+            }
+        }
+
+        public async Task<NewCharacterViewModel> CreateCharacterWithAiAsync(NewCharacterViewModel character)
+        {
+            try
+            {
+                var chatMessages = new List<ChatMessage>
+                {
+                    new ChatMessage(ChatMessageRole.System, "Du är en Dungeon Master för spelet Dungeons and Dragons. " +
+                    "Din uppgift är att skapa en karaktär för spelet baserat på reglerna i Dungeons and Dragons. " +
+                    "Skapa ett nytt namn varje gång. " +
+                    "Sätt ålder mellan 10 - 9000. " +
+                    "Sätt gender till Male, Female eller Non-binary. " +
+                    "Sätt alltid species till Human. " +
+                    "Sätt profession till ett slumpmässigt yrke. " +
+                    "Fyll endast fält som har värde 'null' eller '0'. " +
+                    "Hitta på en backstory som matchar statsen och yrket som du tilldelat karaktären. " +
+                    "Svara i JSON-format."),
+                    new ChatMessage(ChatMessageRole.User, $"Min karaktär: {character}."),
+                };
+
+                var result = await _openAiService.GetChatGPTResultAsync(chatMessages);
+
+                if (result == null)
+                {
+                    throw new Exception("AI service returned null response.");
+                }
+
+                string newCharacterFromGPT = result.ToString();
+
+                NewCharacterViewModel newCharacter;
+
+                try
+                {
+                    newCharacter = JsonConvert.DeserializeObject<NewCharacterViewModel>(newCharacterFromGPT);
+                }
+                catch (JsonException ex)
+                {
+                    throw new Exception("Failed to deserialize AI response to NewCharacterViewModel", ex);
+                }
+
+                return newCharacter;
+            }
+            catch
+            {
+                throw new Exception();
+            }
         }
     }
 }

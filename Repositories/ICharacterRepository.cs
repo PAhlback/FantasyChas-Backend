@@ -1,10 +1,5 @@
 ﻿using FantasyChas_Backend.Data;
 using FantasyChas_Backend.Models;
-using FantasyChas_Backend.Models.DTOs;
-using FantasyChas_Backend.Models.ViewModels;
-using FantasyChas_Backend.Services.ServiceInterfaces;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FantasyChas_Backend.Repositories
@@ -17,6 +12,7 @@ namespace FantasyChas_Backend.Repositories
         public Task DeleteCharacterAsync(string userId, int characterId);
         Task<bool> CharacterExistsAsync(int characterId, string userId);
         public Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
+        Task<Character> GetCharacterByIdAsync(int characterId);
     }
 
     public class CharacterRepository : ICharacterRepository
@@ -115,6 +111,15 @@ namespace FantasyChas_Backend.Repositories
             {
                 throw;
             }
+        }
+
+        public async Task<Character> GetCharacterByIdAsync(int characterId)
+        {
+            Character? character = await _context.Characters
+                .Where(c => c.Id == characterId)
+                .SingleOrDefaultAsync();
+
+            return character;
         }
 
         public async Task ConnectCharToStoryAsync(int characterId, int storyId, string userId)

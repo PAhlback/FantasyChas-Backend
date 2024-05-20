@@ -1,10 +1,13 @@
-﻿using FantasyChas_Backend.Services.ServiceInterfaces;
-using OpenAI_API;
+﻿using OpenAI_API;
 using OpenAI_API.Chat;
 using OpenAI_API.Models;
 
 namespace FantasyChas_Backend.Services
 {
+    public interface IOpenAiService
+    {
+        public Task<ChatResult> GetChatGPTResultAsync(List<ChatMessage> messages);
+    }
     public class OpenAiService : IOpenAiService
     {
         private readonly OpenAIAPI _api;

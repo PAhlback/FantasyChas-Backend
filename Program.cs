@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using OpenAI_API;
 using FantasyChas_Backend.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using FantasyChas_Backend.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FantasyChas_Backend
