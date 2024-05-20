@@ -38,9 +38,10 @@ jobs:
           DOCKER_IMAGE=ghcr.io/$REPO_NAME/app:${{ github.sha }}
           docker build -t $DOCKER_IMAGE .
           docker push $DOCKER_IMAGE
+          echo "DOCKER_IMAGE=$DOCKER_IMAGE" >> $GITHUB_ENV
 
       - name: Set Docker image name
-        run: echo "$DOCKER_IMAGE" > DOCKER_IMAGE.txt
+        run: echo "${{ env.DOCKER_IMAGE }}" > DOCKER_IMAGE.txt
         
       - name: Archive Docker image name
         uses: actions/upload-artifact@v2
