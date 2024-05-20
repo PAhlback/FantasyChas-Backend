@@ -98,7 +98,7 @@ jobs:
         working-directory: terraform
 
       - name: Terraform Plan
-        run: terraform plan -var="backend_docker_image=$DOCKER_IMAGE
+        run: terraform plan -var="backend_docker_image=$DOCKER_IMAGE"
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
