@@ -38,7 +38,15 @@ jobs:
           DOCKER_IMAGE=ghcr.io/$REPO_NAME/app:${{ github.sha }}
           docker build -t $DOCKER_IMAGE .
           docker push $DOCKER_IMAGE
-          echo "DOCKER_IMAGE=$DOCKER_IMAGE" >> $GITHUB_ENV
+
+      - name: Set Docker image name
+        run: echo "DOCKER_IMAGE=$(cat DOCKER_IMAGE.txt)" >> $GITHUB_ENV
+
+      - name: Archive Docker image name
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-image
+          path: ./DOCKER_IMAGE.txt
 
   deploy:
     needs: build
@@ -46,6 +54,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Download Docker image name
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-image
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
