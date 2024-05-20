@@ -20,25 +20,29 @@ namespace FantasyChas_Backend_Tests
                 .Options;
         }
 
-        public static UserManager<IdentityUser> GetUserManager(TestDbContext context)
+        public static UserManager<IdentityUser> GetUserManager(DbContextOptions<TestDbContext> options)
         {
+            var context = new TestDbContext(options);
+
             var store = new UserStore<IdentityUser>(context);
-            var options = new IdentityOptions();
-            var idOptions = new OptionsWrapper<IdentityOptions>(options);
-            var pwdHasher = new PasswordHasher<IdentityUser>();
+            var optionsAccessor = Options.Create(new IdentityOptions());
+            var passwordHasher = new PasswordHasher<IdentityUser>();
             var userValidators = new List<IUserValidator<IdentityUser>> { new UserValidator<IdentityUser>() };
-            var validators = new List<IPasswordValidator<IdentityUser>> { new PasswordValidator<IdentityUser>() };
-            var lookupNormalizer = new UpperInvariantLookupNormalizer();
+            var passwordValidators = new List<IPasswordValidator<IdentityUser>> { new PasswordValidator<IdentityUser>() };
+            var keyNormalizer = new UpperInvariantLookupNormalizer();
             var errors = new IdentityErrorDescriber();
             var services = new ServiceCollection();
+
             services.AddLogging();
-            services.AddSingleton<IPasswordHasher<IdentityUser>>(pwdHasher);
-            services.AddSingleton<ILookupNormalizer>(lookupNormalizer);
-            services.AddSingleton<IdentityErrorDescriber>(errors);
+            services.AddSingleton(passwordHasher);
+            services.AddSingleton(keyNormalizer);
+            services.AddSingleton(errors);
             services.AddSingleton<IUserValidator<IdentityUser>>(new UserValidator<IdentityUser>());
             services.AddSingleton<IPasswordValidator<IdentityUser>>(new PasswordValidator<IdentityUser>());
-            services.AddSingleton<UserManager<IdentityUser>>(sp => new UserManager<IdentityUser>(
-                store, idOptions, pwdHasher, userValidators, validators, lookupNormalizer, errors, services.BuildServiceProvider(), null));
+            services.AddSingleton<UserManager<IdentityUser>>(sp =>
+                new UserManager<IdentityUser>(
+                    store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services.BuildServiceProvider(), null));
+
             var serviceProvider = services.BuildServiceProvider();
             return serviceProvider.GetService<UserManager<IdentityUser>>();
         }
