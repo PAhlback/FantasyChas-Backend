@@ -190,6 +190,7 @@ namespace FantasyChas_Backend.Services
                 {
                     // Lägg till metod för att skapa ett nytt ChattObjekt och länka den med ActiveStory.
                     // Kör man utan await borde den köras separat från resten (ingen väntetid för användaren).
+                    // Hittade en blogg som påstår att det är en dum idé att köra "fire and forget". Återkommer till detta.
                     await AddChatObjectWithSummaryAsync(character.ActiveStory.Id, messages, chat.ChatSummary);
                 }
 
