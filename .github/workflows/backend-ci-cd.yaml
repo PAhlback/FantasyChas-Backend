@@ -39,14 +39,14 @@ jobs:
           docker build -t $DOCKER_IMAGE .
           docker push $DOCKER_IMAGE
 
-      - name: Set Docker image name
-        run: echo "DOCKER_IMAGE=$(cat DOCKER_IMAGE.txt)" >> $GITHUB_ENV
-
       - name: Archive Docker image name
         uses: actions/upload-artifact@v2
         with:
           name: docker-image
           path: ./DOCKER_IMAGE.txt
+  
+      - name: Set Docker image name
+        run: echo "DOCKER_IMAGE=$(cat DOCKER_IMAGE.txt)" >> $GITHUB_ENV
 
   deploy:
     needs: build
