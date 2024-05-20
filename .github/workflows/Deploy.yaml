@@ -10,11 +10,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set Docker image name
-        run: echo "DOCKER_IMAGE=ghcr.io/f-eighty7/fantasychas-backend/app:5a2462d00edbafd1ec6a71bf1ea23b529156814a" >> $GITHUB_ENV
-
-      - name: Pull Docker image
-        run: docker pull $DOCKER_IMAGE
+      - name: Download Docker image name
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
         
       - name: Print Docker image name
         run: cat DOCKER_IMAGE.txt
