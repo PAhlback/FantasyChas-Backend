@@ -211,7 +211,7 @@ namespace FantasyChas_Backend.Services
                     "Sätt alltid species till Human. " +
                     "Sätt profession till ett slumpmässigt yrke. " +
                     "Fyll endast fält som har värde 'null' eller '0'. " +
-                    "Hitta på en backstory som matchar statsen och yrket som du tilldelat karaktären. " +
+                    "Hitta på en backstory som matchar statsen och yrket som du tilldelat karaktären. Backstoryn ska vara på svenska." +
                     "Svara i JSON-format."),
                     new ChatMessage(ChatMessageRole.User, $"Min karaktär: {character}."),
                 };

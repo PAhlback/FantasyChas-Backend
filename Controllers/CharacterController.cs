@@ -74,6 +74,21 @@ namespace FantasyChas_Backend.Controllers
             }
         }
 
+        [HttpPost("CreateCharacterWithAi")]
+        public async Task<IActionResult> CreateCharacterWithAiAsync(NewCharacterViewModel character)
+        {
+            try
+            {
+                NewCharacterViewModel newCharacter = await _characterService.CreateCharacterWithAiAsync(character);
+
+                return Ok(newCharacter);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPatch("UpdateCharacter")]
         public async Task<IActionResult> UpdateCharacterAsync(CharacterWithIdDto charDto)
         {
@@ -107,21 +122,6 @@ namespace FantasyChas_Backend.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-        [HttpPost("CreateCharacterWithAi")]
-        public async Task<IActionResult> CreateCharacterWithAiAsync(NewCharacterViewModel character)
-        {
-            try
-            {
-                NewCharacterViewModel newCharacter = await _characterService.CreateCharacterWithAiAsync(character);
-
-                return Ok(newCharacter);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }            
         }
     }
 }
