@@ -15,6 +15,12 @@ jobs:
 
       - name: Pull Docker image
         run: docker pull $DOCKER_IMAGE
+        
+      - name: Print Docker image name
+        run: cat DOCKER_IMAGE.txt
+        
+      - name: Set Docker image name
+        run: echo "DOCKER_IMAGE=$(cat DOCKER_IMAGE.txt)" >> $GITHUB_ENV
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -53,6 +59,7 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
         working-directory: terraform
 
       - name: Terraform Apply
@@ -62,4 +69,5 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
         working-directory: terraform
