@@ -4,6 +4,17 @@ using FantasyChas_Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using OpenAI_API.Chat;
+using OpenAI_API;
+using OpenAI_API.Models;
+using Org.BouncyCastle.Asn1.X509;
+using System.Diagnostics.Metrics;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Newtonsoft.Json.Linq;
+using FantasyChas_Backend.Models;
+using Newtonsoft.Json;
 
 namespace FantasyChas_Backend.Controllers
 {
@@ -15,11 +26,13 @@ namespace FantasyChas_Backend.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<CharacterController> _logger;
         private readonly ICharacterService _characterService;
+        private readonly IOpenAiService _openAiService;
 
-        public CharacterController(ILogger<CharacterController> logger, UserManager<IdentityUser> userManager, ICharacterService characterService)
+        public CharacterController(ILogger<CharacterController> logger, UserManager<IdentityUser> userManager, ICharacterService characterService, IOpenAiService openAiService)
         {
             _logger = logger;
             _userManager = userManager; // Add UserManager to get access to the correct user in the entire DisplayCharacterController.
+            _openAiService = openAiService;
             _characterService = characterService;
         }
 
@@ -28,13 +41,13 @@ namespace FantasyChas_Backend.Controllers
 
 
         [HttpGet("GetCharacters")]
-        public async Task<IActionResult> GetUserCharactersAsync(ICharacterService characterService)
+        public async Task<IActionResult> GetUserCharactersAsync()
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
 
-                List<CharacterViewModel> characters = await characterService.GetCharactersForUser(user.Id);
+                List<CharacterViewModel> characters = await _characterService.GetCharactersForUser(user.Id);
 
                 return Ok(characters);
             }
@@ -52,8 +65,23 @@ namespace FantasyChas_Backend.Controllers
                 IdentityUser user = await GetCurrentUserAsync();
 
                 await _characterService.CreateCharacterAsync(user, charDto);
-                
+
                 return Ok("Character successfully created and added!");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("CreateCharacterWithAi")]
+        public async Task<IActionResult> CreateCharacterWithAiAsync(NewCharacterViewModel character)
+        {
+            try
+            {
+                NewCharacterViewModel newCharacter = await _characterService.CreateCharacterWithAiAsync(character);
+
+                return Ok(newCharacter);
             }
             catch (Exception ex)
             {
