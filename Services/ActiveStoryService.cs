@@ -8,6 +8,7 @@ namespace FantasyChas_Backend.Services
     public interface IActiveStoryService
     {
         Task<int> CreateStoryAsync(IdentityUser user, ActiveStoryDto storyDto);
+        Task<ActiveStory> GetActiveStoryByIdAsync(int id);
     }
     public class ActiveStoryService : IActiveStoryService
     {
@@ -37,6 +38,20 @@ namespace FantasyChas_Backend.Services
             catch (Exception ex)
             {
                 throw new Exception("Failed to create Story", ex);
+            }
+        }
+
+        public async Task<ActiveStory> GetActiveStoryByIdAsync(int id)
+        {
+            try
+            {
+                ActiveStory? story = await _activeStoryRepository.GetStoryByIdAsync(id);
+
+                return story;
+            }
+            catch
+            {
+                throw new Exception($"No active story with id {id} found");
             }
         }
     }
