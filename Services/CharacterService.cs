@@ -3,6 +3,8 @@ using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
 using FantasyChas_Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
+using OpenAI_API.Chat;
 
 namespace FantasyChas_Backend.Services
 {
@@ -10,6 +12,7 @@ namespace FantasyChas_Backend.Services
     {
         Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
         Task CreateCharacterAsync(IdentityUser user, CharacterDto charDto);
+        Task<NewCharacterViewModel> CreateCharacterWithAiAsync(NewCharacterViewModel newCharacter);
         Task UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto);
         Task DeleteCharacterAsync(string userId, int CharacterId);
         Task<bool> CharacterExistsAsync(int characterId, string userId);
@@ -19,10 +22,12 @@ namespace FantasyChas_Backend.Services
     public class CharacterService : ICharacterService
     {
         private readonly ICharacterRepository _characterRepository;
+        private readonly IOpenAiService _openAiService;
 
-        public CharacterService(ICharacterRepository characterRepository)
+        public CharacterService(ICharacterRepository characterRepository, IOpenAiService openAiService)
         {
             _characterRepository = characterRepository;
+            _openAiService = openAiService;
         }
 
         public async Task<List<CharacterViewModel>> GetCharactersForUser(string userId)
@@ -185,6 +190,53 @@ namespace FantasyChas_Backend.Services
                     Species = character.Species
                 };
                 return characterViewModel;
+            }
+            catch
+            {
+                throw new Exception();
+            }
+        }
+
+        public async Task<NewCharacterViewModel> CreateCharacterWithAiAsync(NewCharacterViewModel character)
+        {
+            try
+            {
+                var chatMessages = new List<ChatMessage>
+                {
+                    new ChatMessage(ChatMessageRole.System, "Du är en Dungeon Master för spelet Dungeons and Dragons. " +
+                    "Din uppgift är att skapa en karaktär för spelet baserat på reglerna i Dungeons and Dragons. " +
+                    "Skapa ett nytt namn varje gång. " +
+                    "Sätt ålder mellan 10 - 9000. " +
+                    "Sätt gender till Male, Female eller Non-binary. " +
+                    "Sätt alltid species till Human. " +
+                    "Sätt profession till ett slumpmässigt yrke. " +
+                    "Fyll endast fält som har värde 'null' eller '0'. " +
+                    "Hitta på en backstory som matchar statsen och yrket som du tilldelat karaktären. Backstoryn ska vara på svenska." +
+                    "Svara i JSON-format."),
+                    new ChatMessage(ChatMessageRole.User, $"Min karaktär: {character}."),
+                };
+
+                var result = await _openAiService.GetChatGPTResultAsync(chatMessages);
+
+                if (result == null)
+                {
+                    throw new Exception("AI service returned null response.");
+                }
+
+                string newCharacterFromGPT = result.ToString();
+
+                NewCharacterViewModel newCharacter;
+
+                try
+                {
+                    newCharacter = JsonConvert.DeserializeObject<NewCharacterViewModel>(newCharacterFromGPT);
+                }
+                catch (JsonException ex)
+                {
+                    throw new Exception("Failed to deserialize AI response to NewCharacterViewModel", ex);
+                }
+
+                return newCharacter;
             }
             catch
             {
