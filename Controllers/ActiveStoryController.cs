@@ -15,13 +15,20 @@ namespace FantasyChas_Backend.Controllers
         private readonly ILogger<ActiveStoryController> _logger;
         private readonly ICharacterService _characterService;
         private readonly IActiveStoryService _activeStoryService;
+        private readonly IChatService _chatService;
 
-        public ActiveStoryController(ILogger<ActiveStoryController> logger, UserManager<IdentityUser> userManager, ICharacterService characterService, IActiveStoryService activeStoryService)
+
+        public ActiveStoryController(ILogger<ActiveStoryController> logger, 
+            UserManager<IdentityUser> userManager, 
+            ICharacterService characterService, 
+            IActiveStoryService activeStoryService,
+            IChatService chatService)
         {
             _logger = logger;
             _userManager = userManager;
             _characterService = characterService;
             _activeStoryService = activeStoryService;
+            _chatService = chatService;
         }
 
         private async Task<IdentityUser> GetCurrentUserAsync() => await _userManager.GetUserAsync(User);
@@ -42,6 +49,8 @@ namespace FantasyChas_Backend.Controllers
                 int storyId = await _activeStoryService.CreateStoryAsync(user, storyDto);
 
                 await _characterService.ConnectCharToStoryAsync(storyDto.CharacterId, storyId, user.Id);
+
+                await _chatService.AddFirstChatObjectToActiveStoryAsync(storyId);
 
                 return Ok("Added story and associated with character!");
             }
