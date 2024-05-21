@@ -79,7 +79,7 @@ namespace FantasyChas_Backend.Controllers
         {
             try
             {
-                NewCharacterViewModel newCharacter = await _characterService.CreateCharacterWithAiAsync(character);
+                string newCharacter = await _characterService.CreateCharacterWithAiAsync(character);
 
                 return Ok(newCharacter);
             }

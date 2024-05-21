@@ -12,7 +12,7 @@ namespace FantasyChas_Backend.Services
     {
         Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
         Task CreateCharacterAsync(IdentityUser user, CharacterDto charDto);
-        Task<NewCharacterViewModel> CreateCharacterWithAiAsync(NewCharacterViewModel newCharacter);
+        Task<string> CreateCharacterWithAiAsync(NewCharacterViewModel newCharacter);
         Task UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto);
         Task DeleteCharacterAsync(string userId, int CharacterId);
         Task<bool> CharacterExistsAsync(int characterId, string userId);
@@ -197,10 +197,12 @@ namespace FantasyChas_Backend.Services
             }
         }
 
-        public async Task<NewCharacterViewModel> CreateCharacterWithAiAsync(NewCharacterViewModel character)
+        public async Task<string> CreateCharacterWithAiAsync(NewCharacterViewModel character)
         {
             try
             {
+                var characterJson = JsonConvert.SerializeObject(character);
+
                 var chatMessages = new List<ChatMessage>
                 {
                     new ChatMessage(ChatMessageRole.System, "Du är en Dungeon Master för spelet Dungeons and Dragons. " +
@@ -213,7 +215,7 @@ namespace FantasyChas_Backend.Services
                     "Fyll endast fält som har värde 'null' eller '0'. " +
                     "Hitta på en backstory som matchar statsen och yrket som du tilldelat karaktären. Backstoryn ska vara på svenska." +
                     "Svara i JSON-format."),
-                    new ChatMessage(ChatMessageRole.User, $"Min karaktär: {character}."),
+                    new ChatMessage(ChatMessageRole.User, $"Min karaktär: {characterJson}"),
                 };
 
                 var result = await _openAiService.GetChatGPTResultAsync(chatMessages);
@@ -223,24 +225,11 @@ namespace FantasyChas_Backend.Services
                     throw new Exception("AI service returned null response.");
                 }
 
-                string newCharacterFromGPT = result.ToString();
-
-                NewCharacterViewModel newCharacter;
-
-                try
-                {
-                    newCharacter = JsonConvert.DeserializeObject<NewCharacterViewModel>(newCharacterFromGPT);
-                }
-                catch (JsonException ex)
-                {
-                    throw new Exception("Failed to deserialize AI response to NewCharacterViewModel", ex);
-                }
-
-                return newCharacter;
+                return result.ToString();
             }
-            catch
+            catch (Exception ex)
             {
-                throw new Exception();
+                throw new Exception("An error occurred while creating the character.", ex);
             }
         }
     }
