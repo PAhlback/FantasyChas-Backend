@@ -1,51 +1,52 @@
-﻿//using FantasyChas_Backend.Data;
-//using FantasyChas_Backend.Models.DTOs;
-//using FantasyChas_Backend.Services;
-//using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Identity;
-//using Microsoft.AspNetCore.Mvc;
+﻿using FantasyChas_Backend.Data;
+using FantasyChas_Backend.Models.DTOs;
+using FantasyChas_Backend.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
-//namespace FantasyChas_Backend.Controllers
-//{
-//    [ApiController]
-//    [Route("api/[controller]")]
-//    [Authorize]
-//    public class ChatController : ControllerBase
-//    {
-//        private readonly UserManager<IdentityUser> _userManager;
-//        private readonly ILogger<ChatController> _logger;
-//        private static ApplicationDbContext? _context;
-//        private readonly IChatService _chatService;
-//        private readonly OpenAIAPI _api;
+namespace FantasyChas_Backend.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class ChatController : ControllerBase
+    {
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<ChatController> _logger;
+        private static ApplicationDbContext? _context;
+        private readonly IChatService _chatService;
 
-//        public ChatController(ILogger<ChatController> logger, UserManager<IdentityUser> userManager, IChatService chatService, OpenAIAPI api)
-//        {
-//            _logger = logger;
-//            _userManager = userManager;
-//            _chatService = chatService;
-//            _api = api;
-//        }
 
-//        private Task<IdentityUser> GetCurrentUserAsync() => _userManager.GetUserAsync(User);
+        public ChatController(ILogger<ChatController> logger, UserManager<IdentityUser> userManager, IChatService chatService)
+        {
+            _logger = logger;
+            _userManager = userManager;
+            _chatService = chatService;
+        }
 
-//        // posta user input;
-//        // get svar från AI 
-//        // get senaste XX meddelanden i storyn - alternativt föregående chat
+        private Task<IdentityUser> GetCurrentUserAsync() => _userManager.GetUserAsync(User);
 
-//        [HttpPost("PlaceholderAsync")]
-//        public async Task<IActionResult> PlaceholderAsync(StoryChatPromptDto chatPromptObject)
-//        {
-//            try
-//            {
-//                var jsonObject = await _chatService.SendToChatServiceAsync(chatPromptObject);
+        // posta user input;
+        // get svar från AI 
+        // get senaste XX meddelanden i storyn - alternativt föregående chat
 
-//                return Ok(jsonObject);
-//            }
-//            catch
-//            {
-//                return BadRequest();
-//            }
-//        }
+        [HttpPost("PlaceholderAsync")]
+        public async Task<IActionResult> PlaceholderAsync(StoryChatPromptDto chatPromptObject)
+        {
+            try
+            {
+                var jsonObject = await _chatService.SendToChatServiceAsync(chatPromptObject);
+
+                return Ok(jsonObject);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+    }
+}
 
 //        //[HttpPost("getAnswerFromChatGPT")]
 //        //public async Task<IActionResult> GetAnswerFromChatGPT(string query, OpenAIAPI api)
