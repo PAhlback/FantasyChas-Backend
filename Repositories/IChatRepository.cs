@@ -8,10 +8,11 @@ namespace FantasyChas_Backend.Repositories
 {
     public interface IChatRepository
     {
+        Task AddChatAsync(Chat chat);
         Task<Chat> GetChatByIdAsync(int chatId);
-        Task<List<ChatHistory>> GetChatHistory(int characterId);
-        Task<Chat> GetChat(int characterId);
-        Task SaveChatHistoryMessageInDatabase(ChatHistory historyLine);
+        Task<List<ChatHistory>> GetChatHistoryAsync(int characterId);
+        Task<Chat> GetChatAsync(int characterId);
+        Task SaveChatHistoryMessageInDatabaseAsync(ChatHistory historyLine);
     }
     public class ChatRepository : IChatRepository
     {
@@ -38,15 +39,16 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public async Task<List<ChatHistory>> GetChatHistory(int characterId)
+        public async Task<List<ChatHistory>> GetChatHistoryAsync(int characterId)
         {
             try
             {
                 var history = await _context.ActiveStories
                     .Where(a => a.Characters.Any(c => c.Id == characterId))
-                    .SelectMany(a => a.Chats)
-                    .OrderByDescending(c => c.Id)  // inte optimalt
-                    .Take(1)
+                    .Select(a => a.Chats
+                                    .OrderByDescending(c => c.Id)
+                                    .FirstOrDefault()
+                                    )
                     .SelectMany(c => c.ChatHistory)
                     .ToListAsync();
 
@@ -58,11 +60,12 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public async Task<Chat> GetChat(int characterId)
+        public async Task<Chat> GetChatAsync(int characterId)
         {
             try
             {
-                var summary = await _context.ActiveStories
+                // Den här fungerar troligen inte om det senare går att ha flera karaktärer på en story.
+                var chat = await _context.ActiveStories
                     .Where(a => a.Characters.SingleOrDefault().Id == characterId)
                     .Include(a => a.Chats)
                     .Select(a => a.Chats
@@ -71,15 +74,15 @@ namespace FantasyChas_Backend.Repositories
                             )
                     .SingleOrDefaultAsync();
 
-                return summary;
+                return chat;
             }
             catch
             {
-                throw new Exception();
+                throw new Exception("No chat found");
             }
         }
 
-        public async Task SaveChatHistoryMessageInDatabase(ChatHistory historyLine)
+        public async Task SaveChatHistoryMessageInDatabaseAsync(ChatHistory historyLine)
         {
             try
             {
@@ -93,9 +96,17 @@ namespace FantasyChas_Backend.Repositories
 
         }
 
-        public Task SaveChatHistoryMessageInDatabase(string message, int chatId, int? characterId)
+        public async Task AddChatAsync(Chat chat)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _context.AddAsync(chat);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw new Exception("Failed to add chat object");
+            }
         }
     }
 }
