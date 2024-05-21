@@ -45,10 +45,9 @@ namespace FantasyChas_Backend.Repositories
             {
                 var history = await _context.ActiveStories
                     .Where(a => a.Characters.Any(c => c.Id == characterId))
-                    .Select(a => a.Chats
-                                    .OrderByDescending(c => c.Id)
-                                    .FirstOrDefault()
-                                    )
+                    .SelectMany(a => a.Chats)
+                        .OrderByDescending(c => c.Id)  // inte optimalt
+                        .Take(1)
                     .SelectMany(c => c.ChatHistory)
                     .ToListAsync();
 
