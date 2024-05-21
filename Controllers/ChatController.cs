@@ -31,8 +31,8 @@ namespace FantasyChas_Backend.Controllers
         // get svar från AI 
         // get senaste XX meddelanden i storyn - alternativt föregående chat
 
-        [HttpPost("PlaceholderAsync")]
-        public async Task<IActionResult> PlaceholderAsync(StoryChatPromptDto chatPromptObject)
+        [HttpPost("Message")]
+        public async Task<IActionResult> SendChatMessageAsync(StoryChatPromptDto chatPromptObject)
         {
             try
             {
