@@ -93,11 +93,11 @@ resource "azurerm_linux_virtual_machine" "vm" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
-  admin_username      = "FantasyChassadmin"
+  admin_username      = "fantasychassadmin"
     disable_password_authentication = true 
   admin_ssh_key {
-    username   = "FantasyChassadmin"
-    public_key = file("~/.ssh/FantasyChass.pub")
+    username   = "fantasychassadmin"
+    public_key = file("~/.ssh/fantasychass.pub")
   }
   network_interface_ids = [
     azurerm_network_interface.nic.id,
