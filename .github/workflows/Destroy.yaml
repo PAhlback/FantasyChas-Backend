@@ -27,7 +27,7 @@ jobs:
         
       - name: Set up SSH key
         run: |
-          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/masterchass.pub
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/fantasychass.pub
         shell: bash
 
       - name: Terraform Init
