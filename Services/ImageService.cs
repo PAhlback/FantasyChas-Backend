@@ -5,6 +5,7 @@ using FantasyChas_Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenAI_API.Images;
+using Azure.Storage.Blobs;
 
 namespace FantasyChas_Backend.Services
 {
@@ -12,6 +13,7 @@ namespace FantasyChas_Backend.Services
     {
 
         Task<ImageResult> GenerateImageAsync(IdentityUser user, CharacterDto charDto);
+        Task<string> SaveImageToBlobAsync(int characterId, string imageUrl);
 
     }
     public class ImageService : IImageService
@@ -31,7 +33,7 @@ namespace FantasyChas_Backend.Services
             {
                 // skapar beskrivning av föfrågan
                 string? serializedObject = Newtonsoft.Json.JsonConvert.SerializeObject(charDto);
-                string prompt = $"Skapa en profilbild till för en karaktär i Dungeons and Masters. Storlek 200px*300px. Karaktär: {serializedObject}";
+                string prompt = $"Skapa en profilbild för en karaktär i Dungeons and Masters. Gärna drömlik. Karaktär: {serializedObject}";
 
                 // skicka frågan till openAIService 
                 var response = await _openAiService.GetAiImageAsync(prompt);
@@ -39,9 +41,14 @@ namespace FantasyChas_Backend.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to create character", ex);
+                throw new Exception("Failed to create character image", ex);
             }
 
+        }
+
+        public Task<string> SaveImageToBlobAsync(int characterId, string imageUrl)
+        {
+            throw new NotImplementedException();
         }
     }
 }
