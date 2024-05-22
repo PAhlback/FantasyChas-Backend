@@ -50,7 +50,7 @@ namespace FantasyChas_Backend.Controllers
 
         [HttpGet("Chathistory")]
         [Authorize]
-        public async Task<IActionResult> GetChatHistoryWithPagination(int activeStoryId, int amountPerPage = 20, int pageNumber = 1)
+        public async Task<IActionResult> GetChatHistoryWithPagination(int activeStoryId, int amountPerPage = 20, int pageNumber = 0)
         {
             try
             {
