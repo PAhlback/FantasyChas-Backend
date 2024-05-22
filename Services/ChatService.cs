@@ -12,8 +12,9 @@ namespace FantasyChas_Backend.Services
     {
         Task AddChatHistoryAsync(string message, int chatId, int characterId);
         Task AddChatObjectWithSummaryAsync(int activeStoryId, List<ChatMessage> previousChatHistory, string previousSummary);
-        Task<StoryChatResponseViewModel> SendToChatServiceAsync(StoryChatPromptDto chatPromptObject);
         Task AddFirstChatObjectToActiveStoryAsync(int activeStoryId);
+        Task<List<ChatHistoryViewModel>> GetChatHistoryPaginatedAsync(int activeStoryId, int amountPerPage, int pageNumber);
+        Task<StoryChatResponseViewModel> SendToChatServiceAsync(StoryChatPromptDto chatPromptObject);
     }
 
     public class ChatService : IChatService
@@ -135,6 +136,29 @@ namespace FantasyChas_Backend.Services
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        // return ViewModel
+        public async Task<List<ChatHistoryViewModel>> GetChatHistoryPaginatedAsync(int activeStoryId, int amountPerPage, int pageNumber)
+        {
+            var result = await _chatRepository.GetPaginatedChatHistoryAsync(activeStoryId, amountPerPage, pageNumber);
+
+            if(result is null)
+            {
+                throw new Exception("No more messages");
+            }
+
+            List<ChatHistoryViewModel> resultViewModelList = result
+                .Select(result => new ChatHistoryViewModel()
+                {
+                    Id = result.Id,
+                    Message = result.Message,
+                    CharacterName = result.Character == null ? null : result.Character.Name,
+                    Timestamp = result.Timestamp
+                })
+                .ToList();
+
+            return resultViewModelList;
         }
 
         public async Task<StoryChatResponseViewModel> SendToChatServiceAsync(StoryChatPromptDto chatPromptObject)

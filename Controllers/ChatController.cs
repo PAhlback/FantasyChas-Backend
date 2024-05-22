@@ -1,5 +1,7 @@
 ﻿using FantasyChas_Backend.Data;
+using FantasyChas_Backend.Models;
 using FantasyChas_Backend.Models.DTOs;
+using FantasyChas_Backend.Models.ViewModels;
 using FantasyChas_Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -43,6 +45,24 @@ namespace FantasyChas_Backend.Controllers
             catch
             {
                 return BadRequest();
+            }
+        }
+
+        [HttpGet("Chathistory")]
+        [Authorize]
+        public async Task<IActionResult> GetChatHistoryWithPagination(int activeStoryId, int amountPerPage = 20, int pageNumber = 1)
+        {
+            try
+            {
+                // Ta emot id för senaste returnerade rad?
+                // return viewmodel!
+                List<ChatHistoryViewModel> paginatedHistoryList = await _chatService.GetChatHistoryPaginatedAsync(activeStoryId, amountPerPage, pageNumber);
+
+                return Ok(paginatedHistoryList);
+            }
+            catch
+            {
+                return BadRequest("Something went wront in GetChatHistoryWithPagination");
             }
         }
     }

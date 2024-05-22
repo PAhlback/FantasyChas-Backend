@@ -12,8 +12,10 @@ namespace FantasyChas_Backend.Repositories
         Task<Chat> GetChatByIdAsync(int chatId);
         Task<List<ChatHistory>> GetChatHistoryAsync(int characterId);
         Task<Chat> GetChatAsync(int characterId);
+        Task<List<ChatHistory>> GetPaginatedChatHistoryAsync(int activeStoryId, int amountPerPage, int pageNumber);
         Task SaveChatHistoryMessageInDatabaseAsync(ChatHistory historyLine);
     }
+
     public class ChatRepository : IChatRepository
     {
         private static ApplicationDbContext _context;
@@ -105,6 +107,28 @@ namespace FantasyChas_Backend.Repositories
             catch
             {
                 throw new Exception("Failed to add chat object");
+            }
+        }
+
+        public async Task<List<ChatHistory>> GetPaginatedChatHistoryAsync(int activeStoryId, int amountPerPage, int pageNumber)
+        {
+            try
+            {
+                // Get all history
+                var chatLines = await _context.Chats
+                    .Where(c => c.ActiveStory.Id == activeStoryId)
+                    .SelectMany(c => c.ChatHistory)
+                    .OrderByDescending(ch => ch.Timestamp)
+                    .Skip(pageNumber * amountPerPage)
+                    .Take(amountPerPage)
+                    .Include(ch => ch.Character)
+                    .ToListAsync();
+
+                return chatLines;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
             }
         }
     }
