@@ -12,51 +12,62 @@ using System.Threading.Tasks;
 
 namespace FantasyChas_Backend_Tests.ActiveStoryTests
 {
-    //[TestClass]
-    //public class ActiveStoryServiceTests
-    //{
-    //    private Mock<IActiveStoryRepository> _mockRepository;
-    //    private IActiveStoryService _service;
+    [TestClass]
+    public class ActiveStoryServiceTests
+    {
+        private Mock<IActiveStoryRepository> _mockRepository;
+        private IActiveStoryService _service;
 
-    //    [TestInitialize]
-    //    public void Setup()
-    //    {
-    //        _mockRepository = new Mock<IActiveStoryRepository>();
-    //        _service = new ActiveStoryService(_mockRepository.Object);
-    //    }
+        [TestInitialize]
+        public void Setup()
+        {
+            _mockRepository = new Mock<IActiveStoryRepository>();
+            _service = new ActiveStoryService(_mockRepository.Object);
+        }
 
-    //    [TestMethod]
-    //    public async Task CreateStoryAsync_Success()
-    //    {
-    //        // Arrange
-    //        var user = new IdentityUser { Id = "testUserId" };
-    //        var storyDto = new ActiveStoryDto { Name = "Test Story", BasePrompt = "Test Prompt"};
-    //        var newStory = new ActiveStory { Id = 1, User = user, Name = storyDto.Name, BasePrompt = storyDto.BasePrompt };
+        [TestMethod]
+        public async Task CreateStoryAsync_ValidInput_ReturnsStoryId()
+        {
+            // Arrange
+            var user = new IdentityUser { Id = "user123" };
+            var storyDto = new ActiveStoryDto { Name = "Test Story", BasePrompt = "Test Prompt" };
+            var newStory = new ActiveStory { Id = 1, User = user, Name = storyDto.Name, BasePrompt = storyDto.BasePrompt };
 
-    //        _mockRepository.Setup(repo => repo.AddStoryAsync(It.IsAny<ActiveStory>()));
-    //            //.Callback<ActiveStory>(story => story.Id = 1)
-    //            //.Returns(Task.CompletedTask);
+            _mockRepository
+                .Setup(repo => repo.AddStoryAsync(It.IsAny<ActiveStory>()))
+                .Returns(Task.CompletedTask)
+                .Callback<ActiveStory>(story =>
+                {
+                    story.Id = newStory.Id;
+                    story.User = newStory.User;
+                    story.Name = newStory.Name;
+                    story.BasePrompt = newStory.BasePrompt;
+                });
 
-    //        // Act
-    //        var result = await _service.CreateStoryAsync(user, storyDto);
+            // Act
+            var result = await _service.CreateStoryAsync(user, storyDto);
 
-    //        // Assert
-    //        Assert.AreEqual(1, result);
-    //        _mockRepository.Verify(repo => repo.AddStoryAsync(It.IsAny<ActiveStory>()), Times.Once);
-    //    }
+            // Assert
+            Assert.AreEqual(1, result);
+            _mockRepository.Verify(repo => repo.AddStoryAsync(It.Is<ActiveStory>(s =>
+                s.User == user && s.Name == storyDto.Name && s.BasePrompt == storyDto.BasePrompt && s.Id == newStory.Id)), Times.Once);
+        }
 
 
-    //    [TestMethod]
-    //    public async Task CreateStoryAsync_Failure()
-    //    {
-    //        // Arrange
-    //        var user = new IdentityUser { Id = "testUserId" };
-    //        var storyDto = new ActiveStoryDto { Name = "Test Story", BasePrompt = "Test Prompt"};
+        [TestMethod]
+        public async Task CreateStoryAsync_ExceptionThrown_ThrowsException()
+        {
+            // Arrange
+            var user = new IdentityUser { Id = "user123" };
+            var storyDto = new ActiveStoryDto { Name = "Test Story", BasePrompt = "Test Prompt" };
 
-    //        _mockRepository.Setup(repo => repo.AddStoryAsync(It.IsAny<ActiveStory>())).ThrowsAsync(new Exception("Database failure"));
+            _mockRepository
+                .Setup(repo => repo.AddStoryAsync(It.IsAny<ActiveStory>()))
+                .ThrowsAsync(new Exception("Repository failure"));
 
-    //        // Act & Assert
-    //        await Assert.ThrowsExceptionAsync<Exception>(() => _service.CreateStoryAsync(user, storyDto));
-    //    }
-    //}
+            // Act & Assert
+            var exception = await Assert.ThrowsExceptionAsync<Exception>(() => _service.CreateStoryAsync(user, storyDto));
+            Assert.AreEqual("Failed to create Story", exception.Message);
+        }
+    }
 }
