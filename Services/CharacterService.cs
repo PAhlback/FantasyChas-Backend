@@ -201,20 +201,54 @@ namespace FantasyChas_Backend.Services
         {
             try
             {
+                // Slumpmässig generator för kön
+                var genders = new[] { "Man", "Kvinna", "Icke-binär" };
+                var random = new Random();
+                var gender = genders[random.Next(genders.Length)];
+                character.Gender = gender;
+
+                // Slumpmässiga generatorer för förnamn beroende på kön
+                var maleFirstNames = new[] { "Erik", "Lars", "Karl", "Nils", "Olof" };
+                var femaleFirstNames = new[] { "Anna", "Eva", "Sara", "Elin", "Maria" };
+                var nonBinaryFirstNames = new[] { "Alex", "Robin", "Charlie", "Taylor", "Jordan" };
+
+                string firstName;
+
+                if (gender == "Man")
+                {
+                    firstName = maleFirstNames[random.Next(maleFirstNames.Length)];
+                }
+                else if (gender == "Kvinna")
+                {
+                    firstName = femaleFirstNames[random.Next(femaleFirstNames.Length)];
+                }
+                else // Icke-binär
+                {
+                    firstName = nonBinaryFirstNames[random.Next(nonBinaryFirstNames.Length)];
+                }
+
+                // Slumpmässig generator för efternamn
+                var lastNames = new[] { "Andersson", "Johansson", "Karlsson", "Nilsson", "Eriksson", "Larsson", "Olsson", "Persson", "Svensson", "Gustafsson" };
+                var lastName = lastNames[random.Next(lastNames.Length)];
+                character.Name = $"{firstName} {lastName}";
+
                 var characterJson = JsonConvert.SerializeObject(character);
 
                 var chatMessages = new List<ChatMessage>
                 {
-                    new ChatMessage(ChatMessageRole.System, "Du är en Dungeon Master för spelet Dungeons and Dragons. " +
-                    "Din uppgift är att skapa en karaktär för spelet baserat på reglerna i Dungeons and Dragons. " +
-                    "Skapa ett nytt namn varje gång. " +
-                    "Sätt ålder mellan 10 - 9000. " +
-                    "Sätt gender till Male, Female eller Non-binary. " +
-                    "Sätt alltid species till Human. " +
-                    "Sätt profession till ett slumpmässigt yrke. " +
+                    new ChatMessage(ChatMessageRole.System, "Du är en skapare av karaktärer för en berättelse. " +
+                    "Din uppgift är att skapa en karaktär baserat på inspiration från Dungeons and Dragons-reglerna. " +
+                    "Skapa ett nytt namn varje gång som innehåller både förnamn och efternamn. " +
+                    "Sätt ålder mellan 10 - 100. " +
+                    "Sätt alltid art till Människa. " +
+                    "Sätt yrke till ett slumpmässigt yrke som finns i verkliga världen. " +
                     "Fyll endast fält som har värde 'null' eller '0'. " +
-                    "Hitta på en backstory som matchar statsen och yrket som du tilldelat karaktären. Backstoryn ska vara på svenska." +
+                    "Det ska inte förekomma någon magi eller övernaturliga element. " +
+                    "Använd standard array (15, 14, 13, 12, 10, 8) för att sätta karaktärens stats. " +
+                    "Hitta på en bakgrundshistoria som matchar statsen och yrket som du tilldelat karaktären. Bakgrundshistorien ska vara på svenska." +
                     "Svara i JSON-format."),
+
+
                     new ChatMessage(ChatMessageRole.User, $"Min karaktär: {characterJson}"),
                 };
 
@@ -232,5 +266,7 @@ namespace FantasyChas_Backend.Services
                 throw new Exception("An error occurred while creating the character.", ex);
             }
         }
+
+
     }
 }
