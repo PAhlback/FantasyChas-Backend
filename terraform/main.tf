@@ -163,8 +163,7 @@ runcmd:
   - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
   - docker run -d -p 8080:80 ghcr.io/f-eighty7/chaschallenger/app:latest
-  - docker run -d -p 8081:80 ghcr.io/f-eighty7/fantasychas-backend/app:latest
-  - echo "Connecting to SQL VM at ${10.0.1.6}"
+  - docker run -d -p 8081:80 -e DB_HOST=10.0.1.6 -e DB_USER=sqladmin -e DB_PASSWORD=YourStrong!Passw0rd ghcr.io/f-eighty7/fantasychas-backend/app:latest
 EOF
   )
 }
@@ -222,13 +221,12 @@ runcmd:
   - apt-get update
   - apt-get install -y curl
   - curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-  - add-apt-repository "$(curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list)"
+  - curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | tee /etc/apt/sources.list.d/msprod.list
   - apt-get update
-  - apt-get install -y mssql-server
+  - ACCEPT_EULA=Y apt-get install -y mssql-server
   - /opt/mssql/bin/mssql-conf setup
   - systemctl start mssql-server
   - systemctl enable mssql-server
 EOF
   )
 }
-
