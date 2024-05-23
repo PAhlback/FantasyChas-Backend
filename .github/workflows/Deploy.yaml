@@ -33,7 +33,12 @@ jobs:
   
       - name: Set up SSH key
         run: |
-          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/fantasychas.pub
+          echo "${{ secrets.SSH_PUBLIC_KEY2 }}" > $HOME/.ssh/fantasychas.pub
+        shell: bash
+
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_PUBLIC_KEY2 }}" > $HOME/.ssh/fantasychas-sql.pub
         shell: bash
 
       - name: Terraform Init
