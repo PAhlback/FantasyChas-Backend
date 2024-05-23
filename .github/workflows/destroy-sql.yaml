@@ -27,7 +27,12 @@ jobs:
         
       - name: Set up SSH key
         run: |
-          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/fantasychass.pub
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/fantasychas.pub
+        shell: bash
+
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_PUBLIC_KEY2 }}" > $HOME/.ssh/fantasychas-sql.pub
         shell: bash
 
       - name: Terraform Init
@@ -36,4 +41,9 @@ jobs:
         
       - name: Terraform Destroy VM
         run: terraform destroy -target=azurerm_linux_virtual_machine.sql_vm -auto-approve
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         working-directory: terraform
