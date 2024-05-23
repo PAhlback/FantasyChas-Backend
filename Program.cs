@@ -104,7 +104,7 @@ namespace FantasyChas_Backend
             }
 
             // REMOVE this endpoint when ready
-            app.MapGet("/user/character", () =>
+            app.MapGet("/check-if-logged-in/expect-hello", () =>
             {
                 return Results.Ok("Hello!");
             }).RequireAuthorization();
