@@ -164,7 +164,7 @@ runcmd:
   - docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
   - docker run -d -p 8080:80 ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker run -d -p 8081:80 ghcr.io/f-eighty7/fantasychas-backend/app:latest
-  - echo "Connecting to SQL VM at ${azurerm_network_interface.sql_nic.private_ip_address}"
+  - echo "Connecting to SQL VM at ${10.0.1.6}"
 EOF
   )
 }
