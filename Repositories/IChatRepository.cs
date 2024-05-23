@@ -2,6 +2,7 @@
 using FantasyChas_Backend.Models;
 using FantasyChas_Backend.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MimeKit.Cryptography;
 
 namespace FantasyChas_Backend.Repositories
@@ -114,6 +115,15 @@ namespace FantasyChas_Backend.Repositories
         {
             try
             {
+                if(pageNumber - 1 >= 0)
+                {
+                    pageNumber--;
+                }
+                else
+                {
+                    throw new Exception("Page number has to be set to 1 or higher");
+                }
+
                 // Get all history
                 var chatLines = await _context.Chats
                     .Where(c => c.ActiveStory.Id == activeStoryId)
@@ -123,6 +133,11 @@ namespace FantasyChas_Backend.Repositories
                     .Take(amountPerPage)
                     .Include(ch => ch.Character)
                     .ToListAsync();
+
+                if(chatLines.Count == 0)
+                {
+                    throw new Exception("No more messages found");
+                }
 
                 return chatLines;
             }

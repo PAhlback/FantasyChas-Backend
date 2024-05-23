@@ -50,7 +50,7 @@ namespace FantasyChas_Backend.Controllers
 
         [HttpGet("Chathistory")]
         [Authorize]
-        public async Task<IActionResult> GetChatHistoryWithPagination(int activeStoryId, int amountPerPage = 20, int pageNumber = 0)
+        public async Task<IActionResult> GetChatHistoryWithPagination(int activeStoryId, int amountPerPage = 20, int pageNumber = 1)
         {
             try
             {
@@ -60,9 +60,9 @@ namespace FantasyChas_Backend.Controllers
 
                 return Ok(paginatedHistoryList);
             }
-            catch
+            catch(Exception ex)
             {
-                return BadRequest("Something went wront in GetChatHistoryWithPagination");
+                return BadRequest(ex.Message);
             }
         }
     }
