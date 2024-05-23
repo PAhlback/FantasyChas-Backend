@@ -164,6 +164,7 @@ runcmd:
   - docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
   - docker run -d -p 8080:80 ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker run -d -p 8081:80 ghcr.io/f-eighty7/fantasychas-backend/app:latest
+  - echo "Connecting to SQL VM at ${azurerm_network_interface.sql_nic.private_ip_address}"
 EOF
   )
 }
@@ -183,7 +184,7 @@ resource "azurerm_network_interface" "sql_nic" {
   ip_configuration {
     name                          = "FantasyChas-SQL-primary"
     subnet_id                     = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "Dynamic"
+    private_ip_address_allocation = "Static"
     public_ip_address_id          = azurerm_public_ip.sql_pip.id
   }
 }
@@ -229,3 +230,4 @@ runcmd:
 EOF
   )
 }
+
