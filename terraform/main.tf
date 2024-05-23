@@ -185,7 +185,7 @@ resource "azurerm_network_interface" "sql_nic" {
     name                          = "FantasyChas-SQL-primary"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Static"
-    private_ip_address            = "10.0.1.5"
+    private_ip_address            = "10.0.1.6"
     public_ip_address_id          = azurerm_public_ip.sql_pip.id
   }
 }
