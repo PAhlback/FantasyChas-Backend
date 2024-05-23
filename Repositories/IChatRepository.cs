@@ -2,6 +2,7 @@
 using FantasyChas_Backend.Models;
 using FantasyChas_Backend.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MimeKit.Cryptography;
 
 namespace FantasyChas_Backend.Repositories
@@ -12,8 +13,10 @@ namespace FantasyChas_Backend.Repositories
         Task<Chat> GetChatByIdAsync(int chatId);
         Task<List<ChatHistory>> GetChatHistoryAsync(int characterId);
         Task<Chat> GetChatAsync(int characterId);
+        Task<List<ChatHistory>> GetPaginatedChatHistoryAsync(int activeStoryId, int amountPerPage, int pageNumber);
         Task SaveChatHistoryMessageInDatabaseAsync(ChatHistory historyLine);
     }
+
     public class ChatRepository : IChatRepository
     {
         private static ApplicationDbContext _context;
@@ -105,6 +108,42 @@ namespace FantasyChas_Backend.Repositories
             catch
             {
                 throw new Exception("Failed to add chat object");
+            }
+        }
+
+        public async Task<List<ChatHistory>> GetPaginatedChatHistoryAsync(int activeStoryId, int amountPerPage, int pageNumber)
+        {
+            try
+            {
+                if(pageNumber - 1 >= 0)
+                {
+                    pageNumber--;
+                }
+                else
+                {
+                    throw new Exception("Page number has to be set to 1 or higher");
+                }
+
+                // Get all history
+                var chatLines = await _context.Chats
+                    .Where(c => c.ActiveStory.Id == activeStoryId)
+                    .SelectMany(c => c.ChatHistory)
+                    .OrderByDescending(ch => ch.Timestamp)
+                    .Skip(pageNumber * amountPerPage)
+                    .Take(amountPerPage)
+                    .Include(ch => ch.Character)
+                    .ToListAsync();
+
+                if(chatLines.Count == 0)
+                {
+                    throw new Exception("No more messages found");
+                }
+
+                return chatLines;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
             }
         }
     }
