@@ -45,6 +45,12 @@ jobs:
         run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
         working-directory: terraform
 
+      - name: Set up SSH keys
+        run: |
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/fantasychas.pub
+          echo "${{ secrets.SSH_PUBLIC_KEY2 }}" > $HOME/.ssh/fantasychas-sql.pub
+        shell: bash
+        
       - name: Terraform Plan
         run: terraform plan
         env:
