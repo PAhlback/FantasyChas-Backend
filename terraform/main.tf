@@ -152,7 +152,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-custom_data = base64encode(<<-EOF
+  custom_data = base64encode(<<-EOF
 #cloud-config
 package_upgrade: true
 packages:
@@ -172,7 +172,8 @@ runcmd:
   - docker run -d -p 8080:80 ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker run -d -p 8081:80 -e DB_HOST=localhost -e DB_USER=sqladmin -e DB_PASSWORD=YourStrong!Passw0rd ghcr.io/f-eighty7/fantasychas-backend/app:latest
 EOF
-)
+  )
+}
 
 resource "azurerm_public_ip" "sql_pip" {
   name                = "FantasyChas-SQL-pip"
