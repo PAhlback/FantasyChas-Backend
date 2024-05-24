@@ -176,19 +176,23 @@ namespace FantasyChas_Backend.Services
 
                 var messages = new List<ChatMessage>
                             {
-                                new ChatMessage(ChatMessageRole.System, "Du är en dungeon master för spelet Dungeons and Dragons. " +
-                                "Du kommer att få en prompt med en historia som du ska fortsätta på" +
+                                new ChatMessage(ChatMessageRole.System, "Du är Dungeon Master för spelet Stayin' Alive som är Dungeons & Masters inspirerad." +
+                                "Historien som tillhör spelet Stayin' Alive kommer att ges till dig i ett prompt-meddelande." +
+                                "Ditt jobb är att berätta vidare på den prompten du får in, " +
                                 " och kommer att interagera med en karaktär som jag kommer att använda i den värld du bygger upp. " +
                                 "Du får endast använda människa som ras för karaktärer som dyker upp. " +
                                 "De måste ha klasser som passar in i den verkliga världen. Magi finns inte i detta scenario. " +
                                 "Istället för att slå tärning för att avgöra hur saker går, räcker det att du bestämmer hur det går." +
-   /*Historia till frontend */  "\r\nHistoria: Du ska utgå från broschyren \"Om krisen eller kriget kommer\" när du fortsätter den här historian. " +
-                                "Få med sådant som är viktigt att tänka på i ett riktigt överlevnadsscenario. " +
-                                "Här är bakgrunden som du ska bygga vidare på: Det har varit oroliga tider i världen de senaste åren. " +
-                                "Flertalet stora konflikter har blossat upp runtom i världen. Klimatkrisen har lett till att vädret är extremt ostabilt. " +
+  /*Historia till frontend */   "\r\nHistoria: Du ska utgå från broschyren \"Om krisen eller kriget kommer\" när du fortsätter den här historian. " + /*------------*/
+  /*Avvaktar med att ta bort */ "Få med sådant som är viktigt att tänka på i ett riktigt överlevnadsscenario. " +
+  /*Tills det fungerar */       "Här är bakgrunden som du ska bygga vidare på: Det har varit oroliga tider i världen de senaste åren. " +
+  /*I frontend */               "Flertalet stora konflikter har blossat upp runtom i världen. Klimatkrisen har lett till att vädret är extremt ostabilt. " +
                                 "Detta i kombination med interna stridigheter inom olika länders riksdagar har lett till en " +
                                 "stor ekonomisk instabilitet i de allra flesta länder. " +
                                 "Avsluta alltid dina svar med att fråga vad användaren vill göra härnäst."),
+
+                                // Originalet:
+                                //"Du är en dungeon master för spelet Dungeons and Dragons. Du kommer att få en prompt med en historia som du ska fortsätta på och kommer att interagera med en karaktär som jag kommer att använda i den värld du bygger upp. Du får endast använda människa som ras för karaktärer som dyker upp. De måste ha klasser som passar in i den verkliga världen. Magi finns inte i detta scenario. Istället för att slå tärning för att avgöra hur saker går, räcker det att du bestämmer hur det går.\r\nHistoria: Du ska utgå från broschyren "Om krisen eller kriget kommer" när du fortsätter den här historian. Få med sådant som är viktigt att tänka på i ett riktigt överlevnadsscenario. Här är bakgrunden som du ska bygga vidare på: Det har varit oroliga tider i världen de senaste åren. Flertalet stora konflikter har blossat upp runtom i världen. Klimatkrisen har lett till att vädret är extremt ostabilt. Detta i kombination med interna stridigheter inom olika länders riksdagar har lett till en stor ekonomisk instabilitet i de allra flesta länder. Avsluta alltid dina svar med att fråga vad användaren vill göra härnäst."),
 
                                 new ChatMessage(ChatMessageRole.User, 
                                 $"Min karaktär: {serializedObject}. Skapa en start på en historia åt mig nu."),
