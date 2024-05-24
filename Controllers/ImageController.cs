@@ -27,7 +27,7 @@ namespace FantasyChas_Backend.Controllers
 
         private Task<IdentityUser> GetCurrentUserAsync() => _userManager.GetUserAsync(User);
         
-        [HttpPost("ai-image")]
+        [HttpPost("CreateProfileImageWithAI")]
         public async Task<IActionResult> GenerateProfileImageAsync(CharacterDto charDto)
         {
             // takes in character and uses it for generating character's profile picture
