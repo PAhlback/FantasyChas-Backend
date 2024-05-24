@@ -61,27 +61,70 @@ namespace FantasyChas_Backend.Services
         {
             throw new NotImplementedException();
         }
+        public async Task<string> DownloadAndSaveImageAsync(string imageUrl, string savePath)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                var response = await client.GetAsync(imageUrl);
+                if (response.IsSuccessStatusCode)
+                {
+                    var imageBytes = await response.Content.ReadAsByteArrayAsync();
+                    string fileName = Path.GetFileName(imageUrl);
+                    string fullPath = Path.Combine(savePath, fileName);
+
+                    await File.WriteAllBytesAsync(fullPath, imageBytes);
+
+                    return fullPath; // Return the full path of the saved image
+                }
+                else
+                {
+                    throw new Exception("Failed to download image.");
+                }
+            }
+        }
     }
     public class BlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
 
-        public BlobStorageService(string connectionString)
+        public BlobStorageService()
         {
-            _blobServiceClient = new BlobServiceClient(connectionString);
+            _blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("CONNECTION_STRING_BLOB"));
+
         }
 
-        public async Task<string> UploadImageAsync(string containerName, string filePath)
+        public async Task<string> UploadImageFromUrlAsync(string containerName, string imageUrl)
         {
-            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-            string fileName = Path.GetFileName(filePath);
-            BlobClient blobClient = containerClient.GetBlobClient(fileName);
+            using (var httpClient = new HttpClient())
+            {
+                var response = await httpClient.GetAsync(imageUrl);
 
-            using FileStream uploadFileStream = File.OpenRead(filePath);
-            await blobClient.UploadAsync(uploadFileStream, true);
-            uploadFileStream.Close();
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Failed to download image from URL.");
+                }
 
-            return blobClient.Uri.ToString();
+                using (var stream = await response.Content.ReadAsStreamAsync())
+                {
+                    // Extrahera filnamnet från URL:en
+                    string fileName = Path.GetFileName(imageUrl);
+                    
+                        fileName += ".png";
+                    
+
+                    // Hämta blob-behållare
+                    var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+                    // Skapa en BlobClient för att ladda upp bilden
+                    var blobClient = containerClient.GetBlobClient(fileName);
+
+                    // Ladda upp bilden till blob-lagringen
+                    await blobClient.UploadAsync(stream, true);
+
+                    // Returnera URL:en till den uppladdade bilden
+                    return blobClient.Uri.ToString();
+                }
+            }
         }
     }
 }

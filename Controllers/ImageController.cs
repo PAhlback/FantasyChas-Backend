@@ -44,5 +44,29 @@ namespace FantasyChas_Backend.Controllers
                 return BadRequest();
             }
         }
+        [HttpPost("UploadImage")]
+        public async Task<IActionResult> UploadImage([FromBody] ImageRequest request)
+        {
+            try
+            {
+                //string localPath = await DownloadAndSaveImageAsync(request.ImageUrl, "path/to/save/images");
+                string imageUrl = "https://fastly.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U";
+                //string connectionString = "https://fantasychasblobtest.blob.core.windows.net/fantasty-test";
+                //string connectionString = "";
+                var blobStorageService = new BlobStorageService();
+                string imageAzureUrl = await blobStorageService.UploadImageFromUrlAsync("fantasty-test", imageUrl);
+
+                return Ok(new { Url = imageAzureUrl });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+    }
+    public class ImageRequest
+    {
+        public string ImageUrl { get; set; }
     }
 }
