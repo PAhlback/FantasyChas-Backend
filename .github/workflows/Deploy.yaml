@@ -53,7 +53,7 @@ jobs:
         working-directory: terraform
 
       - name: Terraform Apply
-        run: terraform apply
+        run: terraform apply -auto-approve 
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
