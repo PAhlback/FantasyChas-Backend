@@ -157,20 +157,17 @@ resource "azurerm_linux_virtual_machine" "vm" {
 package_upgrade: true
 packages:
   - docker.io
-  - sshpass
 runcmd:
-  - echo "-----BEGIN OPENSSH PUBLIC KEY-----\n${var.ssh_public_key}\n-----END OPENSSH PUBLIC KEY-----" > $HOME/.ssh/fantasychas.pub
-  - echo "-----BEGIN OPENSSH PUBLIC KEY-----\n${var.ssh_public_key2}\n-----END OPENSSH PUBLIC KEY-----" > $HOME/.ssh/fantasychas-sql.pub
-  - chmod 600 $HOME/.ssh/fantasychas.pub
-  - chmod 600 $HOME/.ssh/fantasychas-sql.pub
   - systemctl start docker
   - systemctl enable docker
+  - echo "OPENAI_KEY=your_openai_key" > /etc/environment
+  - echo "CONNECTION_STRING=Server=10.0.1.6,1433;Database=FantasyChasDB;User Id=sqladmin;Password=YourStrong@Passw0rd;" >> /etc/environment
+  - echo "EMAIL=your_email" >> /etc/environment
+  - echo "PASSWORD=your_password" >> /etc/environment
   - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
-  - ssh-keyscan -H 10.0.1.6 >> ~/.ssh/known_hosts
-  - sshpass -f $HOME/.ssh/fantasychas-sql.pub ssh -N -L 1433:localhost:1433 sqladmin@10.0.1.6 &
-  - docker run -d -p 8080:80 ghcr.io/f-eighty7/chaschallenger/app:latest
-  - docker run -d -p 8081:80 -e DB_HOST=localhost -e DB_USER=sqladmin -e DB_PASSWORD=YourStrong!Passw0rd ghcr.io/f-eighty7/fantasychas-backend/app:latest
+  - docker run -d -p 8080:80 --env-file /etc/environment ghcr.io/f-eighty7/chaschallenger/app:latest
+  - docker run -d -p 8081:80 --env-file /etc/environment ghcr.io/f-eighty7/fantasychas-backend/app:latest
 EOF
   )
 }
@@ -224,16 +221,14 @@ resource "azurerm_linux_virtual_machine" "sql_vm" {
   custom_data = base64encode(<<-EOF
 #cloud-config
 package_upgrade: true
+packages:
+  - mssql-server
+  - mssql-tools
 runcmd:
-  - apt-get update
-  - apt-get install -y curl
-  - curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-  - curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | tee /etc/apt/sources.list.d/msprod.list
-  - apt-get update
-  - ACCEPT_EULA=Y apt-get install -y mssql-server
   - /opt/mssql/bin/mssql-conf setup
-  - systemctl start mssql-server
   - systemctl enable mssql-server
+  - systemctl start mssql-server
+  - /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong@Passw0rd' -Q "CREATE DATABASE FantasyChasDB;"
 EOF
   )
 }
