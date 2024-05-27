@@ -113,7 +113,7 @@ resource "azurerm_network_security_group" "nsg" {
 
     security_rule {
     name                       = "RDP"
-    priority                   = 1001
+    priority                   = 1005
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
