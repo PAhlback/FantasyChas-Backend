@@ -13,8 +13,6 @@ namespace FantasyChas_Backend.Controllers
     public class ImageController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ILogger<ChatController> _logger;
-        private static ApplicationDbContext? _context;
         private readonly IImageService _imageService;
 
 
@@ -43,7 +41,7 @@ namespace FantasyChas_Backend.Controllers
             }
         }
         [HttpPost("UploadImage")]
-        public async Task<IActionResult> UploadImage(ImageRequestDto request)
+        public async Task<IActionResult> UploadImageAsync(ImageRequestDto request)
         {
             try
             {
