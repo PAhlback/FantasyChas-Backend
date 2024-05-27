@@ -30,8 +30,6 @@ namespace FantasyChas_Backend.Controllers
         [HttpPost("CreateProfileImageWithAI")]
         public async Task<IActionResult> GenerateProfileImageAsync(CharacterDto charDto)
         {
-            // takes in character and uses it for generating character's profile picture
-            
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
@@ -45,16 +43,12 @@ namespace FantasyChas_Backend.Controllers
             }
         }
         [HttpPost("UploadImage")]
-        public async Task<IActionResult> UploadImage([FromBody] ImageRequest request)
+        public async Task<IActionResult> UploadImage(ImageRequestDto request)
         {
             try
             {
-                //string localPath = await DownloadAndSaveImageAsync(request.ImageUrl, "path/to/save/images");
-                string imageUrl = "https://fastly.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U";
-                //string connectionString = "https://fantasychasblobtest.blob.core.windows.net/fantasty-test";
-                //string connectionString = "";
                 var blobStorageService = new BlobStorageService();
-                string imageAzureUrl = await blobStorageService.UploadImageFromUrlAsync("fantasty-test", imageUrl);
+                string imageAzureUrl = await blobStorageService.UploadImageFromUrlAsync(request.Url);
 
                 return Ok(new { Url = imageAzureUrl });
             }
@@ -65,8 +59,5 @@ namespace FantasyChas_Backend.Controllers
         }
 
     }
-    public class ImageRequest
-    {
-        public string ImageUrl { get; set; }
-    }
+    
 }

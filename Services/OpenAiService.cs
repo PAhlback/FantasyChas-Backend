@@ -22,7 +22,7 @@ namespace FantasyChas_Backend.Services
         {
             try
             {
-                var result = await _api.ImageGenerations.CreateImageAsync(new ImageGenerationRequest(prompt, 3, ImageSize._256));
+                var result = await _api.ImageGenerations.CreateImageAsync(new ImageGenerationRequest(prompt, 1, ImageSize._256));
                 return result;
             }
             catch (Exception ex)
