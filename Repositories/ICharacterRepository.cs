@@ -18,7 +18,7 @@ namespace FantasyChas_Backend.Repositories
 
     public class CharacterRepository : ICharacterRepository
     {
-        private static ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         public CharacterRepository(ApplicationDbContext context)
         {
