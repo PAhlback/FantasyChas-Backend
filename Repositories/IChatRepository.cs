@@ -146,10 +146,5 @@ namespace FantasyChas_Backend.Repositories
                 throw new Exception(e.Message);
             }
         }
-        public async Task DeleteChatHistoryAsync(List<ChatHistory> chatHistories)
-        {
-            _context.ChatHistories.RemoveRange(chatHistories);
-            await _context.SaveChangesAsync();
-        }
     }
 }
