@@ -193,17 +193,13 @@ resource "azurerm_network_interface" "sql_nic" {
   }
 }
 
-resource "azurerm_linux_virtual_machine" "sql_vm" {
+resource "azurerm_windows_virtual_machine" "sql_vm" {
   name                = "FantasyChas-SQL-vm"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
   admin_username      = "sqladmin"
-  disable_password_authentication = true
-  admin_ssh_key {
-    username   = "sqladmin"
-    public_key = file("~/.ssh/fantasychas-sql.pub")
-  }
+  admin_password      = "YourSecureP@ssw0rd"
   network_interface_ids = [azurerm_network_interface.sql_nic.id]
 
   os_disk {
@@ -212,25 +208,17 @@ resource "azurerm_linux_virtual_machine" "sql_vm" {
   }
 
   source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2019-Datacenter"
     version   = "latest"
   }
 
   custom_data = base64encode(<<-EOF
-#cloud-config
-package_upgrade: true
-packages:
-  - curl
-  - software-properties-common
-  - apt-transport-https
-runcmd:
-  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-  - curl https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server.list
-  - sudo apt-get update
-  - sudo ACCEPT_EULA=Y apt-get install -y mssql-server
-  - sudo MSSQL_SA_PASSWORD='YourStrong@Passw0rd' MSSQL_PID='Developer' /opt/mssql/bin/mssql-conf -n setup
+<powershell>
+Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=853016" -OutFile "C:\\setup.exe"
+Start-Process "C:\\setup.exe" -ArgumentList '/Q /IACCEPTSQLSERVERLICENSETERMS /ACTION=Install /FEATURES=SQLEngine /INSTANCENAME=MSSQLSERVER /SQLSVCACCOUNT="NT AUTHORITY\\SYSTEM" /SQLSYSADMINACCOUNTS="sqladmin" /SAPWD="YourStrong@Passw0rd" /SECURITYMODE=SQL' -Wait
+</powershell>
 EOF
   )
 }
