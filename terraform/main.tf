@@ -221,13 +221,16 @@ resource "azurerm_linux_virtual_machine" "sql_vm" {
 #cloud-config
 package_upgrade: true
 packages:
-  - mssql-server
-  - mssql-tools
+  - curl  # Install curl if not already installed
 runcmd:
-  - /opt/mssql/bin/mssql-conf setup
+  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+  - curl https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2019.list | sudo tee /etc/apt/sources.list.d/mssql-server.list
+  - sudo apt-get update
+  - sudo apt-get install -y mssql-server mssql-tools
+  - /opt/mssql/bin/mssql-conf setup accept-eula --set-sa-password YourStrong@Passw0rd
   - systemctl enable mssql-server
   - systemctl start mssql-server
   - /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong@Passw0rd' -Q "CREATE DATABASE FantasyChasDB;"
 EOF
-  )
-}
+)
+
