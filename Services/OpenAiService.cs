@@ -25,7 +25,7 @@ namespace FantasyChas_Backend.Services
                 var result = await _api.ImageGenerations.CreateImageAsync(new ImageGenerationRequest(prompt, 3, ImageSize._256));
                 return result;
             }
-            catch (Exception ex)
+            catch
             {
                 throw new Exception("AI failed creating an image");
             }
