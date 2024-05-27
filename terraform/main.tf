@@ -221,12 +221,12 @@ resource "azurerm_linux_virtual_machine" "sql_vm" {
 #cloud-config
 package_upgrade: true
 packages:
-  - curl  # Install curl if not already installed
+  - curl
 runcmd:
   - curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
-  - curl https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2019.list | sudo tee /etc/apt/sources.list.d/mssql-server.list
-  - sudo apt-get update
-  - sudo apt-get install -y mssql-server mssql-tools
+  - add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2022.list)"
+  - apt-get update
+  - apt-get install -y mssql-server
   - /opt/mssql/bin/mssql-conf setup accept-eula --set-sa-password YourStrong@Passw0rd
   - systemctl enable mssql-server
   - systemctl start mssql-server
