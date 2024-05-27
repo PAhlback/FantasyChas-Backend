@@ -201,9 +201,9 @@ resource "azurerm_windows_virtual_machine" "sql_vm" {
   }
 
   source_image_reference {
-    publisher = "MicrosoftWindowsDesktop"
-    offer     = "windows-11"
-    sku       = "win11-22h2-pro"
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2019-Datacenter"
     version   = "latest"
   }
 
