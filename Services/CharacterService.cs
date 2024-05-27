@@ -58,7 +58,9 @@ namespace FantasyChas_Backend.Services
                         Charisma = c.Charisma,
                         Backstory = c.Backstory,
                         Profession = c.Profession,
-                        Species = c.Species
+                        Species = c.Species,
+                        Favourite = c.Favourite,
+                        ImageURL = c.ImageURL
                     })
                     .ToList();
 
