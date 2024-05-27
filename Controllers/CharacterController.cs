@@ -107,16 +107,15 @@ namespace FantasyChas_Backend.Controllers
         }
 
         [HttpDelete("DeleteCharacter")]
-        public async Task<IActionResult> DeleteCharacterAsync(int characterId)
+        public async Task<IActionResult> DeleteCharacterAsync(CharacterIdDto charDto)
         {
             try
             {
                 IdentityUser user = await GetCurrentUserAsync();
-                string userId = user.Id;
 
-                await _characterService.DeleteCharacterAsync(userId, characterId);
+                await _characterService.DeleteCharacterAsync(user, charDto.Id);
 
-                return Ok($"Character with ID {characterId} successfully deleted.");
+                return Ok($"Character successfully deleted.");
             }
             catch (Exception ex)
             {
