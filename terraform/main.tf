@@ -110,6 +110,18 @@ resource "azurerm_network_security_group" "nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+    security_rule {
+    name                       = "RDP"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3389"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 resource "azurerm_network_interface" "nic2" {
@@ -172,27 +184,6 @@ EOF
   )
 }
 
-resource "azurerm_public_ip" "sql_public_ip" {
-  name                = "FantasyChas-SQL-public-ip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  allocation_method   = "Static"
-}
-
-resource "azurerm_network_interface" "sql_nic" {
-  name                = "FantasyChas-SQL-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-  ip_configuration {
-    name                          = "FantasyChas-SQL-primary"
-    subnet_id                     = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "Static"
-    private_ip_address            = "10.0.1.6"
-    public_ip_address_id          = azurerm_public_ip.sql_public_ip.id
-  }
-}
-
 resource "azurerm_windows_virtual_machine" "sql_vm" {
   name                = "FC-SQL-VM"
   resource_group_name = azurerm_resource_group.rg.name
@@ -202,15 +193,17 @@ resource "azurerm_windows_virtual_machine" "sql_vm" {
   admin_password      = "YourSecureP@ssw0rd"
   network_interface_ids = [azurerm_network_interface.sql_nic.id]
 
+  computer_name       = "FCSQLVM"
+
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
 
   source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2019-Datacenter"
+    publisher = "MicrosoftWindowsDesktop"
+    offer     = "windows-11"
+    sku       = "win11-22h2-pro"
     version   = "latest"
   }
 
