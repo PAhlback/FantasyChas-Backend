@@ -157,7 +157,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
 package_upgrade: true
 packages:
   - docker.io
-  - mssql-tools
 runcmd:
   - systemctl start docker
   - systemctl enable docker
@@ -174,36 +173,64 @@ EOF
 }
 
 resource "azurerm_public_ip" "sql_public_ip" {
-  name                = "fantasychas-sql-public-ip"
+  name                = "FantasyChas-SQL-public-ip"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   allocation_method   = "Static"
 }
 
 resource "azurerm_network_interface" "sql_nic" {
-  name                = "fantasychas-sql-nic"
+  name                = "FantasyChas-SQL-nic"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
-    name                          = "fantasychas-sql-primary"
+    name                          = "FantasyChas-SQL-primary"
     subnet_id                     = azurerm_subnet.subnet.id
-    private_ip_address            = "10.0.1.6"
     private_ip_address_allocation = "Static"
+    private_ip_address            = "10.0.1.6"
     public_ip_address_id          = azurerm_public_ip.sql_public_ip.id
   }
 }
 
-resource "azurerm_mssql_server" "sql_server" {
-  name                         = "fantasychassqlserver"
-  resource_group_name          = azurerm_resource_group.rg.name
-  location                     = azurerm_resource_group.rg.location
-  version                      = "12.0"
-  administrator_login          = "sqladmin"
-  administrator_login_password = "YourStrong@Passw0rd"
-}
+resource "azurerm_linux_virtual_machine" "sql_vm" {
+  name                = "FantasyChas-SQL-vm"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  size                = "Standard_B1s"
+  admin_username      = "sqladmin"
+  disable_password_authentication = true
+  admin_ssh_key {
+    username   = "sqladmin"
+    public_key = file("~/.ssh/fantasychas-sql.pub")
+  }
+  network_interface_ids = [azurerm_network_interface.sql_nic.id]
 
-resource "azurerm_mssql_database" "example_db" {
-  name                = "FantasyChasDB"
-  server_id           = azurerm_mssql_server.sql_server.id
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+
+  custom_data = base64encode(<<-EOF
+#cloud-config
+package_upgrade: true
+packages:
+  - curl
+  - software-properties-common
+  - apt-transport-https
+runcmd:
+  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+  - curl https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2019.list | sudo tee /etc/apt/sources.list.d/mssql-server.list
+  - sudo apt-get update
+  - sudo ACCEPT_EULA=Y apt-get install -y mssql-server
+  - sudo MSSQL_SA_PASSWORD='<YourStrong@Passw0rd>' MSSQL_PID='Developer' /opt/mssql/bin/mssql-conf -n setup
+EOF
+  )
 }
