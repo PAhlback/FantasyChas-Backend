@@ -230,7 +230,7 @@ runcmd:
   - curl https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server.list
   - sudo apt-get update
   - sudo ACCEPT_EULA=Y apt-get install -y mssql-server
-  - sudo MSSQL_SA_PASSWORD='<YourStrong!Passw0rd>' MSSQL_PID='Developer' /opt/mssql/bin/mssql-conf -n setup
+  - sudo MSSQL_SA_PASSWORD='YourStrong@Passw0rd' MSSQL_PID='Developer' /opt/mssql/bin/mssql-conf -n setup
 EOF
   )
 }
