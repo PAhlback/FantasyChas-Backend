@@ -15,10 +15,8 @@ namespace FantasyChas_Backend.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IImageService _imageService;
 
-
-        public ImageController(ILogger<ChatController> logger, UserManager<IdentityUser> userManager, IImageService imageService)
+        public ImageController(UserManager<IdentityUser> userManager, IImageService imageService)
         {
-            _logger = logger;
             _userManager = userManager;
             _imageService = imageService;
         }
