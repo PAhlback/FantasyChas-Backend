@@ -174,19 +174,19 @@ EOF
 }
 
 resource "azurerm_public_ip" "sql_public_ip" {
-  name                = "FantasyChas-SQL-public-ip"
+  name                = "fantasychas-sql-public-ip"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   allocation_method   = "Static"
 }
 
 resource "azurerm_network_interface" "sql_nic" {
-  name                = "FantasyChas-SQL-nic"
+  name                = "fantasychas-sql-nic"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
-    name                          = "FantasyChas-SQL-primary"
+    name                          = "fantasychas-sql-primary"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address            = "10.0.1.6"
     private_ip_address_allocation = "Static"
@@ -194,12 +194,11 @@ resource "azurerm_network_interface" "sql_nic" {
   }
 }
 
-
 resource "azurerm_mssql_server" "sql_server" {
-  name                         = "FantasyChas-SQL-server"
+  name                         = "fantasychassqlserver"
   resource_group_name          = azurerm_resource_group.rg.name
   location                     = azurerm_resource_group.rg.location
-  version                      = "16"
+  version                      = "12.0"
   administrator_login          = "sqladmin"
   administrator_login_password = "YourStrong@Passw0rd"
 }
