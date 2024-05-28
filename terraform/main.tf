@@ -161,7 +161,7 @@ runcmd:
   - systemctl start docker
   - systemctl enable docker
   - echo "OPENAI_KEY=your_openai_key" > /etc/environment
-  - echo "CONNECTION_STRING=Server=10.0.1.6,1433;Database=FantasyChasDB;User Id=sqladmin;Password=;" >> /etc/environment
+  - echo "connection_string=Server=${data.azurerm_sql_server.mssql-server.private_endpoint.0.private_ip_address},1433;Database=fantasychas-db;User Id=sqladmin;Password=YourStrong@Passw0rd;" >> /etc/environment
   - echo "EMAIL=your_email" >> /etc/environment
   - echo "PASSWORD=your_password" >> /etc/environment
   - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
@@ -172,35 +172,32 @@ EOF
   )
 }
 
-resource "azurerm_sql_server" "fantasy" {
+resource "azurerm_mssql_server" "mssql-server" {
   name                         = "fantasy-sqlserver"
   resource_group_name          = azurerm_resource_group.rg.name
   location                     = azurerm_resource_group.rg.location
   version                      = "12.0"
-  administrator_login          = "fantasy-admin"
+  administrator_login          = "sqladmin"
   administrator_login_password = "YourStrong@Passw0rd"
-
-  private_endpoint_ip_address   = "10.0.1.6"
 }
 
-resource "azurerm_private_endpoint" "sql_server_endpoint" {
-  name                = "sql-server-endpoint"
-  location            = azurerm_resource_group.fantasy.location
-  resource_group_name = azurerm_resource_group.fantasy.name
-  subnet_id           = azurerm_subnet.subnet.id
+resource "azurerm_mssql_database" "mssql-db" {
+  name           = "fantasychas-db"
+  server_id      = azurerm_mssql_server.mssql-server.id
+  collation      = "SQL_Latin1_General_CP1_CI_AS"
+  license_type   = "LicenseIncluded"
+  max_size_gb    = 4
+  read_scale     = true
+  sku_name       = "S0"
+  zone_redundant = true
+  enclave_type   = "VBS"
+}
 
-  private_service_connection {
-    name                           = "sql-server-connection"
-    private_connection_resource_id = azurerm_sql_server.fantasy.id
-    subresource_names              = ["sqlServer"]
-    is_manual_connection           = false
-  }
-  
-  dynamic "private_dns_zone_group" {
-    for_each = [azurerm_private_dns_zone.example]
-    content {
-      name                = private_dns_zone_group.value.name
-      private_dns_zone_id = private_dns_zone_group.value.id
-    }
-  }
+data "azurerm_sql_server" "mssql-server" {
+  name                = azurerm_mssql_server.mssql-server.name
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+output "mssql_server_private_ip" {
+  value = data.azurerm_sql_server.mssql-server.private_endpoint.0.private_ip_address
 }
