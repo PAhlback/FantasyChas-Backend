@@ -12,7 +12,7 @@ namespace FantasyChas_Backend.Repositories
 
     public class ActiveStoryRepository : IActiveStoryRepository
     {
-        private static ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         public ActiveStoryRepository(ApplicationDbContext context)
         {

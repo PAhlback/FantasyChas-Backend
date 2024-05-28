@@ -19,7 +19,7 @@ namespace FantasyChas_Backend.Repositories
 
     public class ChatRepository : IChatRepository
     {
-        private static ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         public ChatRepository(ApplicationDbContext context)
         {
