@@ -172,10 +172,21 @@ EOF
   )
 }
 
+resource "azurerm_sql_server" "fantasy" {
+  name                         = "fantasy-sqlserver"
+  resource_group_name          = azurerm_resource_group.rg.name
+  location                     = azurerm_resource_group.rg.location
+  version                      = "12.0"
+  administrator_login          = "fantasy-admin"
+  administrator_login_password = "YourStrong@Passw0rd"
+
+  private_endpoint_ip_address   = "10.0.1.6"
+}
+
 resource "azurerm_private_endpoint" "sql_server_endpoint" {
   name                = "sql-server-endpoint"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.fantasy.location
+  resource_group_name = azurerm_resource_group.fantasy.name
   subnet_id           = azurerm_subnet.subnet.id
 
   private_service_connection {
@@ -184,31 +195,12 @@ resource "azurerm_private_endpoint" "sql_server_endpoint" {
     subresource_names              = ["sqlServer"]
     is_manual_connection           = false
   }
-}
-
-resource "azurerm_sql_server" "fantasy" {
-  name                         = "fantasy-sqlserver"
-  resource_group_name          = azurerm_resource_group.fantasy.name
-  location                     = azurerm_resource_group.fantasy.location
-  version                      = "12.0"
-  administrator_login          = "fantasy-admin"
-  administrator_login_password = "YourStrong@Passw0rd"
   
-  dynamic "server_version" {
-    for_each = [azurerm_sql_server.fantasy]
+  dynamic "private_dns_zone_group" {
+    for_each = [azurerm_private_dns_zone.example]
     content {
-      public_network_access_enabled = false
-      private_endpoint_connections {
-        name                              = azurerm_private_endpoint.sql_server_endpoint.name
-        private_endpoint_id               = azurerm_private_endpoint.sql_server_endpoint.id
-        private_link_service_connection {
-          name                           = "sql-server-connection"
-          private_link_service_id        = azurerm_sql_server.fantasy.private_endpoint_connection.0.private_link_service_id
-          group_ids                      = ["sqlServer"]
-        }
-      }
+      name                = private_dns_zone_group.value.name
+      private_dns_zone_id = private_dns_zone_group.value.id
     }
   }
-  
-  private_endpoint_ip_address   = "10.0.1.6"
 }
