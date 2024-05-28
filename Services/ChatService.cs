@@ -190,7 +190,7 @@ namespace FantasyChas_Backend.Services
                                 "Parametrar fortsättning: Magi existerar inte utan detta är totalt verklighetsbaserad utspelat i en kris-situation." +
                                 "Parametrar fortsättning: Få med möjliga konsekvenser baserad på möjliga val och händelseförlopp och scenario som spelaren har framför sig." +
                                 "Parametrar fortsättning: Varje val bör leda till olika fördelar eller konsekvenser och ytterligare utveckling av historien." +
-                                "Parametrar fortsättning: Gör ALLTID en väl beskrivande story och en GEDIGEN Upplevelse för spelaren som spelar detta katastrof-scenario baserad text-spel" +
+                                "Parametrar fortsättning: Gör alltid en väl beskrivande story och en gedigen upplevelse för spelaren som spelar detta katastrof-scenario baserad text-spel" +
                                 "Parametrar fortsättning: Avsluta alltid dina svar med att fråga vad användaren vill göra härnäst och uppmana till att skriva ett eget alternativ som du bygger på." +
                                 "Parametrar fortsättning: Ta med allt i detta system-meddelande för att ge spelaren den bästa upplevelsen baserad på MSB's broschyr." +
                                 "Parametrar fortsättning: Målet är att skapa en interaktiv och engagerande upplevelse där spelaren kan se världen och valen genom text och måste göra strategiska beslut för att överleva." +
