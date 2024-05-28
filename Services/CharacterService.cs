@@ -3,6 +3,7 @@ using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
 using FantasyChas_Backend.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OpenAI_API.Chat;
 
@@ -14,7 +15,7 @@ namespace FantasyChas_Backend.Services
         Task CreateCharacterAsync(IdentityUser user, CharacterDto charDto);
         Task<string> CreateCharacterWithAiAsync(NewCharacterViewModel newCharacter);
         Task UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto);
-        Task DeleteCharacterAsync(string userId, int CharacterId);
+        Task DeleteCharacterAsync(IdentityUser user, int charId);
         Task<bool> CharacterExistsAsync(int characterId, string userId);
         Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
         Task<CharacterViewModel> ConvertCharacterToViewModelAsync(Character character);
@@ -138,11 +139,11 @@ namespace FantasyChas_Backend.Services
             }
         }
 
-        public async Task DeleteCharacterAsync(string userId, int characterId)
+        public async Task DeleteCharacterAsync(IdentityUser user, int charId)
         {
             try
             {
-                await _characterRepository.DeleteCharacterAsync(userId, characterId);
+                await _characterRepository.DeleteCharacterAsync(user, charId);
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 ﻿using FantasyChas_Backend.Data;
 using FantasyChas_Backend.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace FantasyChas_Backend.Repositories
@@ -9,7 +10,7 @@ namespace FantasyChas_Backend.Repositories
         public Task<List<Character>> GetCharactersForUserAsync(string userId);
         public Task AddCharacterAsync(Character newCharacter);
         public Task UpdateCharacterAsync(int characterId, Character updatedCharacter);
-        public Task DeleteCharacterAsync(string userId, int characterId);
+        public Task DeleteCharacterAsync(IdentityUser user, int characterId);
         Task<bool> CharacterExistsAsync(int characterId, string userId);
         public Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
         Task<Character> GetCharacterByIdAsync(int characterId);
@@ -91,12 +92,13 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public async Task DeleteCharacterAsync(string userId, int characterId)
+        public async Task DeleteCharacterAsync(IdentityUser user, int characterId)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var characterToDelete = await _context.Characters
-                                                      .Where(c => c.User.Id == userId && c.Id == characterId)
+                                                      .Where(c => c.User.Id == user.Id && c.Id == characterId)
                                                       .SingleOrDefaultAsync();
 
                 if (characterToDelete == null)
@@ -104,11 +106,37 @@ namespace FantasyChas_Backend.Repositories
                     throw new Exception($"Unable to delete character. Character with ID {characterId} not found.");
                 }
 
+                // Delete related chats and stories
+                var chatsToDelete = await _context.Chats
+                    .Where(c => c.ActiveStory.User.Id == user.Id && c.ActiveStory.Characters.Any(ac => ac.Id == characterId))
+                    .ToListAsync();
+
+                var chatHistoriesToDelete = await _context.ChatHistories
+                    .Where(ch => ch.Character.Id == characterId)
+                    .ToListAsync();
+
+                var activeStoriesToDelete = await _context.ActiveStories
+                    .Where(a => a.User.Id == user.Id && a.Characters.Any(c => c.Id == characterId))
+                    .ToListAsync();
+
+                var savedStoriesToDelete = await _context.SavedStories
+                    .Where(s => s.User.Id == user.Id && s.Characters.Any(c => c.Id == characterId))
+                    .ToListAsync();
+
+                _context.Chats.RemoveRange(chatsToDelete);
+                _context.ChatHistories.RemoveRange(chatHistoriesToDelete);
+                _context.ActiveStories.RemoveRange(activeStoriesToDelete);
+                _context.SavedStories.RemoveRange(savedStoriesToDelete);
+
+                // Delete the character
                 _context.Characters.Remove(characterToDelete);
+
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
-            catch
+            catch (Exception)
             {
+                await transaction.RollbackAsync();
                 throw;
             }
         }
