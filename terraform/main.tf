@@ -179,10 +179,6 @@ resource "azurerm_sql_server" "fantasy_chas_sql_server" {
   version                      = "12.0"
   administrator_login          = "sqladmin"
   administrator_login_password = "YourStrong@Passw0rd"
-
-  server_version {
-    public_network_access_enabled = false
-  }
 }
 
 resource "azurerm_sql_database" "fantasy_chas_database" {
