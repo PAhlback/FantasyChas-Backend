@@ -161,82 +161,54 @@ runcmd:
   - systemctl start docker
   - systemctl enable docker
   - echo "OPENAI_KEY=your_openai_key" > /etc/environment
-  - echo "CONNECTION_STRING=Server=10.0.1.6,1433;Database=FantasyChasDB;User Id=sqladmin;Password=YourStrong@Passw0rd;" >> /etc/environment
+  - echo "CONNECTION_STRING=Server=10.0.1.6,1433;Database=FantasyChasDB;User Id=sqladmin;Password=;" >> /etc/environment
   - echo "EMAIL=your_email" >> /etc/environment
   - echo "PASSWORD=your_password" >> /etc/environment
   - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
   - docker run -d -p 8080:80 --env-file /etc/environment ghcr.io/f-eighty7/chaschallenger/app:latest
-  - docker run -d -p 7110:80 --env-file /etc/environment ghcr.io/f-eighty7/fantasychas-backend/app:latest
+  - docker run -d -p 8080:81 --env-file /etc/environment ghcr.io/f-eighty7/fantasychas-backend/app:latest
 EOF
   )
 }
 
-resource "azurerm_public_ip" "sql_public_ip" {
-  name                = "FantasyChas-SQL-public-ip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  allocation_method   = "Static"
-}
-
-resource "azurerm_network_interface" "sql_nic" {
-  name                = "FantasyChas-SQL-nic"
+resource "azurerm_private_endpoint" "sql_server_endpoint" {
+  name                = "sql-server-endpoint"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
+  subnet_id           = azurerm_subnet.subnet.id
 
-  ip_configuration {
-    name                          = "FantasyChas-SQL-primary"
-    subnet_id                     = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "Static"
-    private_ip_address            = "10.0.1.6"
-    public_ip_address_id          = azurerm_public_ip.sql_public_ip.id
+  private_service_connection {
+    name                           = "sql-server-connection"
+    private_connection_resource_id = azurerm_sql_server.fantasy.id
+    subresource_names              = ["sqlServer"]
+    is_manual_connection           = false
   }
 }
 
-resource "azurerm_linux_virtual_machine" "sql_vm" {
-  name                = "FantasyChas-SQL-vm"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  size                = "Standard_B2s"
-  admin_username      = "sqladmin"
-  disable_password_authentication = true
-  admin_ssh_key {
-    username   = "sqladmin"
-    public_key = file("~/.ssh/fantasychas-sql.pub")
+resource "azurerm_sql_server" "fantasy" {
+  name                         = "fantasy-sqlserver"
+  resource_group_name          = azurerm_resource_group.fantasy.name
+  location                     = azurerm_resource_group.fantasy.location
+  version                      = "12.0"
+  administrator_login          = "fantasy-admin"
+  administrator_login_password = "YourStrong@Passw0rd"
+  
+  dynamic "server_version" {
+    for_each = [azurerm_sql_server.fantasy]
+    content {
+      public_network_access_enabled = false
+      private_endpoint_connections {
+        name                              = azurerm_private_endpoint.sql_server_endpoint.name
+        private_endpoint_id               = azurerm_private_endpoint.sql_server_endpoint.id
+        private_link_service_connection {
+          name                           = "sql-server-connection"
+          private_link_service_id        = azurerm_sql_server.fantasy.private_endpoint_connection.0.private_link_service_id
+          group_ids                      = ["sqlServer"]
+        }
+      }
+    }
   }
-  network_interface_ids = [azurerm_network_interface.sql_nic.id]
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
-    version   = "latest"
-  }
-
-  custom_data = base64encode(<<-EOF
-#cloud-config
-package_upgrade: true
-packages:
-  - curl
-  - software-properties-common
-  - apt-transport-https
-runcmd:
-  - curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
-  - curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server-2022.list
-  - sudo apt-get update
-  - sudo DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -y mssql-server
-  - sudo MSSQL_SA_PASSWORD='YourStrong@Passw0rd' MSSQL_PID='Developer' /opt/mssql/bin/mssql-conf -n setup
-  - sudo systemctl start mssql-server
-  - systemctl status mssql-server --no-pager
-  - echo "CONNECTION_STRING=Server=10.0.1.6,1433;Database=FantasyChasDB;User Id=sqladmin;Password=YourStrong@Passw0rd;" >> /etc/environment
-  - sudo ufw allow 1433/tcp
-
-EOF
-  )
+  
+  private_endpoint_ip_address   = "10.0.1.6"
 }
