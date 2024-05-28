@@ -195,12 +195,12 @@ namespace FantasyChas_Backend.Services
                                 "Parametrar fortsättning: Ta med allt i detta system-meddelande för att ge spelaren den bästa upplevelsen baserad på MSB's broschyr." +
                                 "Parametrar fortsättning: Målet är att skapa en interaktiv och engagerande upplevelse där spelaren kan se världen och valen genom text och måste göra strategiska beslut för att överleva." +
 
-                                "Bas-story: [Karaktärens namn och beskrivning] befinner sig i Sverige där samhället står inför en fasansfull oväntad kris " +
+                                "Bas-story: [Karaktärens namn och beskrivning] befinner sig i Sverige där samhället står inför en oväntad kris - " +
                                 "Baserad på MSB's broschyr 'Om krisen eller kriget kommer'. " +
                                 "Spelet börjar med att spelaren vaknar efter en kortare tupplur" +
                                 "Välj en plats eller stad/stadsdel där Spelaren börjar, välj en plats som passar karaktären i helhet, " +
                                 "Dygnstid: Välj utspelad start-tid mellan att det är morgon, mitt på dagen, kväll eller mitt i natten" +
-                                "Välj och anpassa ett av följande kris-scenarier baserat på karaktärens bakgrund och färdigheter: naturkatastrofer, " +
+                                "Välj och anpassa ett av följande kris-scenarier baserat på karaktärens bakgrund för bästa spel-upplevelse: naturkatastrofer, " +
                                 "IT-attacker, terrorattentat, sabotage av infrastruktur, militära angrepp, brist på livsmedel och vatten, utbrott av livshotande-sjukdomar, pandemier eller världskrig." +
                                 "Efter att tagit in all information om Bas-Story: Nu ska du skapa en startbeskrivning som är skräddarsydd efter allt du fått veta om alla krav satta för spelarens upplevelse. ") ,
 
