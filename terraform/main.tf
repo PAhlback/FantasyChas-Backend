@@ -189,7 +189,6 @@ resource "azurerm_mssql_database" "mssql-db" {
   max_size_gb    = 1
   read_scale     = true
   sku_name       = "S0"
-  zone_redundant = true
 }
 
 output "mssql_server_fqdn" {
