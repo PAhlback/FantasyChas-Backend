@@ -190,7 +190,7 @@ resource "azurerm_mssql_database" "mssql-db" {
   max_size_gb    = 32
   read_scale     = true
   sku_name       = "GP_S_Gen5_1"
-  zone_redundant = fals
+  zone_redundant = false
 }
 
 output "mssql_server_fqdn" {
