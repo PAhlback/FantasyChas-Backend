@@ -226,11 +226,16 @@ packages:
   - software-properties-common
   - apt-transport-https
 runcmd:
-  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-  - curl https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2019.list | sudo tee /etc/apt/sources.list.d/mssql-server.list
+  - curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+  - curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server-2022.list
   - sudo apt-get update
   - sudo ACCEPT_EULA=Y apt-get install -y mssql-server
   - sudo MSSQL_SA_PASSWORD='YourStrong@Passw0rd' MSSQL_PID='Developer' /opt/mssql/bin/mssql-conf -n setup
+  - sudo systemctl start mssql-server
+  - systemctl status mssql-server --no-pager
+  - echo "CONNECTION_STRING=Server=10.0.1.6,1433;Database=FantasyChasDB;User Id=sqladmin;Password=YourStrong@Passw0rd;" >> /etc/environment
+  - sudo ufw allow 1433/tcp
 EOF
   )
 }
