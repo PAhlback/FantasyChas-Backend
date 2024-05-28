@@ -21,7 +21,7 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "rg" {
   name     = "FantasyChas-Backend"
-  location = "West Europe"
+  location = "East US"
 }
 
 resource "azurerm_virtual_network" "vnet" {
@@ -209,6 +209,6 @@ resource "azurerm_sql_server" "fantasy" {
       }
     }
   }
-  
+
   private_endpoint_ip_address   = "10.0.1.6"
 }
