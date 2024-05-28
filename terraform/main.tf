@@ -181,14 +181,16 @@ resource "azurerm_mssql_server" "mssql-server" {
   administrator_login_password = "YourStrong@Passw0rd"
 }
 
+
 resource "azurerm_mssql_database" "mssql-db" {
   name           = "fantasychas-db"
   server_id      = azurerm_mssql_server.mssql-server.id
   collation      = "SQL_Latin1_General_CP1_CI_AS"
   license_type   = "LicenseIncluded"
-  max_size_gb    = 1
+  max_size_gb    = 32
   read_scale     = true
-  sku_name       = "Basic"
+  sku_name       = "GP_S_Gen5_1"
+  zone_redundant = fals
 }
 
 output "mssql_server_fqdn" {
