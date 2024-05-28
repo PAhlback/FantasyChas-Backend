@@ -133,7 +133,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   disable_password_authentication = true
   admin_ssh_key {
     username   = "fantasychasadmin"
-    public_key = file("/home/.ssh/fantasychas.pub")
+    public_key = file("~/.ssh/fantasychas.pub")
   }
   network_interface_ids = [
     azurerm_network_interface.nic.id,
