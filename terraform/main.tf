@@ -167,7 +167,7 @@ runcmd:
   - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
   - docker run -d -p 8080:80 --env-file /etc/environment ghcr.io/f-eighty7/chaschallenger/app:latest
-  - docker run -d -p 8080:81 --env-file /etc/environment ghcr.io/f-eighty7/fantasychas-backend/app:latest
+  - docker run -d -p 8081:80 --env-file /etc/environment ghcr.io/f-eighty7/fantasychas-backend/app:latest
 EOF
   )
 }
