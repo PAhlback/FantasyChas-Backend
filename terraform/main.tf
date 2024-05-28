@@ -186,9 +186,9 @@ resource "azurerm_mssql_database" "mssql-db" {
   server_id      = azurerm_mssql_server.mssql-server.id
   collation      = "SQL_Latin1_General_CP1_CI_AS"
   license_type   = "LicenseIncluded"
-  max_size_gb    = 1
+  max_size_gb    = 5
   read_scale     = true
-  sku_name       = "S0"
+  sku_name       = "Basic"
 }
 
 output "mssql_server_fqdn" {
