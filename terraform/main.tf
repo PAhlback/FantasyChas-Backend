@@ -187,7 +187,7 @@ resource "azurerm_mssql_database" "mssql-db" {
   server_id      = azurerm_mssql_server.mssql-server.id
   collation      = "SQL_Latin1_General_CP1_CI_AS"
   max_size_gb    = 1
-  read_scale     = true
+  read_scale     = false
   sku_name       = "S0"
   zone_redundant = false
 }
