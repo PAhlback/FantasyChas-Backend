@@ -161,7 +161,7 @@ runcmd:
   - systemctl start docker
   - systemctl enable docker
   - echo "OPENAI_KEY=your_openai_key" > /etc/environment
-  - echo "connection_string=Server=${azurerm_mssql_server.mssql-server.fully_qualified_domain_name},1433;Database=fantasychas-db;User Id=sqladmin;Password=YourStrong@Passw0rd;" >> /etc/environment
+  - echo "CONNECTION_STRING=Server=tcp:fantasy-sqlserver.database.windows.net,1433;Initial Catalog=fantasychas-db;Persist Security Info=False;User ID=sqladmin;Password=YourStrong@Passw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" >> /etc/environment
   - echo "EMAIL=your_email" >> /etc/environment
   - echo "PASSWORD=your_password" >> /etc/environment
   - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
