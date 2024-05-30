@@ -160,14 +160,10 @@ packages:
 runcmd:
   - systemctl start docker
   - systemctl enable docker
-  - echo "OPENAI_KEY=your_openai_key" > /etc/environment
-  - echo "CONNECTION_STRING=Server=tcp:fantasy-sqlserver.database.windows.net,1433;Initial Catalog=fantasychas-db;Persist Security Info=False;User ID=sqladmin;Password=YourStrong@Passw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" >> /etc/environment
-  - echo "EMAIL=your_email" >> /etc/environment
-  - echo "PASSWORD=your_password" >> /etc/environment
   - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
-  - docker run -d -p 8080:80 --env-file /etc/environment ghcr.io/f-eighty7/chaschallenger/app:latest
-  - docker run -d -p 8081:8080 --env-file /etc/environment ghcr.io/f-eighty7/fantasychas-backend/app:latest
+  - docker run -d -p 8080:80 ghcr.io/f-eighty7/chaschallenger/app:latest
+  - docker run -d -p 8081:8080 -e CONNECTION_STRING="${var.connection_string}" -e OPENAI_KEY="${var.openai_api_key}" ghcr.io/f-eighty7/fantasychas-backend/app:latest
 EOF
   )
 }
@@ -178,7 +174,7 @@ resource "azurerm_mssql_server" "mssql-server" {
   location                     = azurerm_resource_group.rg.location
   version                      = "12.0"
   administrator_login          = "sqladmin"
-  administrator_login_password = "YourStrong@Passw0rd"
+  administrator_login_password = var.sql_admin_password
 }
 
 
