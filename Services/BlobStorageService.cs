@@ -35,9 +35,8 @@ namespace FantasyChas_Backend.Services
                     // Extract the file name 
                     var uri = new Uri(imageUrl);
                     string fileName = Path.GetFileName(uri.AbsolutePath);
-
-//                    string fileName = Path.GetFileName(imageUrl);
                     fileName = fileName.Replace('%', '_');
+
                     string extension = Path.GetExtension(fileName);
                     if (extension == "") // DALLE outputs .png without extension or with long extension that starts with .png
                     {
