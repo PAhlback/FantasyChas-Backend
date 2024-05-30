@@ -103,7 +103,7 @@ namespace FantasyChas_Backend
                 await next.Invoke(context);
             });
 
-            app.MapGroupMap("/api/identity").IdentityApi<IdentityUser>();
+            app.MapGroup("/api/identity").IdentityApi<IdentityUser>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
