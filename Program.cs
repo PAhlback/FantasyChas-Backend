@@ -23,19 +23,19 @@ namespace FantasyChas_Backend
             // Add services to the container.
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-            var AllowLocalhostOrigin = "_allowLocalhostOrigin";
+            //var AllowLocalhostOrigin = "_allowLocalhostOrigin";
 
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy(name: AllowLocalhostOrigin,
-                                  policy =>
-                                  {
-                                      policy.WithOrigins("http://localhost:3000")
-                                                          .AllowAnyHeader()
-                                                          .AllowAnyMethod()
-                                                          .AllowCredentials();
-                                  });
-            });
+            //builder.Services.AddCors(options =>
+            //{
+            //    options.AddPolicy(name: AllowLocalhostOrigin,
+            //                      policy =>
+            //                      {
+            //                          policy.WithOrigins("http://localhost:3000")
+            //                                              .AllowAnyHeader()
+            //                                              .AllowAnyMethod()
+            //                                              .AllowCredentials();
+            //                      });
+            //});
 
             builder.Services.AddAuthorization();
             builder.Services.AddControllers();
@@ -62,11 +62,11 @@ namespace FantasyChas_Backend
             });
 
             // Configure cookie settings
-            builder.Services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.SameSite = SameSiteMode.None;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            });
+            //builder.Services.ConfigureApplicationCookie(options =>
+            //{
+            //    options.Cookie.SameSite = SameSiteMode.None;
+            //    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            //});
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -134,7 +134,7 @@ namespace FantasyChas_Backend
 
             app.UseHttpsRedirection();
 
-            app.UseCors(AllowLocalhostOrigin);
+            //app.UseCors(AllowLocalhostOrigin);
 
             app.UseAuthentication();
             app.UseAuthorization();
