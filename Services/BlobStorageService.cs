@@ -1,9 +1,14 @@
 ﻿using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs;
+using System.Text.RegularExpressions;
 
 namespace FantasyChas_Backend.Services
 {
-    public class BlobStorageService
+    public interface IBlobStorageService
+    {
+        Task<string> UploadImageFromUrlAsync(string imageUrl);
+    }
+    public class BlobStorageService : IBlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly BlobContainerClient _blobContainerClient;
@@ -28,9 +33,13 @@ namespace FantasyChas_Backend.Services
                 using (var stream = await response.Content.ReadAsStreamAsync())
                 {
                     // Extract the file name 
-                    string fileName = Path.GetFileName(imageUrl);
+                    var uri = new Uri(imageUrl);
+                    string fileName = Path.GetFileName(uri.AbsolutePath);
+
+//                    string fileName = Path.GetFileName(imageUrl);
+                    fileName = fileName.Replace('%', '_');
                     string extension = Path.GetExtension(fileName);
-                    if (extension == "") // DALLE outputs .png without extension
+                    if (extension == "") // DALLE outputs .png without extension or with long extension that starts with .png
                     {
                         fileName += ".png";
                         extension = Path.GetExtension(fileName);

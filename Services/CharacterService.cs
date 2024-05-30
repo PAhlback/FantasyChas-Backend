@@ -2,6 +2,7 @@
 using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
 using FantasyChas_Backend.Repositories;
+using FantasyChas_Backend.Services;
 using FantasyChas_Backend.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,11 +26,13 @@ namespace FantasyChas_Backend.Services
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly IOpenAiService _openAiService;
+        private readonly IBlobStorageService _blobStorageService;
 
-        public CharacterService(ICharacterRepository characterRepository, IOpenAiService openAiService)
+        public CharacterService(ICharacterRepository characterRepository, IOpenAiService openAiService, IBlobStorageService blobStorageService)
         {
             _characterRepository = characterRepository;
             _openAiService = openAiService;
+            _blobStorageService = blobStorageService;
         }
 
         public async Task<List<CharacterViewModel>> GetCharactersForUser(string userId)
@@ -78,6 +81,11 @@ namespace FantasyChas_Backend.Services
         {
             try
             {
+                string? imageUrl = null;
+                if (!string.IsNullOrEmpty(charDto.ImageURL))
+                {
+                    imageUrl = await _blobStorageService.UploadImageFromUrlAsync(charDto.ImageURL);
+                }
                 Character newCharacter = new Character()
                 {
                     User = user,
@@ -94,7 +102,7 @@ namespace FantasyChas_Backend.Services
                     Charisma = charDto.Charisma,
                     Backstory = charDto.Backstory,
                     Favourite = charDto.Favourite,
-                    ImageURL = charDto.ImageURL,
+                    ImageURL = imageUrl,
                     Profession = charDto.Profession,
                     Species = charDto.Species
                 };
@@ -111,6 +119,7 @@ namespace FantasyChas_Backend.Services
         {
             try
             {
+                
                 Character updatedCharacter = new Character()
                 {
                     User = user,
@@ -131,7 +140,12 @@ namespace FantasyChas_Backend.Services
                     Profession = charDto.Profession,
                     Species = charDto.Species
                 };
-
+                
+                bool isImageTheSame = await _characterRepository.CheckCharacterImageUrl(charDto.Id, charDto.ImageURL);
+                if (!isImageTheSame && !string.IsNullOrEmpty(charDto.ImageURL))
+                {
+                    updatedCharacter.ImageURL = await _blobStorageService.UploadImageFromUrlAsync(updatedCharacter.ImageURL);
+                }
                 await _characterRepository.UpdateCharacterAsync(charDto.Id, updatedCharacter);
             }
             catch (Exception ex)
