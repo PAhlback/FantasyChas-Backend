@@ -187,3 +187,11 @@ resource "azurerm_mssql_database" "mssql-db" {
   sku_name       = "S0"
   zone_redundant = false
 }
+
+variable "connection_string" {
+  description = "Connection string for the database"
+}
+
+variable "openai_key" {
+  description = "API key for OpenAI"
+}
