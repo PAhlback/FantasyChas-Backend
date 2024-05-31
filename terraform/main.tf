@@ -184,15 +184,18 @@ write_files:
 runcmd:
   - systemctl start nginx
   - systemctl enable nginx
+  - ln -s /etc/nginx/sites-available/my-reverse-proxy /etc/nginx/sites-enabled/
+  - systemctl restart nginx
   - systemctl start docker
   - systemctl enable docker
-  - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
-  - docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
-  - docker run -d --name frontend-container -p 8080:80 ghcr.io/f-eighty7/chaschallenger/app:latest
-  - docker run -d --name backend-container -p 8081:8080 -e "CONNECTION_STRING=${var.connection_string}" -e "OPENAI_KEY=${var.openai_key}" ghcr.io/f-eighty7/fantasychas-backend/app:latest
+  - mkdir -p /var/docker/frontend/logs
+  - mkdir -p /var/docker/backend/logs
+  - mkdir -p /var/docker/backend/cache
+  - docker run -d --name frontend-container -p 8080:80 --restart always -v /var/docker/frontend/logs:/var/log/app -v /var/docker/frontend/cache:/var/cache/app ghcr.io/f-eighty7/chaschallenger/app:latest
+  - docker run -d --name backend-container -p 8081:8080 --restart always -v /var/docker/backend/logs:/var/log/app -v /var/docker/backend/cache:/var/cache/app -e "CONNECTION_STRING=${var.connection_string}" -e "OPENAI_KEY=${var.openai_key}" ghcr.io/f-eighty7/fantasychas-backend/app:latest
 EOF
-)
-
+  )
+}
 
 variable "connection_string" {
   description = "Connection string for the database"
