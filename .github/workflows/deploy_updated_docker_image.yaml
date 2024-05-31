@@ -25,4 +25,4 @@ jobs:
             sudo docker rm backend-container || true
             sudo docker rmi ghcr.io/pahlback/fantasychas-backend/app:latest || true
             sudo docker pull ghcr.io/pahlback/fantasychas-backend/app:latest
-            sudo docker run -d --name backend-container -p 8081:8080 --restart always -v /var/docker/backend/logs:/var/log/app -v /var/docker/backend/cache:/var/cache/app -e "CONNECTION_STRING=${{ SECRETS.CONNECTION_STRING }}" -e "OPENAI_KEY=${{ SECRETS.OPENAI_KEY }}" ghcr.io/pahlback/fantasychas-backend/app:latest
+            sudo docker run -d --name backend-container -p 8081:8080 --restart always -v /var/docker/backend/logs:/var/log/app -v /var/docker/backend/cache:/var/cache/app -e "CONNECTION_STRING=${{ secrets.CONNECTION_STRING }}" -e "OPENAI_KEY=${{ secrets.OPENAI_KEY }}" -e "BLOB_CONTAINER_NAME=${{ secrets.BLOB_CONTAINER_NAME }}" -e "BLOB_CONNECTION_STRING=${{ secrets.BLOB_CONNECTION_STRING }}" ghcr.io/pahlback/fantasychas-backend/app:latest
