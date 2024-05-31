@@ -223,6 +223,6 @@ variable "openai_key" {
   description = "API key for OpenAI"
 }
 
-variable "sql password" {
+variable "sql_password" {
   description = "password for database"
 }
