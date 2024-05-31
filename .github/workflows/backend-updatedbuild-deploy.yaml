@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            sudo docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
             sudo docker stop backend-container || true
             sudo docker rm backend-container || true
+            sudo docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
             sudo docker run -d --name backend-container -p 8081:8080 -e "CONNECTION_STRING=${{ SECRETS.CONNECTION_STRING }}" -e "OPENAI_KEY=${{ SECRETS.OPENAI_KEY }}" ghcr.io/f-eighty7/fantasychas-backend/app:latest
