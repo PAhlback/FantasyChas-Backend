@@ -1,0 +1,45 @@
+name: Destroy
+
+on:
+  workflow_dispatch:
+    inputs:
+      destroy:
+        description: 'Destroy infrastructure?'
+        required: true
+        default: 'false'
+
+jobs:
+  destroy:
+    if: github.event.inputs.destroy == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Azure Login
+        run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+      
+      - name: Create SSH directory if not exists
+        run: mkdir -p $HOME/.ssh
+        
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/fantasychas.pub
+        shell: bash
+
+      - name: Terraform Init
+        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
+        working-directory: terraform
+        
+      - name: Terraform Destroy VM
+        run: terraform destroy -target=azurerm_linux_virtual_machine.vm -auto-approve  -var="connection_string=${{ secrets.CONNECTION_STRING }}" -var="openai_key=${{ secrets.OPENAI_KEY }}"
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        working-directory: terraform
+
