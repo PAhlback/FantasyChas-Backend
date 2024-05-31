@@ -2,7 +2,12 @@
 using FantasyChas_Backend.Models.DTOs;
 using FantasyChas_Backend.Models.ViewModels;
 using FantasyChas_Backend.Repositories;
+using FantasyChas_Backend.Services;
+using FantasyChas_Backend.Utilities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using OpenAI_API.Chat;
 
 namespace FantasyChas_Backend.Services
 {
@@ -10,8 +15,9 @@ namespace FantasyChas_Backend.Services
     {
         Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
         Task CreateCharacterAsync(IdentityUser user, CharacterDto charDto);
+        Task<string> CreateCharacterWithAiAsync(NewCharacterViewModel newCharacter);
         Task UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto);
-        Task DeleteCharacterAsync(string userId, int CharacterId);
+        Task DeleteCharacterAsync(IdentityUser user, int charId);
         Task<bool> CharacterExistsAsync(int characterId, string userId);
         Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
         Task<CharacterViewModel> ConvertCharacterToViewModelAsync(Character character);
@@ -19,10 +25,14 @@ namespace FantasyChas_Backend.Services
     public class CharacterService : ICharacterService
     {
         private readonly ICharacterRepository _characterRepository;
+        private readonly IOpenAiService _openAiService;
+        private readonly IBlobStorageService _blobStorageService;
 
-        public CharacterService(ICharacterRepository characterRepository)
+        public CharacterService(ICharacterRepository characterRepository, IOpenAiService openAiService, IBlobStorageService blobStorageService)
         {
             _characterRepository = characterRepository;
+            _openAiService = openAiService;
+            _blobStorageService = blobStorageService;
         }
 
         public async Task<List<CharacterViewModel>> GetCharactersForUser(string userId)
@@ -53,7 +63,9 @@ namespace FantasyChas_Backend.Services
                         Charisma = c.Charisma,
                         Backstory = c.Backstory,
                         Profession = c.Profession,
-                        Species = c.Species
+                        Species = c.Species,
+                        Favourite = c.Favourite,
+                        ImageURL = c.ImageURL
                     })
                     .ToList();
 
@@ -69,6 +81,11 @@ namespace FantasyChas_Backend.Services
         {
             try
             {
+                string? imageUrl = null;
+                if (!string.IsNullOrEmpty(charDto.ImageURL))
+                {
+                    imageUrl = await _blobStorageService.UploadImageFromUrlAsync(charDto.ImageURL);
+                }
                 Character newCharacter = new Character()
                 {
                     User = user,
@@ -85,7 +102,7 @@ namespace FantasyChas_Backend.Services
                     Charisma = charDto.Charisma,
                     Backstory = charDto.Backstory,
                     Favourite = charDto.Favourite,
-                    ImageURL = charDto.ImageURL,
+                    ImageURL = imageUrl,
                     Profession = charDto.Profession,
                     Species = charDto.Species
                 };
@@ -102,6 +119,7 @@ namespace FantasyChas_Backend.Services
         {
             try
             {
+                
                 Character updatedCharacter = new Character()
                 {
                     User = user,
@@ -122,7 +140,12 @@ namespace FantasyChas_Backend.Services
                     Profession = charDto.Profession,
                     Species = charDto.Species
                 };
-
+                
+                bool isImageTheSame = await _characterRepository.CheckCharacterImageUrl(charDto.Id, charDto.ImageURL);
+                if (!isImageTheSame && !string.IsNullOrEmpty(charDto.ImageURL))
+                {
+                    updatedCharacter.ImageURL = await _blobStorageService.UploadImageFromUrlAsync(updatedCharacter.ImageURL);
+                }
                 await _characterRepository.UpdateCharacterAsync(charDto.Id, updatedCharacter);
             }
             catch (Exception ex)
@@ -131,11 +154,11 @@ namespace FantasyChas_Backend.Services
             }
         }
 
-        public async Task DeleteCharacterAsync(string userId, int characterId)
+        public async Task DeleteCharacterAsync(IdentityUser user, int charId)
         {
             try
             {
-                await _characterRepository.DeleteCharacterAsync(userId, characterId);
+                await _characterRepository.DeleteCharacterAsync(user, charId);
             }
             catch (Exception ex)
             {
@@ -189,6 +212,49 @@ namespace FantasyChas_Backend.Services
             catch
             {
                 throw new Exception();
+            }
+        }
+
+        public async Task<string> CreateCharacterWithAiAsync(NewCharacterViewModel character)
+        {
+            try
+            {
+                character.Gender = RandomValueGenerator.GetRandomGender();
+                character.Name = RandomValueGenerator.GetRandomLetter().ToString();
+                character.Profession = RandomValueGenerator.GetRandomLetter().ToString();
+                character.Age = RandomValueGenerator.GetRandomAge();
+
+                var characterJson = JsonConvert.SerializeObject(character);
+
+                var chatMessages = new List<ChatMessage>
+                {
+                    new ChatMessage(ChatMessageRole.System, "Du är en skapare av karaktärer för en berättelse. " +
+                    "Din uppgift är att skapa en karaktär baserat på inspiration från Dungeons and Dragons-reglerna. " +
+                    "Skapa ett förnamn som börjar med bokstaven som anges i character.Name och som passar karaktärens kön. " +
+                    "Sätt ålder mellan 16 - 100. " +
+                    "Sätt alltid art till Människa. " +
+                    "Sätt yrket till ett verkligt yrke som **måste** börjar med bokstaven som anges i character.Profession. " +
+                    "Fyll endast fält som har värde 'null' eller '0'. " +
+                    "Det ska inte förekomma någon magi eller övernaturliga element. " +
+                    "Använd standard array (15, 14, 13, 12, 10, 8) för att sätta karaktärens stats. " +
+                    "Hitta på en bakgrundshistoria som matchar statsen och yrket som du tilldelat karaktären. Bakgrundshistorien ska vara på svenska." +
+                    "Svara i JSON-format."),
+
+                    new ChatMessage(ChatMessageRole.User, $"Min karaktär: {characterJson}"),
+                };
+
+                var result = await _openAiService.GetChatGPTResultAsync(chatMessages);
+
+                if (result == null)
+                {
+                    throw new Exception("AI service returned null response.");
+                }
+
+                return result.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while creating the character.", ex);
             }
         }
     }

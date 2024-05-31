@@ -30,7 +30,13 @@ namespace FantasyChas_Backend
                 options.AddPolicy(name: AllowLocalhostOrigin,
                                   policy =>
                                   {
-                                      policy.WithOrigins("http://localhost:3000")
+                                      policy.WithOrigins("http://52.149.227.5",
+                                          "http://52.149.227.5:80",
+                                          "http://52.149.227.5:8080",
+                                          "http://52.149.227.5:8081",
+                                          "https://chasfantasy.netlify.app",
+                                          "https://chasfantasy.netlify.app/",
+                                          "http://localhost:3000")
                                                           .AllowAnyHeader()
                                                           .AllowAnyMethod()
                                                           .AllowCredentials();
@@ -61,6 +67,13 @@ namespace FantasyChas_Backend
                 options.SignIn.RequireConfirmedEmail = false;
             });
 
+            // Configure cookie settings
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -69,12 +82,15 @@ namespace FantasyChas_Backend
             builder.Services.AddScoped<IActiveStoryRepository, ActiveStoryRepository>();
             builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
             builder.Services.AddScoped<IChatRepository, ChatRepository>();
+            builder.Services.AddScoped<IImageRepository, ImageRepository>();
 
             // Services
             builder.Services.AddScoped<IActiveStoryService, ActiveStoryService>();
             builder.Services.AddScoped<ICharacterService, CharacterService>();
             builder.Services.AddScoped<IChatService, ChatService>();
+            builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped<IOpenAiService, OpenAiService>();
+            builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddSingleton(sp => new OpenAIAPI(Environment.GetEnvironmentVariable("OPENAI_KEY")));
 
@@ -104,7 +120,7 @@ namespace FantasyChas_Backend
             }
 
             // REMOVE this endpoint when ready
-            app.MapGet("/user/character", () =>
+            app.MapGet("/check-if-logged-in/expect-hello", () =>
             {
                 return Results.Ok("Hello!");
             }).RequireAuthorization();

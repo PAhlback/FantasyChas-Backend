@@ -10,28 +10,38 @@ namespace FantasyChas_Backend.Services
 {
     public interface IChatService
     {
+        Task AddChatHistoryAsync(string message, int chatId, int characterId);
+        Task AddChatObjectWithSummaryAsync(int activeStoryId, List<ChatMessage> previousChatHistory, string previousSummary);
+        Task AddFirstChatObjectToActiveStoryAsync(int activeStoryId);
+        Task<List<ChatHistoryViewModel>> GetChatHistoryPaginatedAsync(int activeStoryId, int amountPerPage, int pageNumber);
         Task<StoryChatResponseViewModel> SendToChatServiceAsync(StoryChatPromptDto chatPromptObject);
-        Task AddChatHistory(string message, int chatId, int characterId);
     }
 
     public class ChatService : IChatService
     {
+        private readonly IActiveStoryService _activeStoryService;
         private readonly IChatRepository _chatRepository;
+        private readonly ICharacterService _characterService;
         private readonly ICharacterRepository _characterRepository;
         private readonly IOpenAiService _openAiService;
-        private readonly ICharacterService _characterService;
-
+        
         private readonly int _maxTokensAllowed = 16000;
 
-        public ChatService(IChatRepository chatRepository, ICharacterRepository characterRepository, IOpenAiService openAiService, ICharacterService characterService)
+        public ChatService(IChatRepository chatRepository, 
+            ICharacterRepository characterRepository, 
+            IOpenAiService openAiService, 
+            ICharacterService characterService,
+            IActiveStoryService activeStoryService
+            )
         {
             _chatRepository = chatRepository;
             _characterRepository = characterRepository;
             _openAiService = openAiService;
             _characterService = characterService;
+            _activeStoryService = activeStoryService;
         }
 
-        public async Task AddChatHistory(string message, int chatId, int characterId)
+        public async Task AddChatHistoryAsync(string message, int chatId, int characterId)
         {
             try
             {
@@ -59,7 +69,7 @@ namespace FantasyChas_Backend.Services
                     historyLine.Character = character;
                 }
 
-                await _chatRepository.SaveChatHistoryMessageInDatabase(historyLine);
+                await _chatRepository.SaveChatHistoryMessageInDatabaseAsync(historyLine);
             }
             catch
             {
@@ -67,13 +77,97 @@ namespace FantasyChas_Backend.Services
             }
         }
 
+        public async Task AddChatObjectWithSummaryAsync(int activeStoryId, List<ChatMessage> previousChatHistory, string previousSummary)
+        {
+            try
+            {
+                // Här bygger vi ett nytt systemmeddelande, samt lägger in föregående summary. Dessa kommer direkt från metoden 
+                // som bygger anropet till ChatGPT. 
+                // Vi tar bort den första posten ur previousChatMessages i och med att det är systemprompten från föregående metod.
+                previousChatHistory.RemoveAt(0);
+                var messages = new List<ChatMessage>
+                {
+                    new ChatMessage(ChatMessageRole.System, "Skapa en sammanfattning av den här historien."),
+                    new ChatMessage(ChatMessageRole.User, previousSummary)
+                };
+
+                // AddRange lägger till alla(?) items från listan vi skickar in.
+                messages.AddRange(previousChatHistory);
+
+                var response = await _openAiService.GetChatGPTResultAsync(messages);
+
+                string? resultNewSummary = response.Choices[0].Message.TextContent;
+
+                if(resultNewSummary == null)
+                {
+                    throw new Exception("Failed to create new chat object. Result was null.");
+                }
+
+                await _chatRepository.AddChatAsync(new Chat()
+                {
+                    // Behöver hämta hela activeStory - räcker inte bara med id.
+                    ActiveStory = await _activeStoryService.GetActiveStoryByIdAsync(activeStoryId),
+                    ChatSummary = resultNewSummary
+                });
+
+                // return behövs egentligen inte
+                return;
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task AddFirstChatObjectToActiveStoryAsync(int activeStoryId)
+        {
+            try
+            {
+                ActiveStory story = await _activeStoryService.GetActiveStoryByIdAsync(activeStoryId);
+                Chat newChat = new Chat
+                {
+                    ChatSummary = story.BasePrompt,
+                    ActiveStory = story
+                };
+
+                await _chatRepository.AddChatAsync(newChat);
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        // return ViewModel
+        public async Task<List<ChatHistoryViewModel>> GetChatHistoryPaginatedAsync(int activeStoryId, int amountPerPage, int pageNumber)
+        {
+            var result = await _chatRepository.GetPaginatedChatHistoryAsync(activeStoryId, amountPerPage, pageNumber);
+
+            if(result is null)
+            {
+                throw new Exception("No more messages");
+            }
+
+            List<ChatHistoryViewModel> resultViewModelList = result
+                .Select(result => new ChatHistoryViewModel()
+                {
+                    Id = result.Id,
+                    Message = result.Message,
+                    CharacterName = result.Character == null ? null : result.Character.Name,
+                    Timestamp = result.Timestamp
+                })
+                .ToList();
+
+            return resultViewModelList;
+        }
+
         public async Task<StoryChatResponseViewModel> SendToChatServiceAsync(StoryChatPromptDto chatPromptObject)
         {
             try
             {
                 // Skicka in karaktärsid till repo för att hämta history och senaste ChatSummary
-                List<ChatHistory>? history = await _chatRepository.GetChatHistory(chatPromptObject.CharacterId);
-                Chat? chat = await _chatRepository.GetChat(chatPromptObject.CharacterId);
+                List<ChatHistory>? history = await _chatRepository.GetChatHistoryAsync(chatPromptObject.CharacterId);
+                Chat? chat = await _chatRepository.GetChatAsync(chatPromptObject.CharacterId);
 
                 // ToDo: Ta bort ID och ImageURL innan vi skickar vidare till ChatGPT
                 Character? character = await _characterRepository.GetCharacterByIdAsync(chatPromptObject.CharacterId);
@@ -112,16 +206,17 @@ namespace FantasyChas_Backend.Services
 
 
                 // spara i chathistory
-                await AddChatHistory(chatPromptObject.Message, chat.Id, chatPromptObject.CharacterId);
-                await AddChatHistory(result.Message, chat.Id, 0);
+                await AddChatHistoryAsync(chatPromptObject.Message, chat.Id, chatPromptObject.CharacterId);
+                await AddChatHistoryAsync(result.Message, chat.Id, 0);
 
 
                 if (response.Usage.TotalTokens > _maxTokensAllowed)
                 {
                     // Lägg till metod för att skapa ett nytt ChattObjekt och länka den med ActiveStory.
+                    // Kör man utan await borde den köras separat från resten (ingen väntetid för användaren).
+                    // Hittade en blogg som påstår att det är en dum idé att köra "fire and forget". Återkommer till detta.
+                    await AddChatObjectWithSummaryAsync(character.ActiveStory.Id, messages, chat.ChatSummary);
                 }
-
-
 
                 return result;
             }
