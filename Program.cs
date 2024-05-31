@@ -30,7 +30,8 @@ namespace FantasyChas_Backend
                 options.AddPolicy(name: AllowLocalhostOrigin,
                                   policy =>
                                   {
-                                      policy.WithOrigins("http://52.149.227.5")
+                                      policy.WithOrigins("http://52.149.227.5:80",
+                                                            "http://localhost:3000")
                                                           .AllowAnyHeader()
                                                           .AllowAnyMethod()
                                                           .AllowCredentials();
@@ -62,11 +63,11 @@ namespace FantasyChas_Backend
             });
 
             // Configure cookie settings
-            //builder.Services.ConfigureApplicationCookie(options =>
-            //{
-            //    options.Cookie.SameSite = SameSiteMode.None;
-            //    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            //});
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
