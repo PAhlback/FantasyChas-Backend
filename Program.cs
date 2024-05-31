@@ -27,11 +27,20 @@ namespace FantasyChas_Backend
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowLocalhostOrigin",
-                    builder => builder.WithOrigins("http://52.149.227.5")
-                                      .AllowAnyHeader()
-                                      .AllowAnyMethod()
-                                      .AllowCredentials());
+                options.AddPolicy(name: AllowLocalhostOrigin,
+                                  policy =>
+                                  {
+                                      policy.WithOrigins("http://52.149.227.5",
+                                          "http://52.149.227.5:80",
+                                          "http://52.149.227.5:8080",
+                                          "http://52.149.227.5:8081",
+                                          "https://chasfantasy.netlify.app",
+                                          "https://chasfantasy.netlify.app/",
+                                          "http://localhost:3000")
+                                                          .AllowAnyHeader()
+                                                          .AllowAnyMethod()
+                                                          .AllowCredentials();
+                                  });
             });
 
             builder.Services.AddAuthorization();
@@ -59,11 +68,11 @@ namespace FantasyChas_Backend
             });
 
             // Configure cookie settings
-            //builder.Services.ConfigureApplicationCookie(options =>
-            //{
-            //    options.Cookie.SameSite = SameSiteMode.None;
-            //    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            //});
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -131,7 +140,7 @@ namespace FantasyChas_Backend
 
             app.UseHttpsRedirection();
 
-            //app.UseCors(AllowLocalhostOrigin);
+            app.UseCors(AllowLocalhostOrigin);
 
             app.UseAuthentication();
             app.UseAuthorization();
