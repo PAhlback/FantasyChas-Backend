@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: .NET Publish
+        run: dotnet publish -c Release --self-contained --runtime linux-x64 -o ./publish
+
+      - name: Docker login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+          DOCKER_IMAGE=ghcr.io/$REPO_NAME/app:${{ github.sha }}
+          docker build -t $DOCKER_IMAGE .
+          docker tag $DOCKER_IMAGE ghcr.io/$REPO_NAME/app:latest
+          docker push $DOCKER_IMAGE
+          docker push ghcr.io/$REPO_NAME/app:latest
+
+      - name: Trigger Deploy Updated Docker Image (Backend)
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          event-type: workflow_dispatch
+          client-payload: '{"trigger_frontend_deploy":"true"}'
+  

@@ -1,0 +1,58 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Azure Login
+        run: |
+          export ARM_CLIENT_ID="${{ secrets.AZURE_CLIENT_ID }}"
+          export ARM_CLIENT_SECRET="${{ secrets.AZURE_CLIENT_SECRET }}"
+          export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          export ARM_TENANT_ID="${{ secrets.AZURE_TENANT_ID }}"
+          az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+      - name: Create SSH directory if not exists
+        run: mkdir -p $HOME/.ssh
+
+      - name: Set up SSH keys
+        run: |
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > $HOME/.ssh/fantasychas.pub
+          chmod 600 $HOME/.ssh/fantasychas.pub
+        shell: bash
+
+      - name: Terraform Init
+        run: terraform init -backend-config="token=${{ secrets.TF_API_TOKEN }}"
+        working-directory: terraform
+
+      - name: Terraform Plan
+        run: terraform plan -var="connection_string=${{ secrets.CONNECTION_STRING }}" -var="openai_key=${{ secrets.OPENAI_KEY }}" -var="sql_password=${{ secrets.SQL_PASSWORD}}"
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        working-directory: terraform
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -var="connection_string=${{ secrets.CONNECTION_STRING }}" -var="openai_key=${{ secrets.OPENAI_KEY }}" -var="sql_password=${{ secrets.SQL_PASSWORD}}"
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        working-directory: terraform
