@@ -1,0 +1,26 @@
+name: Deploy Updated Docker Image (Backend)
+
+on:
+  repository_dispatch:
+    types: [workflow_dispatch]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Update Docker Image on VM (Backend)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
+            docker stop backend-container || true
+            docker rm backend-container || true
+            docker run -d --name backend-container -p 8081:8080 -e "CONNECTION_STRING=${var.connection_string}" -e "OPENAI_KEY=${var.openai_key}" ghcr.io/f-eighty7/fantasychas-backend/app:latest

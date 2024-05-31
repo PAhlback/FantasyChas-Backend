@@ -162,8 +162,8 @@ runcmd:
   - systemctl enable docker
   - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker pull ghcr.io/f-eighty7/fantasychas-backend/app:latest
-  - docker run -d -p 8080:80 ghcr.io/f-eighty7/chaschallenger/app:latest
-  - docker run -d -p 8081:8080 -e "CONNECTION_STRING=${var.connection_string}" -e "OPENAI_KEY=${var.openai_key}" ghcr.io/f-eighty7/fantasychas-backend/app:latest
+  - docker run -d --name frontend-container -p 8080:80 ghcr.io/f-eighty7/chaschallenger/app:latest
+  - docker run -d --name backend-container -p 8081:8080 -e "CONNECTION_STRING=${var.connection_string}" -e "OPENAI_KEY=${var.openai_key}" ghcr.io/f-eighty7/fantasychas-backend/app:latest
 EOF
   )
 }

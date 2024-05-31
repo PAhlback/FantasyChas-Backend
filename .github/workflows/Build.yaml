@@ -2,6 +2,12 @@ name: Build
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -29,3 +35,12 @@ jobs:
           docker tag $DOCKER_IMAGE ghcr.io/$REPO_NAME/app:latest
           docker push $DOCKER_IMAGE
           docker push ghcr.io/$REPO_NAME/app:latest
+
+      - name: Trigger Deploy Updated Docker Image (Backend)
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          event-type: workflow_dispatch
+          client-payload: '{"trigger_frontend_deploy":"true"}'
+  
