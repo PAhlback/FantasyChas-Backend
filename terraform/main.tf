@@ -173,7 +173,7 @@ write_files:
               proxy_set_header X-Forwarded-Proto $scheme;
           }
 
-          location /api/ {
+          location /api {
               proxy_pass http://localhost:8081;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
