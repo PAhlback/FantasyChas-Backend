@@ -30,8 +30,11 @@ namespace FantasyChas_Backend
                 options.AddPolicy(name: AllowLocalhostOrigin,
                                   policy =>
                                   {
-                                      policy.WithOrigins("http://52.149.227.5:80",
-                                                            "http://localhost:3000")
+                                      policy.WithOrigins("http://52.149.227.5",
+                                          "http://52.149.227.5:80",
+                                          "http://52.149.227.5:8080",
+                                          "http://52.149.227.5:8081",
+                                          "http://localhost:3000")
                                                           .AllowAnyHeader()
                                                           .AllowAnyMethod()
                                                           .AllowCredentials();
