@@ -1,6 +1,7 @@
 name: Deploy Updated Docker Image (Backend)
 
 on:
+  workflow_dispatch:
   repository_dispatch:
     types: [workflow_dispatch]
 
