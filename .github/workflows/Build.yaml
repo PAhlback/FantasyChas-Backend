@@ -2,9 +2,6 @@ name: Build
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
@@ -42,7 +39,7 @@ jobs:
       - name: Trigger Deploy Updated Docker Image (Backend)
         uses: peter-evans/repository-dispatch@v3
         with:
-          token: ${{ secrets.PAHLBAck_TOKEN }}
+          token: ${{ secrets.PAHLBACK_TOKEN }}
           repository: ${{ github.repository }}
           event-type: workflow_dispatch
           client-payload: '{"trigger_backend_deploy":"true"}'
