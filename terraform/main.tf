@@ -157,7 +157,33 @@ resource "azurerm_linux_virtual_machine" "vm" {
 package_upgrade: true
 packages:
   - docker.io
+  - nginx
+write_files:
+  - path: /etc/nginx/sites-available/my-reverse-proxy
+    content: |
+      server {
+          listen 80;
+          server_name 52.149.227.5;
+
+          location / {
+              proxy_pass http://localhost:8080;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+          }
+
+          location /api/ {
+              proxy_pass http://localhost:8081;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+          }
+      }
 runcmd:
+  - systemctl start nginx
+  - systemctl enable nginx
   - systemctl start docker
   - systemctl enable docker
   - docker pull ghcr.io/f-eighty7/chaschallenger/app:latest
@@ -165,28 +191,8 @@ runcmd:
   - docker run -d --name frontend-container -p 8080:80 ghcr.io/f-eighty7/chaschallenger/app:latest
   - docker run -d --name backend-container -p 8081:8080 -e "CONNECTION_STRING=${var.connection_string}" -e "OPENAI_KEY=${var.openai_key}" ghcr.io/f-eighty7/fantasychas-backend/app:latest
 EOF
-  )
-}
+)
 
-resource "azurerm_mssql_server" "mssql-server" {
-  name                         = "fantasy-sqlserver"
-  resource_group_name          = azurerm_resource_group.rg.name
-  location                     = azurerm_resource_group.rg.location
-  version                      = "12.0"
-  administrator_login          = "sqladmin"
-  administrator_login_password = "YourStrong@Passw0rd"
-}
-
-
-resource "azurerm_mssql_database" "mssql-db" {
-  name           = "fantasychas-db"
-  server_id      = azurerm_mssql_server.mssql-server.id
-  collation      = "SQL_Latin1_General_CP1_CI_AS"
-  max_size_gb    = 1
-  read_scale     = false
-  sku_name       = "S0"
-  zone_redundant = false
-}
 
 variable "connection_string" {
   description = "Connection string for the database"
