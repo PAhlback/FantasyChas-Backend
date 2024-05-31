@@ -34,6 +34,8 @@ namespace FantasyChas_Backend
                                           "http://52.149.227.5:80",
                                           "http://52.149.227.5:8080",
                                           "http://52.149.227.5:8081",
+                                          "https://chasfantasy.netlify.app",
+                                          "https://chasfantasy.netlify.app/",
                                           "http://localhost:3000")
                                                           .AllowAnyHeader()
                                                           .AllowAnyMethod()
