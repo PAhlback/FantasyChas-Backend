@@ -14,6 +14,7 @@ namespace FantasyChas_Backend.Repositories
         Task<bool> CharacterExistsAsync(int characterId, string userId);
         public Task ConnectCharToStoryAsync(int characterId, int storyId, string userId);
         Task<Character> GetCharacterByIdAsync(int characterId);
+        Task<bool> CheckCharacterImageUrl(int id, string? imageURL);
     }
 
     public class CharacterRepository : ICharacterRepository
@@ -187,6 +188,22 @@ namespace FantasyChas_Backend.Repositories
         {
             return await _context.Characters
                 .AnyAsync(c => c.Id == characterId && c.User.Id == userId);
+        }
+
+        public async Task<bool> CheckCharacterImageUrl(int id, string? imageURL)
+        {
+            try
+            {
+                Character character = await _context.Characters
+                .SingleOrDefaultAsync(c => c.Id == id);
+
+                return character.ImageURL == imageURL;
+            }
+            catch
+            {
+                throw new Exception($"Could not find character with Id {id}");
+            }
+                
         }
     }
 }

@@ -90,6 +90,7 @@ namespace FantasyChas_Backend
             builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped<IOpenAiService, OpenAiService>();
+            builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddSingleton(sp => new OpenAIAPI(Environment.GetEnvironmentVariable("OPENAI_KEY")));
 
