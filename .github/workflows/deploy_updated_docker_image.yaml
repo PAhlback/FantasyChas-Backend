@@ -1,0 +1,28 @@
+name: Deploy Updated Docker Image (Backend)
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [workflow_dispatch]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Update Docker Image on VM (Backend)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            sudo docker stop backend-container || true
+            sudo docker rm backend-container || true
+            sudo docker rmi ghcr.io/pahlback/fantasychas-backend/app:latest || true
+            sudo docker pull ghcr.io/pahlback/fantasychas-backend/app:latest
+            sudo docker run -d --name backend-container -p 8081:8080 --restart always -v /var/docker/backend/logs:/var/log/app -v /var/docker/backend/cache:/var/cache/app -e "CONNECTION_STRING=${{ secrets.CONNECTION_STRING }}" -e "OPENAI_KEY=${{ secrets.OPENAI_KEY }}" -e "BLOB_CONTAINER_NAME=${{ secrets.BLOB_CONTAINER_NAME }}" -e "BLOB_CONNECTION_STRING=${{ secrets.BLOB_CONNECTION_STRING }}" ghcr.io/pahlback/fantasychas-backend/app:latest

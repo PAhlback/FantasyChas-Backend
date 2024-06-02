@@ -30,7 +30,17 @@ namespace FantasyChas_Backend
                 options.AddPolicy(name: AllowLocalhostOrigin,
                                   policy =>
                                   {
-                                      policy.WithOrigins("http://localhost:3000")
+                                      policy.WithOrigins("http://52.149.227.5",
+                                          "http://52.149.227.5:80",
+                                          "http://52.149.227.5:8080",
+                                          "http://52.149.227.5:8081",
+                                          "https://52.149.227.5",
+                                          "https://52.149.227.5:80",
+                                          "https://52.149.227.5:8080",
+                                          "https://52.149.227.5:8081",
+                                          "https://chasfantasy.netlify.app",
+                                          "https://chasfantasy.netlify.app/",
+                                          "http://localhost:3000")
                                                           .AllowAnyHeader()
                                                           .AllowAnyMethod()
                                                           .AllowCredentials();
@@ -84,6 +94,7 @@ namespace FantasyChas_Backend
             builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped<IOpenAiService, OpenAiService>();
+            builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddSingleton(sp => new OpenAIAPI(Environment.GetEnvironmentVariable("OPENAI_KEY")));
 
@@ -103,7 +114,7 @@ namespace FantasyChas_Backend
                 await next.Invoke(context);
             });
 
-            app.MapIdentityApi<IdentityUser>();
+            app.MapGroup("api/").MapIdentityApi<IdentityUser>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
