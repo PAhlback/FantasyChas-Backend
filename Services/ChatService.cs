@@ -181,6 +181,7 @@ namespace FantasyChas_Backend.Services
                                 "Berätta vidare på histora-prompten som du kommer få in, med dom satta parametrarna i detta system-meddelande för dig. " +
                                 "Spelaren har en karaktär som du kommer integrera med och du ska skapa och skräddarsy en upplevelse med för spelarens karaktär i helhet. " +
                                 "Skapa en beskrivande scen för spelaren baserad på tidigare information. " +
+                                "Meddelandet som du genererar ska ta 2 minut att läsa." +
                                 "Tärnkastning existerar inte. " +
                                 "Håll dig i ramarna för historien som kommer in. " +
                                 "Avsluta alltid dina svar med att fråga vad användaren vill göra härnäst. " +
@@ -189,7 +190,8 @@ namespace FantasyChas_Backend.Services
 
                                 //"Test: kanske bara en del av stayin alive? testa och diskutera vidare:" +
                                 "Presentera 3 verkliga valmöjligheter som ger en lärorik insikt för spelaren hur man ska ta sig i just den situationen om det skulle hända på riktigt. " +
-                                "Få med möjliga konsekvenser baserad på möjliga val och händelseförlopp och scenario som spelaren har framför sig. " +
+                                "Gör valmöjligheterna så kortskrivna som möjligt. " +
+                                "Uppmana att spelaren kan även få valmöjligheterna mer beskrivande om så önskas, Om det har önskats - ta ge även en förklaring på möjliga konsekvenser till just det valet." +
                                 "Uppmana till att skriva ett eget alternativ. " +
 
                                 //"Bas-story för historien Stayin' Alive:" +
