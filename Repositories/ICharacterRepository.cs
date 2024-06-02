@@ -32,6 +32,7 @@ namespace FantasyChas_Backend.Repositories
             {
                 var characters = await _context.Characters
                                                .Where(u => u.User.Id == userId)
+                                               .Include(c => c.ActiveStory)
                                                .ToListAsync();
 
                 return characters;

@@ -19,5 +19,6 @@
         public string Backstory { get; set; }
         public string Profession { get; set; }
         public string Species { get; set; }
+        public int? ActiveStoryId { get; set; }
     }
 }

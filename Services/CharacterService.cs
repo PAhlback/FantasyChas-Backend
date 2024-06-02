@@ -65,7 +65,8 @@ namespace FantasyChas_Backend.Services
                         Profession = c.Profession,
                         Species = c.Species,
                         Favourite = c.Favourite,
-                        ImageURL = c.ImageURL
+                        ImageURL = c.ImageURL,
+                        ActiveStoryId = c.ActiveStory != null ? c.ActiveStory.Id : null
                     })
                     .ToList();
 
