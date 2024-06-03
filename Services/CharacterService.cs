@@ -15,7 +15,7 @@ namespace FantasyChas_Backend.Services
     {
         Task<List<CharacterViewModel>> GetCharactersForUser(string userId);
         Task CreateCharacterAsync(IdentityUser user, CharacterDto charDto);
-        Task<string> CreateCharacterWithAiAsync(NewCharacterViewModel newCharacter);
+        Task<string> CreateCharacterWithAiAsync(PromptDto promptDto);
         Task UpdateCharacterAsync(IdentityUser user, CharacterWithIdDto charDto);
         Task DeleteCharacterAsync(IdentityUser user, int charId);
         Task<bool> CharacterExistsAsync(int characterId, string userId);
@@ -119,7 +119,7 @@ namespace FantasyChas_Backend.Services
         {
             try
             {
-                
+
                 Character updatedCharacter = new Character()
                 {
                     User = user,
@@ -140,7 +140,7 @@ namespace FantasyChas_Backend.Services
                     Profession = charDto.Profession,
                     Species = charDto.Species
                 };
-                
+
                 bool isImageTheSame = await _characterRepository.CheckCharacterImageUrl(charDto.Id, charDto.ImageURL);
                 if (!isImageTheSame && !string.IsNullOrEmpty(charDto.ImageURL))
                 {
@@ -215,29 +215,33 @@ namespace FantasyChas_Backend.Services
             }
         }
 
-        public async Task<string> CreateCharacterWithAiAsync(NewCharacterViewModel character)
+        public async Task<string> CreateCharacterWithAiAsync(PromptDto promptDto)
         {
             try
             {
+                NewCharacterViewModel character = new NewCharacterViewModel();
                 character.Gender = RandomValueGenerator.GetRandomGender();
-                character.Name = RandomValueGenerator.GetRandomLetter().ToString();
-                character.Profession = RandomValueGenerator.GetRandomLetter().ToString();
+                string randomName = RandomValueGenerator.GetRandomLetter().ToString();
+                string randomProfession = RandomValueGenerator.GetRandomLetter().ToString();
                 character.Age = RandomValueGenerator.GetRandomAge();
 
                 var characterJson = JsonConvert.SerializeObject(character);
+
+                string prompt = "";
+                prompt = string.IsNullOrEmpty(promptDto.Message) ? "" : $"Speciella önskemål om karaktären: {promptDto.Message}";
 
                 var chatMessages = new List<ChatMessage>
                 {
                     new ChatMessage(ChatMessageRole.System, "Du är en skapare av karaktärer för en berättelse. " +
                     "Din uppgift är att skapa en karaktär baserat på inspiration från Dungeons and Dragons-reglerna. " +
-                    "Skapa ett förnamn som börjar med bokstaven som anges i character.Name och som passar karaktärens kön. " +
-                    "Sätt ålder mellan 16 - 100. " +
+                    $"Skapa ett förnamn som börjar med bokstaven {randomName} och som passar karaktärens kön. " +
                     "Sätt alltid art till Människa. " +
-                    "Sätt yrket till ett verkligt yrke som **måste** börjar med bokstaven som anges i character.Profession. " +
+                    $"Sätt yrket till ett verkligt yrke som **måste** börja med bokstaven {randomProfession}. " +
                     "Fyll endast fält som har värde 'null' eller '0'. " +
                     "Det ska inte förekomma någon magi eller övernaturliga element. " +
                     "Använd standard array (15, 14, 13, 12, 10, 8) för att sätta karaktärens stats. " +
                     "Hitta på en bakgrundshistoria som matchar statsen och yrket som du tilldelat karaktären. Bakgrundshistorien ska vara på svenska." +
+                    $"{prompt}" +
                     "Svara i JSON-format."),
 
                     new ChatMessage(ChatMessageRole.User, $"Min karaktär: {characterJson}"),
