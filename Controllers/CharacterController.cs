@@ -36,7 +36,6 @@ namespace FantasyChas_Backend.Controllers
             _characterService = characterService;
         }
 
-        // magda undrar : varför "User" här nedan till höger?
         private async Task<IdentityUser> GetCurrentUserAsync() => await _userManager.GetUserAsync(User);
 
 
@@ -75,11 +74,11 @@ namespace FantasyChas_Backend.Controllers
         }
 
         [HttpPost("CreateCharacterWithAi")]
-        public async Task<IActionResult> CreateCharacterWithAiAsync(NewCharacterViewModel character)
+        public async Task<IActionResult> CreateCharacterWithAiAsync(PromptDto prompt)
         {
             try
             {
-                string newCharacter = await _characterService.CreateCharacterWithAiAsync(character);
+                string newCharacter = await _characterService.CreateCharacterWithAiAsync(prompt);
 
                 return Ok(newCharacter);
             }
