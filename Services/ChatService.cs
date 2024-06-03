@@ -184,7 +184,7 @@ namespace FantasyChas_Backend.Services
                                 "Tärnkastning existerar inte. " +
                                 "Håll dig i ramarna för historien som kommer in. " +
                                 "Tolka varje svar som en del av spelet. " +
-                                "Om användaren skriver 'Starta om' skapar du en ny start för karaktären. " + 
+                                "Om användaren skriver 'Starta om' skapar du en ny start för karaktären i annan miljö med annan problematik. " + 
                                 "Använd maximalt 100 ord när du skapar ny start av en historia. " +
                                 "Använd maximalt 50 ord när du driver historian vidare med karaktären. " +
                                 "Avsluta alltid dina svar med att fråga vad användaren vill göra härnäst. " +
