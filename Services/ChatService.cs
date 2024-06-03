@@ -139,9 +139,9 @@ namespace FantasyChas_Backend.Services
         }
 
         // return ViewModel
-        public async Task<List<ChatHistoryViewModel>> GetChatHistoryPaginatedAsync(int activeStoryId, int amountPerPage, int pageNumber)
+        public async Task<List<ChatHistoryViewModel>> GetChatHistoryPaginatedAsync(int characterId, int amountPerPage, int pageNumber)
         {
-            var result = await _chatRepository.GetPaginatedChatHistoryAsync(activeStoryId, amountPerPage, pageNumber);
+            var result = await _chatRepository.GetPaginatedChatHistoryAsync(characterId, amountPerPage, pageNumber);
 
             if(result is null)
             {
