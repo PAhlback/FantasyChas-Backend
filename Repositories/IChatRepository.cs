@@ -111,7 +111,7 @@ namespace FantasyChas_Backend.Repositories
             }
         }
 
-        public async Task<List<ChatHistory>> GetPaginatedChatHistoryAsync(int activeStoryId, int amountPerPage, int pageNumber)
+        public async Task<List<ChatHistory>> GetPaginatedChatHistoryAsync(int characterId, int amountPerPage, int pageNumber)
         {
             try
             {
@@ -124,7 +124,17 @@ namespace FantasyChas_Backend.Repositories
                     throw new Exception("Page number has to be set to 1 or higher");
                 }
 
-                // Get all history
+                int? activeStoryId = await _context.ActiveStories
+                    .Where(a => a.Characters.SingleOrDefault().Id == characterId)
+                    .Select(a => a.Id)
+                    .SingleOrDefaultAsync();
+
+                if(activeStoryId == 0)
+                {
+                    throw new Exception("No active story found on character");
+                }
+
+                // Get paginated history
                 var chatLines = await _context.Chats
                     .Where(c => c.ActiveStory.Id == activeStoryId)
                     .SelectMany(c => c.ChatHistory)

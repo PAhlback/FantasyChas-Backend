@@ -50,13 +50,13 @@ namespace FantasyChas_Backend.Controllers
 
         [HttpGet("Chathistory")]
         [Authorize]
-        public async Task<IActionResult> GetChatHistoryWithPagination(int activeStoryId, int amountPerPage = 20, int pageNumber = 1)
+        public async Task<IActionResult> GetChatHistoryWithPagination(int characterId, int amountPerPage = 20, int pageNumber = 1)
         {
             try
             {
                 // Ta emot id för senaste returnerade rad?
                 // return viewmodel!
-                List<ChatHistoryViewModel> paginatedHistoryList = await _chatService.GetChatHistoryPaginatedAsync(activeStoryId, amountPerPage, pageNumber);
+                List<ChatHistoryViewModel> paginatedHistoryList = await _chatService.GetChatHistoryPaginatedAsync(characterId, amountPerPage, pageNumber);
 
                 return Ok(paginatedHistoryList);
             }
