@@ -46,7 +46,8 @@ namespace FantasyChas_Backend.Services
                 {
                     Model = Model.ChatGPTTurbo,
                     Temperature = 0.1,
-                    Messages = messages.ToArray()
+                    Messages = messages.ToArray(),
+                    MaxTokens = 300
                 });
 
                 return result;
